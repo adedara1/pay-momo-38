@@ -30,6 +30,22 @@ const Login = () => {
             appearance={{ theme: ThemeSupa }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/dashboard`}
+            showLinks={false}
+            view="sign_in"
+            localization={{
+              variables: {
+                sign_in: {
+                  email_label: "Email",
+                  password_label: "Mot de passe",
+                  button_label: "Se connecter",
+                },
+                sign_up: {
+                  email_label: "Email",
+                  password_label: "Mot de passe",
+                  button_label: "S'inscrire",
+                },
+              },
+            }}
           />
         </div>
       </div>
