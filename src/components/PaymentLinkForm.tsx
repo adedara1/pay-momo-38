@@ -2,33 +2,57 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const PaymentLinkForm = () => {
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const createPaymentLink = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     try {
-      // Simulation de création de lien de paiement
-      const paymentLink = `https://pay.example.com/${Math.random().toString(36).substring(2, 15)}`;
+      console.log("Creating payment link...");
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("Not authenticated");
+      }
+
+      const { data, error } = await supabase.functions.invoke("create-payment-link", {
+        body: {
+          amount: parseInt(amount),
+          description
+        }
+      });
+
+      if (error) throw error;
+      
+      console.log("Payment link created:", data);
       
       toast({
         title: "Lien de paiement créé",
-        description: `Votre lien: ${paymentLink}`,
+        description: "Le lien a été copié dans votre presse-papiers",
       });
+      
+      // Copy payment URL to clipboard
+      await navigator.clipboard.writeText(data.payment_url);
       
       setAmount("");
       setDescription("");
     } catch (error) {
+      console.error("Error creating payment link:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la création du lien",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,8 +80,8 @@ const PaymentLinkForm = () => {
           />
         </div>
 
-        <Button type="submit" className="w-full">
-          Créer le lien
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Création..." : "Créer le lien"}
         </Button>
       </form>
     </Card>
