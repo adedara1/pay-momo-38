@@ -30,8 +30,8 @@ const Login = () => {
             appearance={{ theme: ThemeSupa }}
             providers={["google"]}
             redirectTo={`${window.location.origin}/dashboard`}
-            showLinks={false}
-            view="sign_in"
+            view="sign_up"
+            showLinks={true}
             localization={{
               variables: {
                 sign_in: {
@@ -43,6 +43,7 @@ const Login = () => {
                   email_label: "Email",
                   password_label: "Mot de passe",
                   button_label: "S'inscrire",
+                  link_text: "Vous n'avez pas de compte ? Inscrivez-vous",
                 },
               },
             }}
