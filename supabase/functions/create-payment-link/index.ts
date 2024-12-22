@@ -41,7 +41,7 @@ serve(async (req) => {
       )
     }
 
-    // Setup Paydunya request
+    // Setup Paydunya request for production
     const paydunyaSetup = {
       "invoice": {
         "total_amount": amount,
@@ -54,17 +54,20 @@ serve(async (req) => {
         "cancel_url": "https://app.adedara.pro/cancel",
         "return_url": "https://app.adedara.pro/success",
         "callback_url": "https://app.adedara.pro/webhook"
+      },
+      "custom_data": {
+        "user_id": user.id
       }
     }
 
-    // Call Paydunya API
+    // Call Paydunya API in production mode
     const response = await fetch('https://app.paydunya.com/api/v1/checkout-invoice/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'PAYDUNYA-MASTER-KEY': Deno.env.get('PAYDUNYA_MASTER_KEY') ?? '',
-        'PAYDUNYA-PRIVATE-KEY': Deno.env.get('PAYDUNYA_PRIVATE_KEY') ?? '',
-        'PAYDUNYA-TOKEN': Deno.env.get('PAYDUNYA_TOKEN') ?? ''
+        'PAYDUNYA-PRIVATE-KEY': Deno.env.get('Clé Privée') ?? '',
+        'PAYDUNYA-TOKEN': Deno.env.get('Token') ?? ''
       },
       body: JSON.stringify(paydunyaSetup)
     })
@@ -72,7 +75,7 @@ serve(async (req) => {
     const paydunyaResponse = await response.json()
     console.log('Paydunya response:', paydunyaResponse)
 
-    if (!paydunyaResponse.response_code === "00") {
+    if (paydunyaResponse.response_code !== "00") {
       throw new Error(paydunyaResponse.response_text)
     }
 
