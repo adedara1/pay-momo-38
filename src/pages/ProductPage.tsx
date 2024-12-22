@@ -95,12 +95,6 @@ const ProductPage = () => {
 
       console.log("Creating payment link for product:", product.id);
       
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error("No active session");
-      }
-
       const { data: paymentLinkData, error: createError } = await supabase.functions.invoke(
         "create-payment-link",
         {

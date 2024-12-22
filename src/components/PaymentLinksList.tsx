@@ -69,8 +69,12 @@ const PaymentLinksList = () => {
     if (paymentLink.products && paymentLink.products.id) {
       return `/products/${paymentLink.products.id}`;
     }
-    // Fallback to PayDunya URL if no product is associated
-    return `https://paydunya.com/checkout/invoice/${paymentLink.paydunya_token}`;
+    // Use PayDunya URL if token is available
+    if (paymentLink.paydunya_token) {
+      return `https://paydunya.com/checkout/invoice/${paymentLink.paydunya_token}`;
+    }
+    // Fallback to product page if no PayDunya token
+    return `/products/${paymentLink.products?.id}`;
   };
 
   return (
@@ -117,8 +121,13 @@ const PaymentLinksList = () => {
                     <a
                       href={getPaymentUrl(link)}
                       className="text-blue-600 hover:text-blue-800"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      {window.location.origin + getPaymentUrl(link)}
+                      {link.paydunya_token 
+                        ? `https://paydunya.com/checkout/invoice/${link.paydunya_token}`
+                        : window.location.origin + getPaymentUrl(link)
+                      }
                     </a>
                   </TableCell>
                   <TableCell>
@@ -127,7 +136,10 @@ const PaymentLinksList = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          navigator.clipboard.writeText(window.location.origin + getPaymentUrl(link));
+                          const url = link.paydunya_token 
+                            ? `https://paydunya.com/checkout/invoice/${link.paydunya_token}`
+                            : window.location.origin + getPaymentUrl(link);
+                          navigator.clipboard.writeText(url);
                           toast({
                             title: "URL copiée",
                             description: "L'URL a été copiée dans le presse-papiers",

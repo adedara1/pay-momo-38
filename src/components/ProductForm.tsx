@@ -51,17 +51,17 @@ const ProductForm = () => {
         imageUrl = publicUrl;
       }
 
-      // Create payment link first
-      const { data: paymentLinkData, error: paymentLinkError } = await supabase
-        .from('payment_links')
-        .insert({
-          amount: parseInt(amount),
-          description: description,
-          payment_type: "product",
-          user_id: session.user.id,
-        })
-        .select()
-        .single();
+      // Create payment link with PayDunya integration
+      const { data: paymentLinkData, error: paymentLinkError } = await supabase.functions.invoke(
+        "create-payment-link",
+        {
+          body: {
+            amount: parseInt(amount),
+            description: description || name,
+            payment_type: "product"
+          }
+        }
+      );
 
       if (paymentLinkError) throw paymentLinkError;
 
@@ -74,7 +74,7 @@ const ProductForm = () => {
           amount: parseInt(amount),
           image_url: imageUrl,
           user_id: session.user.id,
-          payment_link_id: paymentLinkData.id,
+          payment_link_id: paymentLinkData.payment_link_id
         })
         .select()
         .single();
