@@ -42,6 +42,50 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          payment_link_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          payment_link_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          payment_link_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_payment_link_id_fkey"
+            columns: ["payment_link_id"]
+            isOneToOne: false
+            referencedRelation: "payment_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
