@@ -61,26 +61,40 @@ serve(async (req) => {
     }
 
     console.log('PayDunya setup:', paydunyaSetup)
-    console.log('Using PayDunya keys:', {
-      masterKey: Deno.env.get('PAYDUNYA_MASTER_KEY')?.substring(0, 5) + '...',
-      privateKey: Deno.env.get('Clé Privée')?.substring(0, 5) + '...',
-      token: Deno.env.get('Token')?.substring(0, 5) + '...'
+    
+    // Log PayDunya configuration
+    const masterKey = Deno.env.get('PAYDUNYA_MASTER_KEY')
+    const privateKey = Deno.env.get('Clé Privée')
+    const token = Deno.env.get('Token')
+
+    console.log('PayDunya configuration:', {
+      masterKey: masterKey ? `${masterKey.substring(0, 5)}...` : 'missing',
+      privateKey: privateKey ? `${privateKey.substring(0, 5)}...` : 'missing',
+      token: token ? `${token.substring(0, 5)}...` : 'missing'
     })
+
+    if (!masterKey || !privateKey || !token) {
+      throw new Error('Missing PayDunya configuration')
+    }
 
     // Call Paydunya API in production mode
     const response = await fetch('https://app.paydunya.com/api/v1/checkout-invoice/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'PAYDUNYA-MASTER-KEY': Deno.env.get('PAYDUNYA_MASTER_KEY') ?? '',
-        'PAYDUNYA-PRIVATE-KEY': Deno.env.get('Clé Privée') ?? '',
-        'PAYDUNYA-TOKEN': Deno.env.get('Token') ?? ''
+        'PAYDUNYA-MASTER-KEY': masterKey,
+        'PAYDUNYA-PRIVATE-KEY': privateKey,
+        'PAYDUNYA-TOKEN': token
       },
       body: JSON.stringify(paydunyaSetup)
     })
 
     const paydunyaResponse = await response.json()
-    console.log('Paydunya response:', paydunyaResponse)
+    console.log('PayDunya response:', paydunyaResponse)
+
+    if (!response.ok) {
+      throw new Error(paydunyaResponse.error || paydunyaResponse.response_text || 'PayDunya error')
+    }
 
     if (paydunyaResponse.response_code !== "00") {
       throw new Error(paydunyaResponse.response_text || 'PayDunya error')
