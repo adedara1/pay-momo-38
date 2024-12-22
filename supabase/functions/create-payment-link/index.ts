@@ -84,7 +84,7 @@ serve(async (req) => {
     console.log('PayDunya setup:', paydunyaSetup)
     console.log('Using PayDunya configuration with master key:', masterKey.substring(0, 5) + '...')
 
-    // Call Paydunya API
+    // Call Paydunya API - Using production URL instead of sandbox
     const response = await fetch('https://app.paydunya.com/api/v1/checkout-invoice/create', {
       method: 'POST',
       headers: {
