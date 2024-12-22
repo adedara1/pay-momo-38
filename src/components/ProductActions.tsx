@@ -54,6 +54,7 @@ const ProductActions = ({ productId, hasPaymentLink, onActivate }: ProductAction
           onClick={onActivate}
         >
           <Power className="h-4 w-4" />
+          Activer
         </Button>
       )}
       <Button
