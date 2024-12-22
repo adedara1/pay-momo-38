@@ -9,7 +9,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import PaymentLinkButton from "./PaymentLinkButton";
 import ProductActions from "./ProductActions";
 
 const ProductsList = () => {
@@ -55,7 +54,6 @@ const ProductsList = () => {
                 <TableHead>Nom</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Montant</TableHead>
-                <TableHead>Lien de paiement</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -68,9 +66,6 @@ const ProductsList = () => {
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.description}</TableCell>
                   <TableCell>{product.amount} FCFA</TableCell>
-                  <TableCell className="max-w-xs">
-                    <PaymentLinkButton product={product} />
-                  </TableCell>
                   <TableCell>
                     <ProductActions productId={product.id} />
                   </TableCell>
