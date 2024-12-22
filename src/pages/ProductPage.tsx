@@ -14,6 +14,10 @@ interface Product {
   image_url: string;
   payment_link_id: string;
   user_id: string;
+  payment_links?: {
+    id: string;
+    paydunya_token: string | null;
+  };
 }
 
 const ProductPage = () => {
@@ -42,7 +46,13 @@ const ProductPage = () => {
         
         const { data, error } = await supabase
           .from("products")
-          .select("*")
+          .select(`
+            *,
+            payment_links (
+              id,
+              paydunya_token
+            )
+          `)
           .eq("id", id)
           .maybeSingle();
 
@@ -76,6 +86,13 @@ const ProductPage = () => {
     
     setIsProcessing(true);
     try {
+      // Si un lien de paiement existe déjà et a un token Paydunya
+      if (product.payment_links?.paydunya_token) {
+        const paymentUrl = `https://paydunya.com/checkout/invoice/${product.payment_links.paydunya_token}`;
+        window.location.href = paymentUrl;
+        return;
+      }
+
       console.log("Creating payment link for product:", product.id);
       
       const { data: { session } } = await supabase.auth.getSession();
