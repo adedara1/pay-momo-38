@@ -29,7 +29,6 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
     try {
       setIsCreating(true);
       
-      // Get the current user's session
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -38,7 +37,6 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
 
       console.log("Creating payment link for product:", product);
 
-      // Create a payment link with user_id
       const { data: paymentLink, error: createError } = await supabase
         .from('payment_links')
         .insert({
@@ -57,7 +55,6 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
 
       console.log("Payment link created:", paymentLink);
 
-      // Update the product with the payment link id
       const { error: updateError } = await supabase
         .from('products')
         .update({ payment_link_id: paymentLink.id })
@@ -75,7 +72,6 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
 
       queryClient.invalidateQueries({ queryKey: ["products"] });
 
-      // Redirect to PayDunya payment page if token is available
       if (paymentLink.paydunya_token) {
         window.location.href = getPaymentUrl(paymentLink.paydunya_token);
       }
@@ -117,7 +113,7 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
           disabled={isCreating}
         >
           <LinkIcon className="h-4 w-4" />
-          {isCreating ? "Création..." : "Créer un lien"}
+          {isCreating ? "Création..." : "Payer maintenant"}
         </Button>
       )}
     </div>

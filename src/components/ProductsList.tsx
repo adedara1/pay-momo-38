@@ -10,8 +10,11 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import ProductActions from "./ProductActions";
+import { useToast } from "@/hooks/use-toast";
 
 const ProductsList = () => {
+  const { toast } = useToast();
+  
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
@@ -36,6 +39,50 @@ const ProductsList = () => {
       return data;
     },
   });
+
+  const handleActivate = async (productId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("User not authenticated");
+      }
+
+      const { data: paymentLink, error: createError } = await supabase
+        .from('payment_links')
+        .insert({
+          amount: products?.find(p => p.id === productId)?.amount || 0,
+          description: products?.find(p => p.id === productId)?.description || '',
+          payment_type: 'product',
+          user_id: session.user.id
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ payment_link_id: paymentLink.id })
+        .eq('id', productId);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Produit activé",
+        description: "Le lien de paiement a été créé avec succès",
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error activating product:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'activation",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Card className="p-6">
@@ -67,7 +114,11 @@ const ProductsList = () => {
                   <TableCell>{product.description}</TableCell>
                   <TableCell>{product.amount} FCFA</TableCell>
                   <TableCell>
-                    <ProductActions productId={product.id} />
+                    <ProductActions 
+                      productId={product.id} 
+                      hasPaymentLink={!!product.payment_links?.paydunya_token}
+                      onActivate={() => handleActivate(product.id)}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
