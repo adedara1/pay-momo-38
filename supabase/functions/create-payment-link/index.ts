@@ -32,28 +32,32 @@ serve(async (req) => {
     )
 
     // Get user ID from the request
-    const authHeader = req.headers.get('Authorization')?.split(' ')[1]
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(authHeader ?? '')
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      console.error('No authorization header')
+      throw new Error('Not authenticated')
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    console.log('Got auth token:', token.substring(0, 10) + '...')
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
     
     if (userError || !user) {
       console.error('Error getting user:', userError)
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      throw new Error('Not authenticated')
     }
+
+    console.log('Authenticated as user:', user.id)
 
     // Vérifier que toutes les clés PayDunya sont présentes
     const masterKey = Deno.env.get('PAYDUNYA_MASTER_KEY')
     const privateKey = Deno.env.get('PAYDUNYA_PRIVATE_KEY')
-    const token = Deno.env.get('PAYDUNYA_TOKEN')
+    const token_paydunya = Deno.env.get('PAYDUNYA_TOKEN')
 
-    if (!masterKey || !privateKey || !token) {
+    if (!masterKey || !privateKey || !token_paydunya) {
       console.error('Missing PayDunya configuration')
-      return new Response(
-        JSON.stringify({ error: 'Configuration PayDunya manquante' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      throw new Error('Configuration PayDunya manquante')
     }
 
     // Setup Paydunya request
@@ -87,7 +91,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'PAYDUNYA-MASTER-KEY': masterKey,
         'PAYDUNYA-PRIVATE-KEY': privateKey,
-        'PAYDUNYA-TOKEN': token
+        'PAYDUNYA-TOKEN': token_paydunya
       },
       body: JSON.stringify(paydunyaSetup)
     })
@@ -97,16 +101,7 @@ serve(async (req) => {
 
     if (!response.ok || !paydunyaResponse.token) {
       console.error('PayDunya error:', paydunyaResponse)
-      return new Response(
-        JSON.stringify({ 
-          error: paydunyaResponse.response_text || 'Erreur PayDunya',
-          details: paydunyaResponse 
-        }),
-        { 
-          status: response.status || 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      throw new Error(paydunyaResponse.response_text || 'Erreur PayDunya')
     }
 
     // Create payment link in database
@@ -124,10 +119,7 @@ serve(async (req) => {
 
     if (dbError) {
       console.error('Database error:', dbError)
-      return new Response(
-        JSON.stringify({ error: 'Erreur lors de la sauvegarde du lien' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      throw new Error('Erreur lors de la sauvegarde du lien')
     }
 
     // If this is a product payment, update the product with the payment link ID
@@ -155,8 +147,14 @@ serve(async (req) => {
   } catch (error) {
     console.error('Unexpected error:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        error: error.message || 'Une erreur est survenue',
+        details: error
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     )
   }
 })

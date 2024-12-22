@@ -65,14 +65,24 @@ const ProductPage = () => {
     try {
       console.log("Creating payment link for product:", product.id);
       
-      const { data: paymentLinkData, error: createError } = await supabase.functions.invoke("create-payment-link", {
-        body: {
-          amount: product.amount,
-          description: product.description || product.name,
-          payment_type: "product",
-          product_id: product.id
+      // Get the session first
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("No active session");
+      }
+
+      const { data: paymentLinkData, error: createError } = await supabase.functions.invoke(
+        "create-payment-link",
+        {
+          body: {
+            amount: product.amount,
+            description: product.description || product.name,
+            payment_type: "product",
+            product_id: product.id
+          }
         }
-      });
+      );
 
       if (createError) {
         console.error("Error creating payment link:", createError);
