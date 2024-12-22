@@ -60,6 +60,13 @@ serve(async (req) => {
       }
     }
 
+    console.log('PayDunya setup:', paydunyaSetup)
+    console.log('Using PayDunya keys:', {
+      masterKey: Deno.env.get('PAYDUNYA_MASTER_KEY')?.substring(0, 5) + '...',
+      privateKey: Deno.env.get('Clé Privée')?.substring(0, 5) + '...',
+      token: Deno.env.get('Token')?.substring(0, 5) + '...'
+    })
+
     // Call Paydunya API in production mode
     const response = await fetch('https://app.paydunya.com/api/v1/checkout-invoice/create', {
       method: 'POST',
@@ -76,7 +83,7 @@ serve(async (req) => {
     console.log('Paydunya response:', paydunyaResponse)
 
     if (paydunyaResponse.response_code !== "00") {
-      throw new Error(paydunyaResponse.response_text)
+      throw new Error(paydunyaResponse.response_text || 'PayDunya error')
     }
 
     // Create payment link in database
