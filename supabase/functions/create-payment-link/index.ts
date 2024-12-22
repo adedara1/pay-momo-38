@@ -41,7 +41,20 @@ serve(async (req) => {
       )
     }
 
-    // Setup Paydunya request for production
+    // Vérifier que toutes les clés PayDunya sont présentes
+    const masterKey = Deno.env.get('PAYDUNYA_MASTER_KEY')
+    const privateKey = Deno.env.get('PAYDUNYA_PRIVATE_KEY')
+    const token = Deno.env.get('PAYDUNYA_TOKEN')
+
+    if (!masterKey || !privateKey || !token) {
+      console.error('Missing PayDunya configuration')
+      return new Response(
+        JSON.stringify({ error: 'Configuration PayDunya manquante' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Setup Paydunya request
     const paydunyaSetup = {
       "invoice": {
         "total_amount": amount,
@@ -61,23 +74,9 @@ serve(async (req) => {
     }
 
     console.log('PayDunya setup:', paydunyaSetup)
-    
-    // Log PayDunya configuration
-    const masterKey = Deno.env.get('PAYDUNYA_MASTER_KEY')
-    const privateKey = Deno.env.get('Clé Privée')
-    const token = Deno.env.get('Token')
+    console.log('Using PayDunya configuration with master key:', masterKey.substring(0, 5) + '...')
 
-    console.log('PayDunya configuration:', {
-      masterKey: masterKey ? `${masterKey.substring(0, 5)}...` : 'missing',
-      privateKey: privateKey ? `${privateKey.substring(0, 5)}...` : 'missing',
-      token: token ? `${token.substring(0, 5)}...` : 'missing'
-    })
-
-    if (!masterKey || !privateKey || !token) {
-      throw new Error('Missing PayDunya configuration')
-    }
-
-    // Call Paydunya API in production mode
+    // Call Paydunya API
     const response = await fetch('https://app.paydunya.com/api/v1/checkout-invoice/create', {
       method: 'POST',
       headers: {
@@ -90,28 +89,20 @@ serve(async (req) => {
     })
 
     const paydunyaResponse = await response.json()
-    console.log('PayDunya response:', paydunyaResponse)
+    console.log('PayDunya API response:', paydunyaResponse)
 
-    // Check if the response indicates that live mode is not enabled
-    if (paydunyaResponse.error?.includes('set your application mode to live')) {
+    if (!response.ok) {
+      console.error('PayDunya error:', paydunyaResponse)
       return new Response(
         JSON.stringify({ 
-          error: 'PayDunya account is not in live mode. Please log in to your PayDunya account and enable live mode.',
-          details: paydunyaResponse
+          error: paydunyaResponse.response_text || 'Erreur PayDunya',
+          details: paydunyaResponse 
         }),
         { 
-          status: 400, 
+          status: response.status, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
-    }
-
-    if (!response.ok) {
-      throw new Error(paydunyaResponse.error || paydunyaResponse.response_text || 'PayDunya error')
-    }
-
-    if (paydunyaResponse.response_code !== "00") {
-      throw new Error(paydunyaResponse.response_text || 'PayDunya error')
     }
 
     // Create payment link in database
@@ -127,8 +118,11 @@ serve(async (req) => {
       .single()
 
     if (dbError) {
-      console.error('Error creating payment link:', dbError)
-      throw dbError
+      console.error('Database error:', dbError)
+      return new Response(
+        JSON.stringify({ error: 'Erreur lors de la sauvegarde du lien' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     return new Response(
@@ -141,10 +135,10 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Unexpected error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })
