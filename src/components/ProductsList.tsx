@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Trash2, ExternalLink } from "lucide-react";
+import { Trash2, ExternalLink, Link as LinkIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -27,6 +27,7 @@ const ProductsList = () => {
         .select(`
           *,
           payment_links (
+            id,
             paydunya_token
           )
         `)
@@ -56,7 +57,6 @@ const ProductsList = () => {
         description: "Le produit a été supprimé avec succès",
       });
 
-      // Refresh the products list
       queryClient.invalidateQueries({ queryKey: ["products"] });
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -102,16 +102,19 @@ const ProductsList = () => {
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.description}</TableCell>
                   <TableCell>{product.amount} FCFA</TableCell>
-                  <TableCell className="max-w-xs truncate">
-                    {product.payment_links?.paydunya_token && (
+                  <TableCell className="max-w-xs">
+                    {product.payment_links?.paydunya_token ? (
                       <a
                         href={getPaymentUrl(product.payment_links.paydunya_token)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
                       >
-                        {getPaymentUrl(product.payment_links.paydunya_token)}
+                        <LinkIcon className="h-4 w-4" />
+                        Lien de paiement
                       </a>
+                    ) : (
+                      <span className="text-gray-500">Aucun lien</span>
                     )}
                   </TableCell>
                   <TableCell>
