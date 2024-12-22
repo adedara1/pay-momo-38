@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProductForm = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -55,6 +57,7 @@ const ProductForm = () => {
         .insert({
           amount: parseInt(amount),
           description: description,
+          payment_type: "product",
           user_id: session.user.id,
         })
         .select()
@@ -88,6 +91,10 @@ const ProductForm = () => {
       
       // Copy product URL to clipboard
       await navigator.clipboard.writeText(productPageUrl);
+      
+      // Refresh both products and payment links lists
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-links"] });
       
       setName("");
       setDescription("");

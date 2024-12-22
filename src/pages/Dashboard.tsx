@@ -7,6 +7,7 @@ import ApiKeys from "@/components/ApiKeys";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import ProductsList from "@/components/ProductsList";
+import PaymentLinksList from "@/components/PaymentLinksList";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -35,11 +36,6 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
-  };
-
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
   }
@@ -52,7 +48,7 @@ const Dashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Tableau de bord</h1>
-        <Button variant="outline" onClick={handleSignOut}>
+        <Button variant="outline" onClick={() => supabase.auth.signOut()}>
           Déconnexion
         </Button>
       </div>
@@ -74,6 +70,7 @@ const Dashboard = () => {
 
       <div className="space-y-8">
         <ProductsList />
+        <PaymentLinksList />
         <TransactionHistory />
       </div>
     </div>

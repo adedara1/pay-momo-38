@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -15,7 +15,6 @@ import { useToast } from "@/hooks/use-toast";
 
 const PaymentLinksList = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   
   const { data: paymentLinks, isLoading } = useQuery({
     queryKey: ["payment-links"],
@@ -24,7 +23,7 @@ const PaymentLinksList = () => {
       const { data, error } = await supabase
         .from("payment_links")
         .select("*")
-        .eq("payment_type", "simple")
+        .eq("payment_type", "product")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -50,9 +49,6 @@ const PaymentLinksList = () => {
         title: "Lien supprimé",
         description: "Le lien de paiement a été supprimé avec succès",
       });
-
-      // Refresh the payment links list
-      queryClient.invalidateQueries({ queryKey: ["payment-links"] });
     } catch (error) {
       console.error("Error deleting payment link:", error);
       toast({
@@ -69,7 +65,7 @@ const PaymentLinksList = () => {
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Liens de paiement simples</h2>
+      <h2 className="text-xl font-semibold mb-4">Mes liens de paiement</h2>
       
       {isLoading ? (
         <p className="text-center text-gray-500">Chargement...</p>
