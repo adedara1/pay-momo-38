@@ -46,10 +46,10 @@ const ProductsList = () => {
       const product = products?.find(p => p.id === productId);
       if (!product) return;
 
-      // Find the PaymentLinkButton component for this product and trigger its activation
+      // Find the PaymentLinkButton component for this product
       const paymentLinkButton = document.querySelector(`[data-product-id="${productId}"]`);
       if (paymentLinkButton) {
-        const activateButton = paymentLinkButton.querySelector('button[data-activate]');
+        const activateButton = paymentLinkButton.querySelector('button[data-activate]') as HTMLButtonElement | null;
         if (activateButton) {
           activateButton.click();
         }
