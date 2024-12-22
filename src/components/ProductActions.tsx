@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Trash2, ExternalLink, Power } from "lucide-react";
+import { Trash2, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -8,10 +8,9 @@ import { useQueryClient } from "@tanstack/react-query";
 interface ProductActionsProps {
   productId: string;
   hasPaymentLink: boolean;
-  onActivate: () => Promise<void>;
 }
 
-const ProductActions = ({ productId, hasPaymentLink, onActivate }: ProductActionsProps) => {
+const ProductActions = ({ productId, hasPaymentLink }: ProductActionsProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -47,16 +46,6 @@ const ProductActions = ({ productId, hasPaymentLink, onActivate }: ProductAction
           <ExternalLink className="h-4 w-4" />
         </Button>
       </Link>
-      {hasPaymentLink && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onActivate}
-        >
-          <Power className="h-4 w-4" />
-          Activer
-        </Button>
-      )}
       <Button
         variant="destructive"
         size="sm"

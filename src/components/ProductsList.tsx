@@ -41,34 +41,6 @@ const ProductsList = () => {
     },
   });
 
-  const handleActivate = async (productId: string) => {
-    try {
-      const product = products?.find(p => p.id === productId);
-      if (!product) return;
-
-      // Find the PaymentLinkButton component for this product
-      const paymentLinkButton = document.querySelector(`[data-product-id="${productId}"]`);
-      if (paymentLinkButton) {
-        const activateButton = paymentLinkButton.querySelector('button[data-activate]') as HTMLButtonElement | null;
-        if (activateButton) {
-          activateButton.click();
-        }
-      }
-
-      toast({
-        title: "URL de paiement activée",
-        description: "L'URL de paiement est maintenant visible",
-      });
-    } catch (error) {
-      console.error("Error activating product:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'activation",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Mes produits</h2>
@@ -106,7 +78,6 @@ const ProductsList = () => {
                       <ProductActions 
                         productId={product.id} 
                         hasPaymentLink={!!product.payment_links?.paydunya_token}
-                        onActivate={() => handleActivate(product.id)}
                       />
                     </div>
                   </TableCell>

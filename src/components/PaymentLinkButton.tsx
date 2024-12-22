@@ -18,7 +18,6 @@ interface PaymentLinkButtonProps {
 
 const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [showUrl, setShowUrl] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -88,29 +87,18 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
     }
   };
 
-  const handleActivate = () => {
-    setShowUrl(!showUrl);
-  };
-
   return (
     <div className="space-y-2">
       {product.payment_links?.paydunya_token ? (
-        <>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => window.location.href = getPaymentUrl(product.payment_links.paydunya_token!)}
-            className="flex items-center gap-2"
-          >
-            <LinkIcon className="h-4 w-4" />
-            Payer maintenant
-          </Button>
-          {showUrl && (
-            <div className="text-sm text-gray-500 break-all">
-              {getPaymentUrl(product.payment_links.paydunya_token)}
-            </div>
-          )}
-        </>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => window.location.href = getPaymentUrl(product.payment_links.paydunya_token!)}
+          className="flex items-center gap-2"
+        >
+          <LinkIcon className="h-4 w-4" />
+          Payer maintenant
+        </Button>
       ) : (
         <Button 
           variant="outline" 
