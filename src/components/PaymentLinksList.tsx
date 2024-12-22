@@ -63,7 +63,8 @@ const PaymentLinksList = () => {
   };
 
   const getPaymentUrl = (token: string) => {
-    return `https://app.paydunya.com/checkout/invoice/${token}`;
+    // Correction de l'URL PayDunya
+    return `https://paydunya.com/checkout/invoice/${token}`;
   };
 
   return (
