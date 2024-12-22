@@ -45,18 +45,33 @@ const ProductsList = () => {
 
   const handleCreatePaymentLink = async (product) => {
     try {
-      // Create a payment link
+      // Get the current user's session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("User not authenticated");
+      }
+
+      console.log("Creating payment link for product:", product);
+
+      // Create a payment link with user_id
       const { data: paymentLink, error: createError } = await supabase
         .from('payment_links')
         .insert({
           amount: product.amount,
           description: product.description,
-          payment_type: 'product'
+          payment_type: 'product',
+          user_id: session.user.id  // Add the user_id here
         })
         .select()
         .single();
 
-      if (createError) throw createError;
+      if (createError) {
+        console.error("Error creating payment link:", createError);
+        throw createError;
+      }
+
+      console.log("Payment link created:", paymentLink);
 
       // Update the product with the payment link id
       const { error: updateError } = await supabase
@@ -64,7 +79,10 @@ const ProductsList = () => {
         .update({ payment_link_id: paymentLink.id })
         .eq('id', product.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error("Error updating product:", updateError);
+        throw updateError;
+      }
 
       toast({
         title: "Lien de paiement créé",
