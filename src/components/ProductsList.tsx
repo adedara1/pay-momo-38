@@ -116,7 +116,7 @@ const ProductsList = () => {
                   <TableCell>
                     <ProductActions 
                       productId={product.id} 
-                      hasPaymentLink={!!product.payment_links?.paydunya_token}
+                      hasPaymentLink={!!product.payment_link_id}
                       onActivate={() => handleActivate(product.id)}
                     />
                   </TableCell>
