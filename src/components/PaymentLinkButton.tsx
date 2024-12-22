@@ -91,31 +91,36 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
     }
   };
 
-  if (product.payment_links?.paydunya_token) {
-    return (
-      <a
-        href={getPaymentUrl(product.payment_links.paydunya_token)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-      >
-        <LinkIcon className="h-4 w-4" />
-        Lien de paiement
-      </a>
-    );
-  }
-
   return (
-    <Button 
-      variant="outline" 
-      size="sm"
-      onClick={handleCreatePaymentLink}
-      className="flex items-center gap-2"
-      disabled={isCreating}
-    >
-      <LinkIcon className="h-4 w-4" />
-      {isCreating ? "Création..." : "Créer un lien"}
-    </Button>
+    <div className="space-y-2">
+      {product.payment_links?.paydunya_token ? (
+        <>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => window.location.href = getPaymentUrl(product.payment_links.paydunya_token!)}
+            className="flex items-center gap-2"
+          >
+            <LinkIcon className="h-4 w-4" />
+            Payer maintenant
+          </Button>
+          <div className="text-sm text-gray-500 break-all">
+            {getPaymentUrl(product.payment_links.paydunya_token)}
+          </div>
+        </>
+      ) : (
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleCreatePaymentLink}
+          className="flex items-center gap-2"
+          disabled={isCreating}
+        >
+          <LinkIcon className="h-4 w-4" />
+          {isCreating ? "Création..." : "Créer un lien"}
+        </Button>
+      )}
+    </div>
   );
 };
 
