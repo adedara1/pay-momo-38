@@ -24,7 +24,14 @@ const ProductPage = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
+      if (!id) {
+        setError("ID du produit manquant");
+        setIsLoading(false);
+        return;
+      }
+
       try {
+        console.log("Fetching product with ID:", id);
         const { data, error } = await supabase
           .from("products")
           .select("*")
@@ -32,10 +39,13 @@ const ProductPage = () => {
           .maybeSingle();
 
         if (error) throw error;
+        
         if (!data) {
           setError("Produit non trouvé");
           return;
         }
+        
+        console.log("Product fetched:", data);
         setProduct(data);
       } catch (err) {
         console.error("Error fetching product:", err);
