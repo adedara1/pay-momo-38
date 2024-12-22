@@ -24,7 +24,12 @@ const ProductsList = () => {
       console.log("Fetching products...");
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select(`
+          *,
+          payment_links (
+            paydunya_token
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -63,6 +68,10 @@ const ProductsList = () => {
     }
   };
 
+  const getPaymentUrl = (token: string) => {
+    return `https://paydunya.com/checkout/invoice/${token}`;
+  };
+
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Mes produits</h2>
@@ -80,6 +89,7 @@ const ProductsList = () => {
                 <TableHead>Nom</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Montant</TableHead>
+                <TableHead>Lien de paiement</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -92,6 +102,18 @@ const ProductsList = () => {
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.description}</TableCell>
                   <TableCell>{product.amount} FCFA</TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {product.payment_links?.paydunya_token && (
+                      <a
+                        href={getPaymentUrl(product.payment_links.paydunya_token)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        {getPaymentUrl(product.payment_links.paydunya_token)}
+                      </a>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Link to={`/products/${product.id}`} target="_blank">
