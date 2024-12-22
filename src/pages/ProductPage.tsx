@@ -65,44 +65,27 @@ const ProductPage = () => {
     try {
       console.log("Creating payment link for product:", product.id);
       
-      // If there's no payment link yet, create one
-      if (!product.payment_link_id) {
-        const { data: paymentLinkData, error: createError } = await supabase.functions.invoke("create-payment-link", {
-          body: {
-            amount: product.amount,
-            description: product.description || product.name,
-            payment_type: "product",
-            product_id: product.id
-          }
-        });
-
-        if (createError) throw createError;
-        
-        if (!paymentLinkData?.payment_url) {
-          throw new Error("Pas de lien de paiement généré");
+      const { data: paymentLinkData, error: createError } = await supabase.functions.invoke("create-payment-link", {
+        body: {
+          amount: product.amount,
+          description: product.description || product.name,
+          payment_type: "product",
+          product_id: product.id
         }
+      });
 
-        console.log("Payment link created:", paymentLinkData);
-        window.location.href = paymentLinkData.payment_url;
-        return;
+      if (createError) {
+        console.error("Error creating payment link:", createError);
+        throw createError;
       }
-
-      // If there's already a payment link, fetch its token
-      console.log("Fetching existing payment link:", product.payment_link_id);
-      const { data: paymentLink, error: fetchError } = await supabase
-        .from("payment_links")
-        .select("paydunya_token")
-        .eq("id", product.payment_link_id)
-        .maybeSingle();
-
-      if (fetchError) throw fetchError;
       
-      if (!paymentLink || !paymentLink.paydunya_token) {
-        throw new Error("Token PayDunya non trouvé");
+      if (!paymentLinkData?.payment_url) {
+        console.error("No payment URL in response:", paymentLinkData);
+        throw new Error("Pas de lien de paiement généré");
       }
 
-      console.log("Payment link found:", paymentLink);
-      window.location.href = `https://paydunya.com/checkout/invoice/${paymentLink.paydunya_token}`;
+      console.log("Payment link created:", paymentLinkData);
+      window.location.href = paymentLinkData.payment_url;
       
     } catch (err) {
       console.error("Error initiating payment:", err);

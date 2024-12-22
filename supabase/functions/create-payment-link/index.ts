@@ -9,6 +9,8 @@ const corsHeaders = {
 interface PaydunyaSetupRequest {
   amount: number
   description: string
+  payment_type: string
+  product_id?: string
 }
 
 serve(async (req) => {
@@ -19,9 +21,9 @@ serve(async (req) => {
 
   try {
     // Get the request body
-    const { amount, description } = await req.json() as PaydunyaSetupRequest
+    const { amount, description, payment_type, product_id } = await req.json() as PaydunyaSetupRequest
     
-    console.log('Creating payment link for amount:', amount, 'description:', description)
+    console.log('Creating payment link for:', { amount, description, payment_type, product_id })
 
     // Create Supabase client
     const supabaseClient = createClient(
@@ -69,7 +71,9 @@ serve(async (req) => {
         "callback_url": "https://app.adedara.pro/webhook"
       },
       "custom_data": {
-        "user_id": user.id
+        "user_id": user.id,
+        "payment_type": payment_type,
+        "product_id": product_id
       }
     }
 
@@ -91,7 +95,7 @@ serve(async (req) => {
     const paydunyaResponse = await response.json()
     console.log('PayDunya API response:', paydunyaResponse)
 
-    if (!response.ok) {
+    if (!response.ok || !paydunyaResponse.token) {
       console.error('PayDunya error:', paydunyaResponse)
       return new Response(
         JSON.stringify({ 
@@ -99,7 +103,7 @@ serve(async (req) => {
           details: paydunyaResponse 
         }),
         { 
-          status: response.status, 
+          status: response.status || 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
@@ -112,6 +116,7 @@ serve(async (req) => {
         user_id: user.id,
         amount: amount,
         description: description,
+        payment_type: payment_type,
         paydunya_token: paydunyaResponse.token
       })
       .select()
@@ -125,11 +130,24 @@ serve(async (req) => {
       )
     }
 
+    // If this is a product payment, update the product with the payment link ID
+    if (product_id && payment_type === 'product') {
+      const { error: updateError } = await supabaseClient
+        .from('products')
+        .update({ payment_link_id: paymentLink.id })
+        .eq('id', product_id)
+
+      if (updateError) {
+        console.error('Error updating product:', updateError)
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
         payment_url: paydunyaResponse.response_text,
-        token: paydunyaResponse.token
+        token: paydunyaResponse.token,
+        payment_link_id: paymentLink.id
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
