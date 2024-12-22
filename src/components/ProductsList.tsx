@@ -43,6 +43,45 @@ const ProductsList = () => {
     },
   });
 
+  const handleCreatePaymentLink = async (product) => {
+    try {
+      // Create a payment link
+      const { data: paymentLink, error: createError } = await supabase
+        .from('payment_links')
+        .insert({
+          amount: product.amount,
+          description: product.description,
+          payment_type: 'product'
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+
+      // Update the product with the payment link id
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ payment_link_id: paymentLink.id })
+        .eq('id', product.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Lien de paiement créé",
+        description: "Le lien de paiement a été créé avec succès",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    } catch (error) {
+      console.error("Error creating payment link:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la création du lien",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
@@ -114,7 +153,15 @@ const ProductsList = () => {
                         Lien de paiement
                       </a>
                     ) : (
-                      <span className="text-gray-500">Aucun lien</span>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleCreatePaymentLink(product)}
+                        className="flex items-center gap-2"
+                      >
+                        <LinkIcon className="h-4 w-4" />
+                        Créer un lien
+                      </Button>
                     )}
                   </TableCell>
                   <TableCell>
