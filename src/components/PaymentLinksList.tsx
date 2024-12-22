@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -8,9 +8,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const PaymentLinksList = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
   const { data: paymentLinks, isLoading } = useQuery({
     queryKey: ["payment-links"],
     queryFn: async () => {
@@ -30,6 +36,36 @@ const PaymentLinksList = () => {
     },
   });
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("payment_links")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Lien supprimé",
+        description: "Le lien de paiement a été supprimé avec succès",
+      });
+
+      // Refresh the payment links list
+      queryClient.invalidateQueries({ queryKey: ["payment-links"] });
+    } catch (error) {
+      console.error("Error deleting payment link:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getPaymentUrl = (token: string) => {
+    return `https://app.paydunya.com/checkout/invoice/${token}`;
+  };
+
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Liens de paiement</h2>
@@ -47,7 +83,8 @@ const PaymentLinksList = () => {
                 <TableHead>Montant</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Lien</TableHead>
+                <TableHead>URL</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -69,15 +106,39 @@ const PaymentLinksList = () => {
                       {link.status}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(`https://app.paydunya.com/checkout/invoice/${link.paydunya_token}`);
-                      }}
+                  <TableCell className="max-w-xs truncate">
+                    <a
+                      href={getPaymentUrl(link.paydunya_token)}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800"
                     >
-                      Copier le lien
-                    </button>
+                      {getPaymentUrl(link.paydunya_token)}
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(getPaymentUrl(link.paydunya_token));
+                          toast({
+                            title: "URL copiée",
+                            description: "L'URL a été copiée dans le presse-papiers",
+                          });
+                        }}
+                      >
+                        Copier
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(link.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
