@@ -22,7 +22,12 @@ const PaymentLinksList = () => {
       console.log("Fetching payment links...");
       const { data, error } = await supabase
         .from("payment_links")
-        .select("*")
+        .select(`
+          *,
+          products (
+            id
+          )
+        `)
         .eq("payment_type", "product")
         .order("created_at", { ascending: false });
 
@@ -59,8 +64,13 @@ const PaymentLinksList = () => {
     }
   };
 
-  const getPaymentUrl = (token: string) => {
-    return `https://paydunya.com/checkout/invoice/${token}`;
+  const getPaymentUrl = (paymentLink: any) => {
+    // If the payment link is associated with a product, use the product page URL
+    if (paymentLink.products && paymentLink.products.id) {
+      return `/products/${paymentLink.products.id}`;
+    }
+    // Fallback to PayDunya URL if no product is associated
+    return `https://paydunya.com/checkout/invoice/${paymentLink.paydunya_token}`;
   };
 
   return (
@@ -105,12 +115,10 @@ const PaymentLinksList = () => {
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
                     <a
-                      href={getPaymentUrl(link.paydunya_token)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={getPaymentUrl(link)}
                       className="text-blue-600 hover:text-blue-800"
                     >
-                      {getPaymentUrl(link.paydunya_token)}
+                      {window.location.origin + getPaymentUrl(link)}
                     </a>
                   </TableCell>
                   <TableCell>
@@ -119,7 +127,7 @@ const PaymentLinksList = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          navigator.clipboard.writeText(getPaymentUrl(link.paydunya_token));
+                          navigator.clipboard.writeText(window.location.origin + getPaymentUrl(link));
                           toast({
                             title: "URL copiée",
                             description: "L'URL a été copiée dans le presse-papiers",
