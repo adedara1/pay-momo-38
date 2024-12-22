@@ -16,7 +16,7 @@ const PaymentLinkForm = () => {
     setIsLoading(true);
     
     try {
-      console.log("Creating payment link...");
+      console.log("Creating simple payment link...");
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -26,7 +26,8 @@ const PaymentLinkForm = () => {
       const { data, error } = await supabase.functions.invoke("create-payment-link", {
         body: {
           amount: parseInt(amount),
-          description
+          description,
+          payment_type: "simple"
         }
       });
 

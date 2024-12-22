@@ -24,6 +24,7 @@ const PaymentLinksList = () => {
       const { data, error } = await supabase
         .from("payment_links")
         .select("*")
+        .eq("payment_type", "simple")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -63,13 +64,12 @@ const PaymentLinksList = () => {
   };
 
   const getPaymentUrl = (token: string) => {
-    // Correction de l'URL PayDunya
     return `https://paydunya.com/checkout/invoice/${token}`;
   };
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Liens de paiement</h2>
+      <h2 className="text-xl font-semibold mb-4">Liens de paiement simples</h2>
       
       {isLoading ? (
         <p className="text-center text-gray-500">Chargement...</p>
