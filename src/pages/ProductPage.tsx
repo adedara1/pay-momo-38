@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
+import PaymentLinkButton from "@/components/PaymentLinkButton";
 
 interface Product {
   id: string;
@@ -27,7 +28,6 @@ const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [canDelete, setCanDelete] = useState(false);
 
   useEffect(() => {
@@ -80,57 +80,6 @@ const ProductPage = () => {
 
     fetchProduct();
   }, [id]);
-
-  const handlePayment = async () => {
-    if (!product) return;
-    
-    setIsProcessing(true);
-    try {
-      // Si un lien de paiement existe déjà et a un token Paydunya
-      if (product.payment_links?.paydunya_token) {
-        const paymentUrl = `https://paydunya.com/checkout/invoice/${product.payment_links.paydunya_token}`;
-        window.location.href = paymentUrl;
-        return;
-      }
-
-      console.log("Creating payment link for product:", product.id);
-      
-      const { data: paymentLinkData, error: createError } = await supabase.functions.invoke(
-        "create-payment-link",
-        {
-          body: {
-            amount: product.amount,
-            description: product.description || product.name,
-            payment_type: "product",
-            product_id: product.id
-          }
-        }
-      );
-
-      if (createError) {
-        console.error("Error creating payment link:", createError);
-        throw createError;
-      }
-      
-      if (!paymentLinkData?.payment_url) {
-        console.error("No payment URL in response:", paymentLinkData);
-        throw new Error("Pas de lien de paiement généré");
-      }
-
-      console.log("Payment link created:", paymentLinkData);
-      window.location.href = paymentLinkData.payment_url;
-      
-    } catch (err) {
-      console.error("Error initiating payment:", err);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'initier le paiement",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   const handleDelete = async () => {
     if (!product) return;
@@ -190,14 +139,7 @@ const ProductPage = () => {
             </div>
             <p className="text-gray-600">{product.description}</p>
             <p className="text-2xl font-semibold">{product.amount} FCFA</p>
-            <Button
-              size="lg"
-              className="w-full"
-              onClick={handlePayment}
-              disabled={isProcessing}
-            >
-              {isProcessing ? "Traitement..." : "Payer maintenant"}
-            </Button>
+            <PaymentLinkButton product={product} />
           </div>
           
           <div className="order-first md:order-last">
