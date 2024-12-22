@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import ProductForm from "@/components/ProductForm";
-import PaymentLinkForm from "@/components/PaymentLinkForm";
 import TransactionHistory from "@/components/TransactionHistory";
 import ApiKeys from "@/components/ApiKeys";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +12,6 @@ const Dashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [showProductForm, setShowProductForm] = useState(false);
-  const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
@@ -63,30 +61,14 @@ const Dashboard = () => {
         <ApiKeys />
         
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              onClick={() => {
-                setShowProductForm(!showProductForm);
-                setShowPaymentLinkForm(false);
-              }}
-              className="flex-1"
-            >
-              {showProductForm ? "Fermer" : "Créer une page produit"}
-            </Button>
-            
-            <Button 
-              onClick={() => {
-                setShowPaymentLinkForm(!showPaymentLinkForm);
-                setShowProductForm(false);
-              }}
-              className="flex-1"
-            >
-              {showPaymentLinkForm ? "Fermer" : "Créer un lien de paiement"}
-            </Button>
-          </div>
+          <Button 
+            onClick={() => setShowProductForm(!showProductForm)}
+            className="w-full"
+          >
+            {showProductForm ? "Fermer" : "Créer une page produit"}
+          </Button>
           
           {showProductForm && <ProductForm />}
-          {showPaymentLinkForm && <PaymentLinkForm />}
         </div>
       </div>
 
