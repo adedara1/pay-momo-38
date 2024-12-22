@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Trash2 } from "lucide-react";
 
 interface Product {
   id: string;
@@ -12,15 +13,18 @@ interface Product {
   amount: number;
   image_url: string;
   payment_link_id: string;
+  user_id: string;
 }
 
 const ProductPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [canDelete, setCanDelete] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -32,6 +36,10 @@ const ProductPage = () => {
 
       try {
         console.log("Fetching product with ID:", id);
+        
+        // Get current user
+        const { data: { session } } = await supabase.auth.getSession();
+        
         const { data, error } = await supabase
           .from("products")
           .select("*")
@@ -47,6 +55,11 @@ const ProductPage = () => {
         
         console.log("Product fetched:", data);
         setProduct(data);
+        
+        // Check if current user is the owner
+        if (session?.user) {
+          setCanDelete(session.user.id === data.user_id);
+        }
       } catch (err) {
         console.error("Error fetching product:", err);
         setError("Impossible de charger le produit");
@@ -65,7 +78,6 @@ const ProductPage = () => {
     try {
       console.log("Creating payment link for product:", product.id);
       
-      // Get the session first
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -109,6 +121,33 @@ const ProductPage = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!product) return;
+    
+    try {
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", product.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Produit supprimé",
+        description: "Le produit a été supprimé avec succès",
+      });
+      
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le produit",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
   }
@@ -126,7 +165,18 @@ const ProductPage = () => {
       <Card className="overflow-hidden">
         <div className="grid md:grid-cols-2 gap-8 p-6">
           <div className="space-y-4">
-            <h1 className="text-3xl font-bold">{product.name}</h1>
+            <div className="flex justify-between items-start">
+              <h1 className="text-3xl font-bold">{product.name}</h1>
+              {canDelete && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <p className="text-gray-600">{product.description}</p>
             <p className="text-2xl font-semibold">{product.amount} FCFA</p>
             <Button

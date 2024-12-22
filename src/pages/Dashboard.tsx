@@ -1,24 +1,21 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import PaymentLinkForm from "@/components/PaymentLinkForm";
 import ProductForm from "@/components/ProductForm";
 import TransactionHistory from "@/components/TransactionHistory";
-import PaymentLinksList from "@/components/PaymentLinksList";
 import ApiKeys from "@/components/ApiKeys";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import ProductsList from "@/components/ProductsList";
 
 const Dashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
@@ -28,7 +25,6 @@ const Dashboard = () => {
       }
     });
 
-    // Listen for changes on auth state (sign-in, sign-out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (!session) {
@@ -66,32 +62,18 @@ const Dashboard = () => {
         
         <div className="space-y-6">
           <Button 
-            onClick={() => {
-              setShowPaymentForm(!showPaymentForm);
-              setShowProductForm(false);
-            }}
-            className="w-full"
-          >
-            {showPaymentForm ? "Fermer" : "Créer un lien de paiement simple"}
-          </Button>
-          
-          <Button 
-            onClick={() => {
-              setShowProductForm(!showProductForm);
-              setShowPaymentForm(false);
-            }}
+            onClick={() => setShowProductForm(!showProductForm)}
             className="w-full"
           >
             {showProductForm ? "Fermer" : "Créer une page produit"}
           </Button>
           
-          {showPaymentForm && <PaymentLinkForm />}
           {showProductForm && <ProductForm />}
         </div>
       </div>
 
       <div className="space-y-8">
-        <PaymentLinksList />
+        <ProductsList />
         <TransactionHistory />
       </div>
     </div>
