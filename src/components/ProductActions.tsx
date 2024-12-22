@@ -47,7 +47,7 @@ const ProductActions = ({ productId, hasPaymentLink, onActivate }: ProductAction
           <ExternalLink className="h-4 w-4" />
         </Button>
       </Link>
-      {!hasPaymentLink && (
+      {hasPaymentLink && (
         <Button
           variant="outline"
           size="sm"

@@ -11,6 +11,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import ProductActions from "./ProductActions";
 import { useToast } from "@/hooks/use-toast";
+import PaymentLinkButton from "./PaymentLinkButton";
 
 const ProductsList = () => {
   const { toast } = useToast();
@@ -42,38 +43,22 @@ const ProductsList = () => {
 
   const handleActivate = async (productId: string) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error("User not authenticated");
+      const product = products?.find(p => p.id === productId);
+      if (!product) return;
+
+      // Find the PaymentLinkButton component for this product and trigger its activation
+      const paymentLinkButton = document.querySelector(`[data-product-id="${productId}"]`);
+      if (paymentLinkButton) {
+        const activateButton = paymentLinkButton.querySelector('button[data-activate]');
+        if (activateButton) {
+          activateButton.click();
+        }
       }
 
-      const { data: paymentLink, error: createError } = await supabase
-        .from('payment_links')
-        .insert({
-          amount: products?.find(p => p.id === productId)?.amount || 0,
-          description: products?.find(p => p.id === productId)?.description || '',
-          payment_type: 'product',
-          user_id: session.user.id
-        })
-        .select()
-        .single();
-
-      if (createError) throw createError;
-
-      const { error: updateError } = await supabase
-        .from('products')
-        .update({ payment_link_id: paymentLink.id })
-        .eq('id', productId);
-
-      if (updateError) throw updateError;
-
       toast({
-        title: "Produit activé",
-        description: "Le lien de paiement a été créé avec succès",
+        title: "URL de paiement activée",
+        description: "L'URL de paiement est maintenant visible",
       });
-
-      window.location.reload();
     } catch (error) {
       console.error("Error activating product:", error);
       toast({
@@ -114,11 +99,16 @@ const ProductsList = () => {
                   <TableCell>{product.description}</TableCell>
                   <TableCell>{product.amount} FCFA</TableCell>
                   <TableCell>
-                    <ProductActions 
-                      productId={product.id} 
-                      hasPaymentLink={!!product.payment_link_id}
-                      onActivate={() => handleActivate(product.id)}
-                    />
+                    <div className="space-y-2">
+                      <div data-product-id={product.id}>
+                        <PaymentLinkButton product={product} />
+                      </div>
+                      <ProductActions 
+                        productId={product.id} 
+                        hasPaymentLink={!!product.payment_links?.paydunya_token}
+                        onActivate={() => handleActivate(product.id)}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
