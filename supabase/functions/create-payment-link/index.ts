@@ -92,6 +92,20 @@ serve(async (req) => {
     const paydunyaResponse = await response.json()
     console.log('PayDunya response:', paydunyaResponse)
 
+    // Check if the response indicates that live mode is not enabled
+    if (paydunyaResponse.error?.includes('set your application mode to live')) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'PayDunya account is not in live mode. Please log in to your PayDunya account and enable live mode.',
+          details: paydunyaResponse
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
     if (!response.ok) {
       throw new Error(paydunyaResponse.error || paydunyaResponse.response_text || 'PayDunya error')
     }
