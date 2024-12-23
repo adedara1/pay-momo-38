@@ -31,19 +31,15 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Get user ID from the request
+    // Get user ID from the request if available
+    let userId = null;
     const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      console.error('No authorization header')
-      throw new Error('Not authenticated')
-    }
-
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
-    
-    if (userError || !user) {
-      console.error('Error getting user:', userError)
-      throw new Error('Not authenticated')
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '')
+      const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
+      if (!userError && user) {
+        userId = user.id;
+      }
     }
 
     // Vérifier que la clé Moneroo est présente
@@ -60,14 +56,18 @@ serve(async (req) => {
       amount: amount,
       currency: "XOF", // FCFA
       description: description,
-      customer: {
-        email: user.email,
-        first_name: user.user_metadata?.first_name || "Customer",
-        last_name: user.user_metadata?.last_name || String(user.id).slice(0, 8)
+      customer: userId ? {
+        email: user?.email,
+        first_name: user?.user_metadata?.first_name || "Customer",
+        last_name: user?.user_metadata?.last_name || String(userId).slice(0, 8)
+      } : {
+        email: "guest@example.com",
+        first_name: "Guest",
+        last_name: "User"
       },
       return_url: `${Deno.env.get('SUPABASE_URL')}/products/${product_id || ''}`,
       metadata: {
-        user_id: user.id,
+        user_id: userId,
         payment_type: payment_type
       }
     }
@@ -111,7 +111,7 @@ serve(async (req) => {
     const { data: paymentLink, error: dbError } = await supabaseClient
       .from('payment_links')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         amount: amount,
         description: description,
         payment_type: payment_type,

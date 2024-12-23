@@ -28,11 +28,6 @@ const PaymentLinkForm = () => {
     
     try {
       console.log("Creating simple payment link...");
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error("Not authenticated");
-      }
 
       const { data, error } = await supabase.functions.invoke("create-payment-link", {
         body: {
