@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CreditCard } from "lucide-react";
+import { ShoppingCart, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -15,55 +15,54 @@ interface PaymentLinkButtonProps {
 
 const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [showPayNow, setShowPayNow] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleDirectPayment = async () => {
+  const handleAddToCart = async () => {
     try {
       setIsProcessing(true);
       
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        throw new Error("User not authenticated");
+        throw new Error("Not authenticated");
       }
 
-      console.log("Initiating direct payment for product:", product);
+      console.log("Creating payment link for product:", product);
 
       const { data: paymentResponse, error } = await supabase.functions.invoke(
-        "direct-payment",
+        "create-payment-link",
         {
           body: {
             amount: product.amount,
             description: product.description,
-            customer_email: session.user.email
+            payment_type: "simple"
           }
         }
       );
 
       if (error) {
-        console.error("Payment error:", error);
+        console.error("Payment link creation error:", error);
         throw error;
       }
 
-      console.log("Payment initiated:", paymentResponse);
+      console.log("Payment link created:", paymentResponse);
+      setPaymentUrl(paymentResponse.payment_url);
+      setShowPayNow(true);
 
       toast({
-        title: "Paiement initié",
-        description: "Vous allez être redirigé vers la page de paiement",
+        title: "Produit ajouté",
+        description: "Le produit a été ajouté au panier",
       });
-
-      // Rediriger vers l'URL de paiement si fournie par PayDunya
-      if (paymentResponse.redirect_url) {
-        window.location.href = paymentResponse.redirect_url;
-      }
 
       queryClient.invalidateQueries({ queryKey: ["products"] });
     } catch (error) {
-      console.error("Error processing payment:", error);
+      console.error("Error creating payment link:", error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors du paiement",
+        description: "Une erreur est survenue lors de l'ajout au panier",
         variant: "destructive",
       });
     } finally {
@@ -71,17 +70,41 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
     }
   };
 
+  const handlePayNow = () => {
+    if (paymentUrl) {
+      window.location.href = paymentUrl;
+    }
+  };
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <Button 
         size="lg"
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-        onClick={handleDirectPayment}
+        onClick={handleAddToCart}
         disabled={isProcessing}
       >
-        <CreditCard className="mr-2 h-5 w-5" />
-        {isProcessing ? "Traitement..." : `Payer ${product.amount} FCFA`}
+        <ShoppingCart className="mr-2 h-5 w-5" />
+        {isProcessing ? "Traitement..." : "Ajouter au panier"}
       </Button>
+
+      {showPayNow && (
+        <div className="space-y-2">
+          <Button 
+            size="lg"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+            onClick={handlePayNow}
+          >
+            <CreditCard className="mr-2 h-5 w-5" />
+            Payer maintenant
+          </Button>
+          {paymentUrl && (
+            <div className="text-sm text-gray-600 break-all">
+              Lien de paiement: <a href={paymentUrl} className="text-blue-600 hover:underline">{paymentUrl}</a>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
