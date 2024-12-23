@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import ProductPage from "./pages/ProductPage";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,7 +20,6 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products/:id" element={<ProductPage />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
