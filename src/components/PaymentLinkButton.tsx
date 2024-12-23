@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Link as LinkIcon } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +22,6 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
   const queryClient = useQueryClient();
 
   const getPaymentUrl = (token: string) => {
-    // Utilisation de l'URL sandbox au lieu de l'URL de production
     return `https://app.sandbox.paydunya.com/sandbox-checkout/invoice/${token}`;
   };
 
@@ -92,24 +91,22 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
     <div className="space-y-2">
       {product.payment_links?.paydunya_token ? (
         <Button 
-          variant="outline" 
-          size="sm"
+          size="lg"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
           onClick={() => window.location.href = getPaymentUrl(product.payment_links.paydunya_token!)}
-          className="flex items-center gap-2"
         >
-          <LinkIcon className="h-4 w-4" />
-          Payer maintenant
+          <CreditCard className="mr-2 h-5 w-5" />
+          Payer {product.amount} FCFA
         </Button>
       ) : (
         <Button 
-          variant="outline" 
-          size="sm"
+          size="lg"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
           onClick={handleCreatePaymentLink}
-          className="flex items-center gap-2"
           disabled={isCreating}
         >
-          <LinkIcon className="h-4 w-4" />
-          {isCreating ? "Création..." : "Payer maintenant"}
+          <CreditCard className="mr-2 h-5 w-5" />
+          {isCreating ? "Initialisation..." : `Payer ${product.amount} FCFA`}
         </Button>
       )}
     </div>
