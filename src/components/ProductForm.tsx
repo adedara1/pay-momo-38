@@ -39,12 +39,6 @@ const ProductForm = () => {
     setIsLoading(true);
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error("Not authenticated");
-      }
-
       let imageUrl = null;
       if (image) {
         const fileExt = image.name.split('.').pop();
@@ -76,7 +70,7 @@ const ProductForm = () => {
 
       if (paymentLinkError) throw paymentLinkError;
 
-      // Create product with payment link reference
+      // Create product without user_id
       const { data: productData, error: productError } = await supabase
         .from('products')
         .insert({
@@ -84,7 +78,6 @@ const ProductForm = () => {
           description,
           amount: parseInt(amount),
           image_url: imageUrl,
-          user_id: session.user.id,
           payment_link_id: paymentLinkData.payment_link_id
         })
         .select()
