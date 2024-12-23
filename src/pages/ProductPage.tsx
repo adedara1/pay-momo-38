@@ -15,7 +15,6 @@ const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [canDelete, setCanDelete] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -27,8 +26,6 @@ const ProductPage = () => {
 
       try {
         console.log("Fetching product with ID:", id);
-        
-        const { data: { session } } = await supabase.auth.getSession();
         
         const { data, error } = await supabase
           .from("products")
@@ -51,10 +48,6 @@ const ProductPage = () => {
         
         console.log("Product fetched:", data);
         setProduct(data as Product);
-        
-        if (session?.user) {
-          setCanDelete(session.user.id === data.user_id);
-        }
       } catch (err) {
         console.error("Error fetching product:", err);
         setError("Impossible de charger le produit");
@@ -112,15 +105,13 @@ const ProductPage = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-start">
               <h1 className="text-3xl font-bold">{product.name}</h1>
-              {canDelete && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDelete}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
             <p className="text-gray-600">{product.description}</p>
             <p className="text-2xl font-semibold">{product.amount} FCFA</p>
