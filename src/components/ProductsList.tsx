@@ -11,9 +11,13 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import ProductActions from "./ProductActions";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import ProductPreviewDialog from "./ProductPreviewDialog";
 
 const ProductsList = () => {
   const { toast } = useToast();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
@@ -39,6 +43,11 @@ const ProductsList = () => {
       return data;
     },
   });
+
+  const handlePreview = (product) => {
+    setSelectedProduct(product);
+    setPreviewOpen(true);
+  };
 
   return (
     <Card className="p-6">
@@ -73,6 +82,7 @@ const ProductsList = () => {
                     <ProductActions 
                       productId={product.id} 
                       hasPaymentLink={!!product.payment_links?.paydunya_token}
+                      onPreview={() => handlePreview(product)}
                     />
                   </TableCell>
                 </TableRow>
@@ -81,6 +91,12 @@ const ProductsList = () => {
           </Table>
         </div>
       )}
+
+      <ProductPreviewDialog
+        product={selectedProduct}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
     </Card>
   );
 };

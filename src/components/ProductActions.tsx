@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Trash2, ExternalLink } from "lucide-react";
+import { Trash2, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -8,9 +8,10 @@ import { useQueryClient } from "@tanstack/react-query";
 interface ProductActionsProps {
   productId: string;
   hasPaymentLink: boolean;
+  onPreview: () => void;
 }
 
-const ProductActions = ({ productId, hasPaymentLink }: ProductActionsProps) => {
+const ProductActions = ({ productId, hasPaymentLink, onPreview }: ProductActionsProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -41,9 +42,12 @@ const ProductActions = ({ productId, hasPaymentLink }: ProductActionsProps) => {
 
   return (
     <div className="flex gap-2">
+      <Button variant="ghost" size="sm" onClick={onPreview}>
+        <Eye className="h-4 w-4" />
+      </Button>
       <Link to={`/products/${productId}`} target="_blank">
         <Button variant="ghost" size="sm">
-          <ExternalLink className="h-4 w-4" />
+          <Eye className="h-4 w-4" />
         </Button>
       </Link>
       <Button
