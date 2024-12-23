@@ -46,20 +46,54 @@ serve(async (req) => {
       throw new Error('Not authenticated')
     }
 
-    // Vérifier que la clé PawaPay est présente
-    const pawapayToken = Deno.env.get('PAWAPAY_SANDBOX_TOKEN')
-    if (!pawapayToken) {
-      console.error('Missing PawaPay configuration')
-      throw new Error('Configuration PawaPay manquante')
+    // Vérifier que la clé Moneroo est présente
+    const monerooToken = Deno.env.get('MONEROO_SECRET_KEY')
+    if (!monerooToken) {
+      console.error('Missing Moneroo configuration')
+      throw new Error('Configuration Moneroo manquante')
     }
 
-    console.log('PawaPay token present:', !!pawapayToken)
+    console.log('Moneroo token present:', !!monerooToken)
 
-    // Créer un ID unique pour le paiement
-    const payoutId = crypto.randomUUID();
-    console.log('Generated payoutId:', payoutId);
+    // Initialize payment with Moneroo
+    const monerooPayload = {
+      amount: amount,
+      currency: "XOF", // FCFA
+      description: description,
+      customer: {
+        email: user.email,
+        first_name: user.user_metadata?.first_name || "Customer",
+        last_name: user.user_metadata?.last_name || String(user.id).slice(0, 8)
+      },
+      return_url: `${Deno.env.get('SUPABASE_URL')}/products/${product_id || ''}`,
+      metadata: {
+        user_id: user.id,
+        payment_type: payment_type
+      }
+    }
 
-    // Create payment link in database first
+    console.log('Initializing Moneroo payment:', monerooPayload)
+
+    const monerooResponse = await fetch('https://api.moneroo.io/v1/payments/initialize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${monerooToken}`,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(monerooPayload)
+    })
+
+    if (!monerooResponse.ok) {
+      const errorText = await monerooResponse.text()
+      console.error('Moneroo error response:', errorText)
+      throw new Error(`Erreur Moneroo: ${errorText}`)
+    }
+
+    const monerooData = await monerooResponse.json()
+    console.log('Moneroo response:', monerooData)
+
+    // Create payment link in database
     const { data: paymentLink, error: dbError } = await supabaseClient
       .from('payment_links')
       .insert({
@@ -67,15 +101,15 @@ serve(async (req) => {
         amount: amount,
         description: description,
         payment_type: payment_type,
-        paydunya_token: payoutId,
+        paydunya_token: monerooData.data.id, // Using this field for Moneroo ID
         status: 'pending'
       })
       .select()
-      .single();
+      .single()
 
     if (dbError) {
-      console.error('Database error:', dbError);
-      throw new Error('Erreur lors de la sauvegarde du lien');
+      console.error('Database error:', dbError)
+      throw new Error('Erreur lors de la sauvegarde du lien')
     }
 
     console.log('Payment link created in database:', paymentLink)
@@ -85,10 +119,10 @@ serve(async (req) => {
       const { error: updateError } = await supabaseClient
         .from('products')
         .update({ payment_link_id: paymentLink.id })
-        .eq('id', product_id);
+        .eq('id', product_id)
 
       if (updateError) {
-        console.error('Error updating product:', updateError);
+        console.error('Error updating product:', updateError)
       }
     }
 
@@ -96,8 +130,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        payment_url: `${Deno.env.get('SUPABASE_URL')}/products/${product_id || paymentLink.id}`,
-        token: payoutId,
+        payment_url: monerooData.data.checkout_url,
+        token: monerooData.data.id,
         payment_link_id: paymentLink.id
       }),
       { 
@@ -106,10 +140,10 @@ serve(async (req) => {
           'Content-Type': 'application/json' 
         } 
       }
-    );
+    )
 
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Une erreur est survenue',
@@ -119,6 +153,6 @@ serve(async (req) => {
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
-    );
+    )
   }
-});
+})
