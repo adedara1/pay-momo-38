@@ -48,23 +48,47 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
       setIsProcessing(true);
       console.log("Adding product to cart:", product);
 
-      // Ajouter l'article au panier
-      const { data: cartItem, error: cartError } = await supabase
+      // Vérifier si l'article existe déjà dans le panier
+      const { data: existingItems, error: fetchError } = await supabase
         .from('cart_items')
-        .insert({
-          session_id: sessionId,
-          product_id: product.id,
-          quantity: 1
-        })
         .select()
-        .single();
+        .eq('session_id', sessionId)
+        .eq('product_id', product.id);
 
-      if (cartError) {
-        console.error("Cart error:", cartError);
-        throw cartError;
+      if (fetchError) {
+        console.error("Error fetching cart items:", fetchError);
+        throw fetchError;
       }
 
-      console.log("Cart item added:", cartItem);
+      let cartItem;
+      if (existingItems && existingItems.length > 0) {
+        // Mettre à jour la quantité si l'article existe déjà
+        const { data: updatedItem, error: updateError } = await supabase
+          .from('cart_items')
+          .update({ quantity: existingItems[0].quantity + 1 })
+          .eq('id', existingItems[0].id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+        cartItem = updatedItem;
+      } else {
+        // Ajouter un nouvel article au panier
+        const { data: newItem, error: insertError } = await supabase
+          .from('cart_items')
+          .insert({
+            session_id: sessionId,
+            product_id: product.id,
+            quantity: 1
+          })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        cartItem = newItem;
+      }
+
+      console.log("Cart item added or updated:", cartItem);
 
       // Créer le lien de paiement
       const { data: paymentResponse, error: paymentError } = await supabase.functions.invoke(
