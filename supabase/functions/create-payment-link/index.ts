@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { v4 as uuidv4 } from 'https://deno.land/std@0.208.0/uuid/mod.ts';
+import { v4 } from 'https://deno.land/std@0.208.0/uuid/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -54,7 +54,7 @@ serve(async (req) => {
     }
 
     // Créer un ID unique pour le paiement
-    const payoutId = uuidv4();
+    const payoutId = v4.generate();
 
     // Préparer la requête PawaPay
     const pawapayRequest = {
