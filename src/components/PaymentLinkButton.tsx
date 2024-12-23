@@ -24,14 +24,9 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
     try {
       setIsProcessing(true);
       
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error("Not authenticated");
-      }
-
       console.log("Creating payment link for product:", product);
 
+      // Créer le lien de paiement
       const { data: paymentResponse, error } = await supabase.functions.invoke(
         "create-payment-link",
         {
@@ -49,12 +44,14 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
       }
 
       console.log("Payment link created:", paymentResponse);
+      
+      // Stocker l'URL de paiement et afficher le bouton Payer maintenant
       setPaymentUrl(paymentResponse.payment_url);
       setShowPayNow(true);
 
       toast({
         title: "Produit ajouté",
-        description: "Le produit a été ajouté au panier",
+        description: "Le produit a été ajouté au panier et le lien de paiement est prêt",
       });
 
       queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -82,7 +79,7 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
         size="lg"
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
         onClick={handleAddToCart}
-        disabled={isProcessing}
+        disabled={isProcessing || showPayNow}
       >
         <ShoppingCart className="mr-2 h-5 w-5" />
         {isProcessing ? "Traitement..." : "Ajouter au panier"}
