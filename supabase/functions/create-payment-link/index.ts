@@ -53,8 +53,9 @@ serve(async (req) => {
       throw new Error('Configuration PawaPay manquante')
     }
 
-    // Créer un ID unique pour le paiement
-    const payoutId = v4.toString();
+    // Créer un ID unique pour le paiement en utilisant crypto.randomUUID()
+    const payoutId = crypto.randomUUID();
+    console.log('Generated payoutId:', payoutId);
 
     // Préparer la requête PawaPay
     const pawapayRequest = {
