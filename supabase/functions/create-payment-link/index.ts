@@ -20,7 +20,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting payment link creation...')
+    console.log('Starting payment link creation with Moneroo...')
     const { amount, description, payment_type, product_id } = await req.json() as PaymentRequest
     
     console.log('Request payload:', { amount, description, payment_type, product_id })
