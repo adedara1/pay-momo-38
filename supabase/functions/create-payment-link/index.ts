@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase_supabase-js@2'
 import { v4 as uuidv4 } from 'https://deno.land/std@0.208.0/uuid/mod.ts';
 
 const corsHeaders = {
@@ -15,14 +15,16 @@ interface PaymentRequest {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    console.log('Starting payment link creation...')
     const { amount, description, payment_type, product_id } = await req.json() as PaymentRequest
     
-    console.log('Creating payment with PawaPay:', { amount, description, payment_type, product_id })
+    console.log('Request payload:', { amount, description, payment_type, product_id })
 
     // Create Supabase client
     const supabaseClient = createClient(
