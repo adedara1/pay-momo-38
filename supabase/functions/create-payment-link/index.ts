@@ -54,7 +54,7 @@ serve(async (req) => {
     }
 
     // Créer un ID unique pour le paiement
-    const payoutId = v4.generate();
+    const payoutId = v4.toString();
 
     // Préparer la requête PawaPay
     const pawapayRequest = {
