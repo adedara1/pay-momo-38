@@ -22,6 +22,16 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
 
   const handleAddToCart = async () => {
     try {
+      // Validation du montant minimum
+      if (product.amount < 200) {
+        toast({
+          title: "Montant invalide",
+          description: "Le montant minimum est de 200 FCFA",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setIsProcessing(true);
       
       console.log("Creating payment link for product:", product);

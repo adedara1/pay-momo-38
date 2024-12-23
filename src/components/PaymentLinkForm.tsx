@@ -13,6 +13,17 @@ const PaymentLinkForm = () => {
 
   const createPaymentLink = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation du montant minimum
+    if (parseInt(amount) < 200) {
+      toast({
+        title: "Montant invalide",
+        description: "Le montant minimum est de 200 FCFA",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -66,7 +77,8 @@ const PaymentLinkForm = () => {
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="5000"
+            placeholder="Minimum 200 FCFA"
+            min="200"
             required
           />
         </div>
