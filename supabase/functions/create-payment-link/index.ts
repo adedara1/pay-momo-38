@@ -31,25 +31,25 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Get user ID from the request if available
-    let userId = null;
-    let userEmail = null;
-    let userFirstName = null;
-    let userLastName = null;
-
-    const authHeader = req.headers.get('Authorization')
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '')
-      const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
-      if (!userError && user) {
-        userId = user.id;
-        userEmail = user.email;
-        userFirstName = user.user_metadata?.first_name;
-        userLastName = user.user_metadata?.last_name;
+    // Initialize payment with Moneroo
+    const monerooPayload = {
+      amount: amount,
+      currency: "XOF", // FCFA
+      description: description,
+      customer: {
+        email: "guest@example.com",
+        first_name: "Guest",
+        last_name: "User"
+      },
+      return_url: `${Deno.env.get('SUPABASE_URL')}/products/${product_id || ''}`,
+      metadata: {
+        payment_type: payment_type,
+        // Remove user_id from metadata since we're not using authentication
       }
     }
 
-    // Vérifier que la clé Moneroo est présente
+    console.log('Initializing Moneroo payment:', monerooPayload)
+
     const monerooToken = Deno.env.get('MONEROO_SECRET_KEY')
     if (!monerooToken) {
       console.error('Missing Moneroo configuration')
@@ -57,29 +57,6 @@ serve(async (req) => {
     }
 
     console.log('Moneroo token present:', !!monerooToken)
-
-    // Initialize payment with Moneroo
-    const monerooPayload = {
-      amount: amount,
-      currency: "XOF", // FCFA
-      description: description,
-      customer: userId ? {
-        email: userEmail || "anonymous@example.com",
-        first_name: userFirstName || "Anonymous",
-        last_name: userLastName || String(userId).slice(0, 8)
-      } : {
-        email: "guest@example.com",
-        first_name: "Guest",
-        last_name: "User"
-      },
-      return_url: `${Deno.env.get('SUPABASE_URL')}/products/${product_id || ''}`,
-      metadata: {
-        user_id: userId,
-        payment_type: payment_type
-      }
-    }
-
-    console.log('Initializing Moneroo payment:', monerooPayload)
 
     const monerooResponse = await fetch('https://api.moneroo.io/v1/payments/initialize', {
       method: 'POST',
@@ -114,11 +91,10 @@ serve(async (req) => {
 
     console.log('Moneroo response data:', monerooData)
 
-    // Create payment link in database
+    // Create payment link in database without user_id
     const { data: paymentLink, error: dbError } = await supabaseClient
       .from('payment_links')
       .insert({
-        user_id: userId,
         amount: amount,
         description: description,
         payment_type: payment_type,
