@@ -84,8 +84,8 @@ serve(async (req) => {
     console.log('PayDunya setup:', paydunyaSetup)
     console.log('Using PayDunya configuration with master key:', masterKey.substring(0, 5) + '...')
 
-    // Utilisation de l'URL sandbox au lieu de l'URL de production
-    const response = await fetch('https://app.sandbox.paydunya.com/api/v1/checkout-invoice/create', {
+    // Use the production URL instead of sandbox
+    const response = await fetch('https://app.paydunya.com/api/v1/checkout-invoice/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
