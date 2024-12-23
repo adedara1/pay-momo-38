@@ -84,14 +84,28 @@ serve(async (req) => {
       body: JSON.stringify(monerooPayload)
     })
 
-    if (!monerooResponse.ok) {
-      const errorText = await monerooResponse.text()
-      console.error('Moneroo error response:', errorText)
-      throw new Error(`Erreur Moneroo: ${errorText}`)
+    let monerooData
+    const responseText = await monerooResponse.text()
+    console.log('Raw Moneroo response:', responseText)
+
+    try {
+      monerooData = JSON.parse(responseText)
+    } catch (e) {
+      console.error('Error parsing Moneroo response:', e)
+      throw new Error(`Erreur Moneroo: Réponse invalide - ${responseText}`)
     }
 
-    const monerooData = await monerooResponse.json()
-    console.log('Moneroo response:', monerooData)
+    if (!monerooResponse.ok) {
+      console.error('Moneroo error response:', monerooData)
+      throw new Error(`Erreur Moneroo: ${monerooData.message || 'Erreur inconnue'}`)
+    }
+
+    if (!monerooData.data?.id || !monerooData.data?.checkout_url) {
+      console.error('Invalid Moneroo response format:', monerooData)
+      throw new Error('Format de réponse Moneroo invalide')
+    }
+
+    console.log('Moneroo response data:', monerooData)
 
     // Create payment link in database
     const { data: paymentLink, error: dbError } = await supabaseClient
