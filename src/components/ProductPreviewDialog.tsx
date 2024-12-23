@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import PaymentLinkButton from "./PaymentLinkButton";
+import SimplePaymentButton from "./SimplePaymentButton";
 
 interface Product {
   id: string;
@@ -24,9 +25,10 @@ interface ProductPreviewDialogProps {
   product: Product | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isSimplePayment?: boolean;
 }
 
-const ProductPreviewDialog = ({ product, open, onOpenChange }: ProductPreviewDialogProps) => {
+const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = false }: ProductPreviewDialogProps) => {
   if (!product) return null;
 
   return (
@@ -47,7 +49,11 @@ const ProductPreviewDialog = ({ product, open, onOpenChange }: ProductPreviewDia
           <div className="space-y-4">
             <p className="text-gray-600">{product.description}</p>
             <p className="text-2xl font-semibold">{product.amount} FCFA</p>
-            <PaymentLinkButton product={product} />
+            {isSimplePayment ? (
+              <SimplePaymentButton product={product} />
+            ) : (
+              <PaymentLinkButton product={product} />
+            )}
           </div>
           
           <div className="order-first md:order-last">

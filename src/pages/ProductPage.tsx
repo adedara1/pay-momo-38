@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
-import PaymentLinkButton from "@/components/PaymentLinkButton";
+import SimplePaymentButton from "@/components/SimplePaymentButton";
 import { Product } from "@/types/product";
 
 const ProductPage = () => {
@@ -124,7 +124,7 @@ const ProductPage = () => {
             </div>
             <p className="text-gray-600">{product.description}</p>
             <p className="text-2xl font-semibold">{product.amount} FCFA</p>
-            <PaymentLinkButton product={product} />
+            <SimplePaymentButton product={product} />
           </div>
           
           <div className="order-first md:order-last">
