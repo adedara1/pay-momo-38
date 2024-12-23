@@ -33,12 +33,19 @@ serve(async (req) => {
 
     // Get user ID from the request if available
     let userId = null;
+    let userEmail = null;
+    let userFirstName = null;
+    let userLastName = null;
+
     const authHeader = req.headers.get('Authorization')
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '')
       const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
       if (!userError && user) {
         userId = user.id;
+        userEmail = user.email;
+        userFirstName = user.user_metadata?.first_name;
+        userLastName = user.user_metadata?.last_name;
       }
     }
 
@@ -57,9 +64,9 @@ serve(async (req) => {
       currency: "XOF", // FCFA
       description: description,
       customer: userId ? {
-        email: user?.email,
-        first_name: user?.user_metadata?.first_name || "Customer",
-        last_name: user?.user_metadata?.last_name || String(userId).slice(0, 8)
+        email: userEmail || "anonymous@example.com",
+        first_name: userFirstName || "Anonymous",
+        last_name: userLastName || String(userId).slice(0, 8)
       } : {
         email: "guest@example.com",
         first_name: "Guest",
