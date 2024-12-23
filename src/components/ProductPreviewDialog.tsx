@@ -31,9 +31,9 @@ const ProductPreviewDialog = ({ product, open, onOpenChange }: ProductPreviewDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="container mx-auto px-4 py-8 max-w-4xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">{product.name}</DialogTitle>
+          <DialogTitle className="text-3xl font-bold">{product.name}</DialogTitle>
           <Button
             variant="ghost"
             size="icon"
