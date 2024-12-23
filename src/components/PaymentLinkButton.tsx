@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, CreditCard } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { v4 as uuidv4 } from 'uuid';
 
 interface PaymentLinkButtonProps {
   product: {
@@ -17,8 +18,21 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [showPayNow, setShowPayNow] = useState(false);
+  const [sessionId, setSessionId] = useState<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // Récupérer ou créer un ID de session pour les utilisateurs non authentifiés
+    const existingSessionId = localStorage.getItem('cart_session_id');
+    if (existingSessionId) {
+      setSessionId(existingSessionId);
+    } else {
+      const newSessionId = uuidv4();
+      localStorage.setItem('cart_session_id', newSessionId);
+      setSessionId(newSessionId);
+    }
+  }, []);
 
   const handleAddToCart = async () => {
     try {
@@ -32,9 +46,28 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
       }
 
       setIsProcessing(true);
-      console.log("Creating payment link for product:", product);
+      console.log("Adding product to cart:", product);
 
-      const { data: paymentResponse, error } = await supabase.functions.invoke(
+      // Ajouter l'article au panier
+      const { data: cartItem, error: cartError } = await supabase
+        .from('cart_items')
+        .insert({
+          session_id: sessionId,
+          product_id: product.id,
+          quantity: 1
+        })
+        .select()
+        .single();
+
+      if (cartError) {
+        console.error("Cart error:", cartError);
+        throw cartError;
+      }
+
+      console.log("Cart item added:", cartItem);
+
+      // Créer le lien de paiement
+      const { data: paymentResponse, error: paymentError } = await supabase.functions.invoke(
         "create-payment-link",
         {
           body: {
@@ -45,9 +78,9 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
         }
       );
 
-      if (error) {
-        console.error("Payment link creation error:", error);
-        throw error;
+      if (paymentError) {
+        console.error("Payment link creation error:", paymentError);
+        throw paymentError;
       }
 
       console.log("Payment link created:", paymentResponse);
@@ -62,7 +95,7 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
 
       queryClient.invalidateQueries({ queryKey: ["products"] });
     } catch (error) {
-      console.error("Error creating payment link:", error);
+      console.error("Error adding to cart:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'ajout au panier",
