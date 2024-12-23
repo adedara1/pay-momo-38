@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { v4 } from 'https://deno.land/std@0.208.0/uuid/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -53,7 +52,7 @@ serve(async (req) => {
       throw new Error('Configuration PawaPay manquante')
     }
 
-    // Créer un ID unique pour le paiement en utilisant crypto.randomUUID()
+    // Créer un ID unique pour le paiement
     const payoutId = crypto.randomUUID();
     console.log('Generated payoutId:', payoutId);
 
@@ -67,7 +66,7 @@ serve(async (req) => {
       recipient: {
         type: "MSISDN",
         address: {
-          value: "221xxxxxxxxx" // Le numéro sera fourni par l'utilisateur dans une prochaine mise à jour
+          value: "221777777777" // Numéro de test pour l'environnement sandbox
         }
       },
       customerTimestamp: new Date().toISOString(),
@@ -81,7 +80,8 @@ serve(async (req) => {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${pawapayToken}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify(pawapayRequest)
     })
@@ -90,7 +90,12 @@ serve(async (req) => {
     console.log('PawaPay API response:', pawapayResponse)
 
     if (!response.ok) {
-      throw new Error(pawapayResponse.message || 'Erreur PawaPay')
+      console.error('PawaPay API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        response: pawapayResponse
+      })
+      throw new Error(`Erreur PawaPay: ${pawapayResponse.message || 'Erreur inconnue'}`)
     }
 
     // Créer le lien de paiement dans la base de données
@@ -101,7 +106,7 @@ serve(async (req) => {
         amount: amount,
         description: description,
         payment_type: payment_type,
-        paydunya_token: payoutId // On utilise le payoutId comme référence
+        paydunya_token: payoutId
       })
       .select()
       .single()
