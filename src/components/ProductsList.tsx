@@ -11,7 +11,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import ProductActions from "./ProductActions";
 import { useToast } from "@/hooks/use-toast";
-import PaymentLinkButton from "./PaymentLinkButton";
 
 const ProductsList = () => {
   const { toast } = useToast();
@@ -71,15 +70,10 @@ const ProductsList = () => {
                   <TableCell>{product.description}</TableCell>
                   <TableCell>{product.amount} FCFA</TableCell>
                   <TableCell>
-                    <div className="space-y-2">
-                      <div data-product-id={product.id}>
-                        <PaymentLinkButton product={product} />
-                      </div>
-                      <ProductActions 
-                        productId={product.id} 
-                        hasPaymentLink={!!product.payment_links?.paydunya_token}
-                      />
-                    </div>
+                    <ProductActions 
+                      productId={product.id} 
+                      hasPaymentLink={!!product.payment_links?.paydunya_token}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
