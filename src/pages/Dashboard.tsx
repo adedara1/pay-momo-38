@@ -2,14 +2,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import ProductForm from "@/components/ProductForm";
+import SimplePageForm from "@/components/SimplePageForm";
 import TransactionHistory from "@/components/TransactionHistory";
 import ApiKeys from "@/components/ApiKeys";
 import ProductsList from "@/components/ProductsList";
+import SimplePagesList from "@/components/SimplePagesList";
 import PaymentLinksList from "@/components/PaymentLinksList";
 
 const Dashboard = () => {
   const { toast } = useToast();
   const [showProductForm, setShowProductForm] = useState(false);
+  const [showSimplePageForm, setShowSimplePageForm] = useState(false);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -22,18 +25,33 @@ const Dashboard = () => {
         
         <div className="space-y-6">
           <Button 
-            onClick={() => setShowProductForm(!showProductForm)}
+            onClick={() => {
+              setShowProductForm(!showProductForm);
+              if (showSimplePageForm) setShowSimplePageForm(false);
+            }}
             className="w-full"
           >
             {showProductForm ? "Fermer" : "Créer une page produit"}
           </Button>
           
+          <Button 
+            onClick={() => {
+              setShowSimplePageForm(!showSimplePageForm);
+              if (showProductForm) setShowProductForm(false);
+            }}
+            className="w-full"
+          >
+            {showSimplePageForm ? "Fermer" : "Créer une page simple"}
+          </Button>
+          
           {showProductForm && <ProductForm />}
+          {showSimplePageForm && <SimplePageForm />}
         </div>
       </div>
 
       <div className="space-y-8">
         <ProductsList />
+        <SimplePagesList />
         <PaymentLinksList />
         <TransactionHistory />
       </div>
