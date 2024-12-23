@@ -22,7 +22,6 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
 
   const handleAddToCart = async () => {
     try {
-      // Validation du montant minimum
       if (product.amount < 200) {
         toast({
           title: "Montant invalide",
@@ -33,10 +32,8 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
       }
 
       setIsProcessing(true);
-      
       console.log("Creating payment link for product:", product);
 
-      // Créer le lien de paiement
       const { data: paymentResponse, error } = await supabase.functions.invoke(
         "create-payment-link",
         {
@@ -55,7 +52,6 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
 
       console.log("Payment link created:", paymentResponse);
       
-      // Stocker l'URL de paiement et afficher le bouton Payer maintenant
       setPaymentUrl(paymentResponse.payment_url);
       setShowPayNow(true);
 
