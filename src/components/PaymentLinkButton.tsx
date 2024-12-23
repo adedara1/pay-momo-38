@@ -22,7 +22,8 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
   const queryClient = useQueryClient();
 
   const getPaymentUrl = (token: string) => {
-    return `https://paydunya.com/checkout/invoice/${token}`;
+    // Utilisation de l'URL sandbox au lieu de l'URL de production
+    return `https://app.sandbox.paydunya.com/sandbox-checkout/invoice/${token}`;
   };
 
   const handleCreatePaymentLink = async () => {
