@@ -6,20 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
 import PaymentLinkButton from "@/components/PaymentLinkButton";
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  amount: number;
-  image_url: string;
-  payment_link_id: string;
-  user_id: string;
-  payment_links?: {
-    id: string;
-    paydunya_token: string | null;
-  };
-}
+import { Product } from "@/types/product";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -41,7 +28,6 @@ const ProductPage = () => {
       try {
         console.log("Fetching product with ID:", id);
         
-        // Get current user
         const { data: { session } } = await supabase.auth.getSession();
         
         const { data, error } = await supabase
@@ -64,9 +50,8 @@ const ProductPage = () => {
         }
         
         console.log("Product fetched:", data);
-        setProduct(data);
+        setProduct(data as Product);
         
-        // Check if current user is the owner
         if (session?.user) {
           setCanDelete(session.user.id === data.user_id);
         }

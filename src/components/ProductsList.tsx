@@ -13,10 +13,11 @@ import ProductActions from "./ProductActions";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import ProductPreviewDialog from "./ProductPreviewDialog";
+import { Product } from "@/types/product";
 
 const ProductsList = () => {
   const { toast } = useToast();
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   
   const { data: products, isLoading } = useQuery({
@@ -40,11 +41,11 @@ const ProductsList = () => {
       }
 
       console.log("Products fetched:", data);
-      return data;
+      return data as Product[];
     },
   });
 
-  const handlePreview = (product) => {
+  const handlePreview = (product: Product) => {
     setSelectedProduct(product);
     setPreviewOpen(true);
   };
