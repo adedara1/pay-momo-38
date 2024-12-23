@@ -53,107 +53,60 @@ serve(async (req) => {
       throw new Error('Configuration PawaPay manquante')
     }
 
+    console.log('PawaPay token present:', !!pawapayToken)
+
     // Créer un ID unique pour le paiement
     const payoutId = crypto.randomUUID();
     console.log('Generated payoutId:', payoutId);
 
-    // Préparer la requête PawaPay
-    const pawapayRequest = {
-      payoutId: payoutId,
-      amount: amount.toString(),
-      currency: "XOF", // Franc CFA
-      country: "SEN", // Sénégal
-      correspondent: "ORANGE_MONEY_SEN", // Orange Money Sénégal
-      recipient: {
-        type: "MSISDN",
-        address: {
-          value: "221777777777" // Numéro de test pour l'environnement sandbox
-        }
-      },
-      customerTimestamp: new Date().toISOString(),
-      statementDescription: description.substring(0, 22) // PawaPay limite à 22 caractères
+    // Create payment link in database first
+    const { data: paymentLink, error: dbError } = await supabaseClient
+      .from('payment_links')
+      .insert({
+        user_id: user.id,
+        amount: amount,
+        description: description,
+        payment_type: payment_type,
+        paydunya_token: payoutId,
+        status: 'pending'
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error('Erreur lors de la sauvegarde du lien');
     }
 
-    console.log('Calling PawaPay API with request:', pawapayRequest)
+    console.log('Payment link created in database:', paymentLink)
 
-    try {
-      // Appeler l'API PawaPay avec un timeout de 10 secondes
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+    // If it's a product payment, update the product with the payment link ID
+    if (product_id && payment_type === 'product') {
+      const { error: updateError } = await supabaseClient
+        .from('products')
+        .update({ payment_link_id: paymentLink.id })
+        .eq('id', product_id);
 
-      const response = await fetch('https://api.sandbox.pawapay.io/payouts', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${pawapayToken}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(pawapayRequest),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      const pawapayResponse = await response.json();
-      console.log('PawaPay API response:', pawapayResponse);
-
-      if (!response.ok) {
-        console.error('PawaPay API error:', {
-          status: response.status,
-          statusText: response.statusText,
-          response: pawapayResponse,
-          headers: Object.fromEntries(response.headers.entries())
-        });
-        throw new Error(`Erreur PawaPay: ${pawapayResponse.message || pawapayResponse.error || 'Erreur inconnue'}`);
+      if (updateError) {
+        console.error('Error updating product:', updateError);
       }
-
-      // Créer le lien de paiement dans la base de données
-      const { data: paymentLink, error: dbError } = await supabaseClient
-        .from('payment_links')
-        .insert({
-          user_id: user.id,
-          amount: amount,
-          description: description,
-          payment_type: payment_type,
-          paydunya_token: payoutId
-        })
-        .select()
-        .single();
-
-      if (dbError) {
-        console.error('Database error:', dbError);
-        throw new Error('Erreur lors de la sauvegarde du lien');
-      }
-
-      // Si c'est un paiement de produit, mettre à jour le produit avec l'ID du lien
-      if (product_id && payment_type === 'product') {
-        const { error: updateError } = await supabaseClient
-          .from('products')
-          .update({ payment_link_id: paymentLink.id })
-          .eq('id', product_id);
-
-        if (updateError) {
-          console.error('Error updating product:', updateError);
-        }
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          payment_url: `https://api.sandbox.pawapay.io/payouts/${payoutId}`,
-          token: payoutId,
-          payment_link_id: paymentLink.id
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-
-    } catch (pawapayError) {
-      console.error('PawaPay request error:', pawapayError);
-      if (pawapayError.name === 'AbortError') {
-        throw new Error('La requête PawaPay a expiré après 10 secondes');
-      }
-      throw pawapayError;
     }
+
+    // Return success response with payment link info
+    return new Response(
+      JSON.stringify({
+        success: true,
+        payment_url: `${Deno.env.get('SUPABASE_URL')}/products/${product_id || paymentLink.id}`,
+        token: payoutId,
+        payment_link_id: paymentLink.id
+      }),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
+    );
 
   } catch (error) {
     console.error('Unexpected error:', error);
