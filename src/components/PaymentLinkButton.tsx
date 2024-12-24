@@ -5,13 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from 'uuid';
+import { Product } from "@/types/product";
+import { SimplePage } from "@/types/simple-page";
 
 interface PaymentLinkButtonProps {
-  product: {
-    id: string;
-    amount: number;
-    description: string;
-  };
+  product: Product | SimplePage;
 }
 
 const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
@@ -48,49 +46,7 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
       setIsProcessing(true);
       console.log("Adding product to cart:", product);
 
-      // Vérifier si l'article existe déjà dans le panier
-      const { data: existingItems, error: fetchError } = await supabase
-        .from('cart_items')
-        .select()
-        .eq('session_id', sessionId)
-        .eq('product_id', product.id);
-
-      if (fetchError) {
-        console.error("Error fetching cart items:", fetchError);
-        throw fetchError;
-      }
-
-      let cartItem;
-      if (existingItems && existingItems.length > 0) {
-        // Mettre à jour la quantité si l'article existe déjà
-        const { data: updatedItem, error: updateError } = await supabase
-          .from('cart_items')
-          .update({ quantity: existingItems[0].quantity + 1 })
-          .eq('id', existingItems[0].id)
-          .select()
-          .single();
-
-        if (updateError) throw updateError;
-        cartItem = updatedItem;
-      } else {
-        // Ajouter un nouvel article au panier
-        const { data: newItem, error: insertError } = await supabase
-          .from('cart_items')
-          .insert({
-            session_id: sessionId,
-            product_id: product.id,
-            quantity: 1
-          })
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-        cartItem = newItem;
-      }
-
-      console.log("Cart item added or updated:", cartItem);
-
-      // Créer le lien de paiement
+      // Créer le lien de paiement directement sans ajouter au panier
       const { data: paymentResponse, error: paymentError } = await supabase.functions.invoke(
         "create-payment-link",
         {
@@ -113,16 +69,16 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
       setShowPayNow(true);
 
       toast({
-        title: "Produit ajouté",
-        description: "Le produit a été ajouté au panier et le lien de paiement est prêt",
+        title: "Lien de paiement créé",
+        description: "Le lien de paiement est prêt",
       });
 
       queryClient.invalidateQueries({ queryKey: ["products"] });
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      console.error("Error creating payment link:", error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de l'ajout au panier",
+        description: "Une erreur est survenue lors de la création du lien de paiement",
         variant: "destructive",
       });
     } finally {
