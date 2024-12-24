@@ -25,7 +25,7 @@ function App() {
       <Router>
         <div className="flex min-h-screen w-full">
           <MainSidebar />
-          <main className="flex-1 w-0 overflow-auto p-8">
+          <main className="flex-1 w-full md:w-[calc(100%-16rem)] overflow-auto p-8">
             <Routes>
               <Route path="/home" element={<Home />} />
               <Route path="/dashboard" element={<Dashboard />} />
