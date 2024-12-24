@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowLeft } from "lucide-react";
 import SimplePaymentButton from "@/components/SimplePaymentButton";
 import { Product } from "@/types/product";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -87,44 +88,84 @@ const ProductPage = () => {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Card className="overflow-hidden">
+          <div className="grid md:grid-cols-2 gap-8 p-6">
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-8 w-1/4" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <Skeleton className="h-[400px] w-full" />
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   if (error || !product) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-red-500">{error || "Produit non trouvé"}</p>
+      <div className="container mx-auto px-4 py-8">
+        <Card className="p-6 text-center">
+          <p className="text-red-500 mb-4">{error || "Produit non trouvé"}</p>
+          <Button onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Retour au tableau de bord
+          </Button>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Card className="overflow-hidden">
-        <div className="grid md:grid-cols-2 gap-8 p-6">
-          <div className="space-y-4">
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate("/dashboard")}
+        className="mb-4"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Retour au tableau de bord
+      </Button>
+
+      <Card className="overflow-hidden bg-white shadow-lg">
+        <div className="grid md:grid-cols-2 gap-8 p-8">
+          <div className="space-y-6">
             <div className="flex justify-between items-start">
-              <h1 className="text-3xl font-bold">{product.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
               <Button
                 variant="destructive"
                 size="sm"
                 onClick={handleDelete}
+                className="hover:bg-red-600 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-gray-600">{product.description}</p>
-            <p className="text-2xl font-semibold">{product.amount} FCFA</p>
-            <SimplePaymentButton product={product} />
+            <p className="text-gray-600 text-lg leading-relaxed">
+              {product.description}
+            </p>
+            <p className="text-3xl font-semibold text-blue-600">
+              {product.amount} FCFA
+            </p>
+            <div className="pt-4">
+              <SimplePaymentButton product={product} />
+            </div>
           </div>
           
           <div className="order-first md:order-last">
-            {product.image_url && (
+            {product.image_url ? (
               <img
                 src={product.image_url}
                 alt={product.name}
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-[400px] object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow"
               />
+            ) : (
+              <div className="w-full h-[400px] bg-gray-100 rounded-lg flex items-center justify-center">
+                <p className="text-gray-400">Aucune image</p>
+              </div>
             )}
           </div>
         </div>

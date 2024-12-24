@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import ProductPreviewDialog from "./ProductPreviewDialog";
 import { Product } from "@/types/product";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProductsList = () => {
   const { toast } = useToast();
@@ -50,35 +51,53 @@ const ProductsList = () => {
     setPreviewOpen(true);
   };
 
+  const LoadingSkeleton = () => (
+    <div className="space-y-4">
+      <Skeleton className="h-8 w-32" />
+      <div className="space-y-2">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-12 w-full" />
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow">
       <h2 className="text-xl font-semibold mb-4">Mes produits</h2>
       
       {isLoading ? (
-        <p className="text-center text-gray-500">Chargement...</p>
+        <LoadingSkeleton />
       ) : products?.length === 0 ? (
-        <p className="text-center text-gray-500">Aucun produit</p>
+        <p className="text-center text-gray-500 py-8">Aucun produit</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Nom</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Montant</TableHead>
-                <TableHead>Actions</TableHead>
+              <TableRow className="bg-gray-50">
+                <TableHead className="font-semibold">Date</TableHead>
+                <TableHead className="font-semibold">Nom</TableHead>
+                <TableHead className="font-semibold">Description</TableHead>
+                <TableHead className="font-semibold">Montant</TableHead>
+                <TableHead className="font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products?.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
+                <TableRow 
+                  key={product.id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <TableCell className="text-sm text-gray-600">
                     {new Date(product.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.description}</TableCell>
-                  <TableCell>{product.amount} FCFA</TableCell>
+                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell className="text-gray-600 max-w-xs truncate">
+                    {product.description}
+                  </TableCell>
+                  <TableCell className="font-semibold text-blue-600">
+                    {product.amount} FCFA
+                  </TableCell>
                   <TableCell>
                     <ProductActions 
                       productId={product.id} 
