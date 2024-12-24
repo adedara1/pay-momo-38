@@ -59,7 +59,7 @@ const MainSidebar = () => {
   const location = useLocation();
 
   return (
-    <div className="relative">
+    <div className="relative h-screen">
       <Button
         variant="ghost"
         size="icon"
@@ -73,8 +73,8 @@ const MainSidebar = () => {
         <SidebarProvider defaultOpen={!isMobile}>
           <Sidebar 
             className={cn(
-              "border-r border-gray-200 dark:border-gray-800",
-              isMobile && "fixed inset-0 z-[90] bg-background shadow-lg"
+              "border-r border-gray-200 dark:border-gray-800 transition-all duration-300",
+              isMobile && "fixed inset-0 z-[99] bg-background shadow-lg"
             )}
           >
             <SidebarHeader className="p-4 relative">
@@ -92,7 +92,7 @@ const MainSidebar = () => {
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsCollapsed(true)}
-                  className="absolute right-2 top-2 hover:bg-accent"
+                  className="absolute right-2 top-2 hover:bg-accent md:hidden"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
