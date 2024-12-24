@@ -18,6 +18,7 @@ import {
   Power,
   ChevronLeft,
   ChevronRight,
+  Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -54,54 +55,58 @@ const MainSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <SidebarProvider defaultOpen={!isCollapsed}>
-      <Sidebar className="border-r border-gray-200 dark:border-gray-800">
-        <SidebarHeader className="p-4 flex items-center justify-between">
-          <div className={cn("flex items-center gap-2", isCollapsed && "hidden")}>
-            <img
-              src="/lovable-uploads/ece44648-5b4e-4397-bb44-63141b520b67.png"
-              alt="Logo"
-              className="w-8 h-8"
-            />
-            <span className="font-semibold">Ma Boutique</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="ml-auto"
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <ChevronLeft className="h-4 w-4" />
-            )}
-          </Button>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={isCollapsed ? item.label : undefined}
-                >
-                  <Link
-                    to={item.path}
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span className={cn("flex-1", isCollapsed && "hidden")}>
-                      {item.label}
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-      </Sidebar>
-    </SidebarProvider>
+    <div className="relative">
+      {isCollapsed ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(false)}
+          className="fixed top-4 left-4 z-50"
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      ) : (
+        <SidebarProvider>
+          <Sidebar className="border-r border-gray-200 dark:border-gray-800">
+            <SidebarHeader className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/lovable-uploads/ece44648-5b4e-4397-bb44-63141b520b67.png"
+                  alt="Logo"
+                  className="w-8 h-8"
+                />
+                <span className="font-semibold">Ma Boutique</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsCollapsed(true)}
+                className="ml-auto"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </SidebarHeader>
+            <SidebarContent>
+              <SidebarMenu>
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton asChild>
+                      <Link
+                        to={item.path}
+                        className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span className="flex-1">{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarContent>
+          </Sidebar>
+        </SidebarProvider>
+      )}
+    </div>
   );
 };
 
