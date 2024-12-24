@@ -4,13 +4,11 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { Product } from "@/types/product";
+import { SimplePage } from "@/types/simple-page";
 
 interface SimplePaymentButtonProps {
-  product: {
-    id: string;
-    amount: number;
-    description: string;
-  };
+  product: Product | SimplePage;
 }
 
 const SimplePaymentButton = ({ product }: SimplePaymentButtonProps) => {
@@ -32,7 +30,6 @@ const SimplePaymentButton = ({ product }: SimplePaymentButtonProps) => {
       setIsProcessing(true);
       console.log("Creating direct payment for product:", product);
 
-      // Créer le lien de paiement direct avec Moneroo
       const { data: paymentResponse, error: paymentError } = await supabase.functions.invoke(
         "create-payment-link",
         {
@@ -51,7 +48,6 @@ const SimplePaymentButton = ({ product }: SimplePaymentButtonProps) => {
 
       console.log("Payment link created:", paymentResponse);
 
-      // Rediriger vers la page de paiement Moneroo
       window.location.href = paymentResponse.payment_url;
 
       queryClient.invalidateQueries({ queryKey: ["products"] });

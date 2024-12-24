@@ -3,7 +3,7 @@ import { PaymentLink } from "./product";
 export interface SimplePage {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   amount: number;
   image_url: string | null;
   payment_link_id: string | null;

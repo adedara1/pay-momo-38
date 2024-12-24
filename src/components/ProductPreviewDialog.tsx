@@ -8,21 +8,11 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import PaymentLinkButton from "./PaymentLinkButton";
 import SimplePaymentButton from "./SimplePaymentButton";
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  amount: number;
-  image_url?: string;
-  payment_links?: {
-    id: string;
-    paydunya_token: string | null;
-  };
-}
+import { Product } from "@/types/product";
+import { SimplePage } from "@/types/simple-page";
 
 interface ProductPreviewDialogProps {
-  product: Product | null;
+  product: Product | SimplePage | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isSimplePayment?: boolean;
