@@ -28,7 +28,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
               alt={page.name} 
               className="w-8 h-8 object-cover rounded-full"
             />
-            <span className="text-lg font-medium">{page.name}</span>
+            <span className="text-lg font-medium">DigitStores - {page.name}</span>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-purple-600 font-medium">{page.amount} CFA</span>
@@ -52,7 +52,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
                 alt={page.name} 
                 className="w-6 h-6 rounded-full object-cover"
               />
-              <span className="text-sm">{page.name}</span>
+              <span className="text-sm">DigitStores - {page.name}</span>
             </div>
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 text-yellow-400" />
@@ -106,7 +106,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
                   alt={page.name} 
                   className="w-8 h-8 rounded-full object-cover"
                 />
-                <span className="font-medium">{page.name}</span>
+                <span className="font-medium">DigitStores - {page.name}</span>
               </div>
               <Button variant="outline" className="ml-auto">
                 <MessageSquare className="h-4 w-4 mr-2" />
