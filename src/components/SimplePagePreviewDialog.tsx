@@ -42,13 +42,15 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
             </div>
           </div>
           
-          <div className="order-first md:order-last flex justify-center md:justify-start">
+          <div className="order-first md:order-last flex justify-center md:justify-start w-full">
             {page.image_url && (
-              <img
-                src={page.image_url}
-                alt={page.name}
-                className="w-full h-48 md:h-full object-cover rounded-lg"
-              />
+              <div className="w-full aspect-[4/3] md:aspect-auto md:h-full relative">
+                <img
+                  src={page.image_url}
+                  alt={page.name}
+                  className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                />
+              </div>
             )}
           </div>
         </div>
