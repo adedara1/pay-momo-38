@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ProductPage from "./pages/ProductPage";
 import Blog from "./pages/Blog";
+import MainSidebar from "./components/MainSidebar";
 import { Toaster } from "@/components/ui/toaster";
 
 // Create a client
@@ -20,13 +21,18 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/products/:id" element={<ProductPage />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="flex min-h-screen">
+          <MainSidebar />
+          <main className="flex-1 overflow-auto">
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/products/:id" element={<ProductPage />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+        </div>
         <Toaster />
       </Router>
     </QueryClientProvider>

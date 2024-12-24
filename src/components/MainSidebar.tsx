@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Home,
   Image,
@@ -31,6 +31,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const menuItems = [
   { icon: Home, label: "Accueil", path: "/" },
@@ -54,6 +55,8 @@ const menuItems = [
 
 const MainSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const isMobile = useIsMobile();
+  const location = useLocation();
 
   return (
     <div className="relative">
@@ -67,7 +70,7 @@ const MainSidebar = () => {
           <Menu className="h-4 w-4" />
         </Button>
       ) : (
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={!isMobile}>
           <Sidebar className="border-r border-gray-200 dark:border-gray-800">
             <SidebarHeader className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -94,7 +97,10 @@ const MainSidebar = () => {
                     <SidebarMenuButton asChild>
                       <Link
                         to={item.path}
-                        className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg",
+                          location.pathname === item.path && "bg-gray-100 dark:bg-gray-800"
+                        )}
                       >
                         <item.icon className="h-5 w-5" />
                         <span className="flex-1">{item.label}</span>
