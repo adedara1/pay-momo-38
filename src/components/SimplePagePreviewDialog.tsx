@@ -55,7 +55,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
           </div>
         </div>
 
-        <div className="mt-6 md:mt-8">
+        <div className="mt-6 md:mt-8 p-6">
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="w-full border-b overflow-x-auto flex-nowrap justify-center">
               <TabsTrigger value="description" className="text-purple-600 text-sm md:text-base">Description</TabsTrigger>
@@ -82,7 +82,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
             </TabsContent>
           </Tabs>
 
-          <div className="mt-6 md:mt-8 p-4 md:p-6 bg-purple-50 rounded-lg">
+          <div className="mt-6 md:mt-8 p-6 bg-purple-50 rounded-lg">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 text-center md:text-left">
               <div>
                 <h3 className="text-lg md:text-xl font-semibold text-purple-600">Avez-vous une question ?</h3>
