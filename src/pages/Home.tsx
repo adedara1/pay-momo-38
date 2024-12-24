@@ -21,7 +21,7 @@ const Home = () => {
     soldAmount: 35990
   });
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -53,7 +53,7 @@ const Home = () => {
       </div>
 
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
-        <div className="flex items-center justify-end mb-2">
+        <div className="flex items-center justify-center mb-4">
           <CollapsibleTrigger className="p-2 hover:bg-gray-100 rounded-full transition-colors">
             {isOpen ? (
               <ChevronUp className="h-6 w-6 text-gray-500" />
