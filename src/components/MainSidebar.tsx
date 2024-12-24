@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   Menu,
   LayoutDashboard,
+  Box,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -35,6 +36,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const menuItems = [
   { icon: Home, label: "Accueil", path: "/" },
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
+  { icon: Box, label: "Produit", path: "/products" },
   { icon: Image, label: "Média", path: "/media" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
   { icon: CreditCard, label: "Paiements", path: "/payments" },
