@@ -60,21 +60,21 @@ const MainSidebar = () => {
 
   return (
     <div className="relative">
-      {isCollapsed ? (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsCollapsed(false)}
-          className="fixed top-4 left-4 z-[100] bg-background shadow-md hover:bg-accent"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-      ) : (
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="fixed top-4 left-4 z-[100] bg-background shadow-md hover:bg-accent md:hidden"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      {!isCollapsed && (
         <SidebarProvider defaultOpen={!isMobile}>
           <Sidebar 
             className={cn(
               "border-r border-gray-200 dark:border-gray-800",
-              isMobile && "fixed inset-0 z-[100] bg-background shadow-lg"
+              isMobile && "fixed inset-0 z-[90] bg-background shadow-lg"
             )}
           >
             <SidebarHeader className="p-4 relative">
