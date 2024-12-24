@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Trash2, Eye } from "lucide-react";
+import { Trash2, Eye, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { SimplePage } from "@/types/simple-page";
@@ -74,6 +74,15 @@ const SimplePagesList = () => {
     setPreviewOpen(true);
   };
 
+  const handleCopyLink = (pageId: string) => {
+    const pageUrl = `${window.location.origin}/simple-pages/${pageId}`;
+    navigator.clipboard.writeText(pageUrl);
+    toast({
+      title: "Lien copié",
+      description: "Le lien de la page a été copié dans le presse-papier",
+    });
+  };
+
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Mes pages simples</h2>
@@ -107,6 +116,9 @@ const SimplePagesList = () => {
                     <div className="flex gap-2">
                       <Button variant="ghost" size="sm" onClick={() => handlePreview(page)}>
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleCopyLink(page.id)}>
+                        <Copy className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="destructive"
