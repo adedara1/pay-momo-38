@@ -23,7 +23,11 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
       <DialogContent className="container mx-auto px-4 py-8 max-w-4xl bg-[#FAFAFA]">
         <DialogHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png" alt="Logo" className="w-8 h-8" />
+            <img 
+              src={page.image_url || "/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png"} 
+              alt={page.name} 
+              className="w-8 h-8 object-cover rounded-full"
+            />
             <span className="text-lg font-medium">DigitStores</span>
           </div>
           <div className="flex items-center gap-4">
@@ -43,7 +47,11 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
           
           <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center gap-1">
-              <img src="/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png" alt="Store" className="w-6 h-6 rounded-full" />
+              <img 
+                src={page.image_url || "/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png"} 
+                alt={page.name} 
+                className="w-6 h-6 rounded-full object-cover"
+              />
               <span className="text-sm">DigitStores</span>
             </div>
             <div className="flex items-center gap-1">
@@ -93,7 +101,11 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
           <div className="mt-8 p-6 bg-white rounded-lg shadow-sm">
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-2">
-                <img src="/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png" alt="Store" className="w-8 h-8 rounded-full" />
+                <img 
+                  src={page.image_url || "/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png"} 
+                  alt={page.name} 
+                  className="w-8 h-8 rounded-full object-cover"
+                />
                 <span className="font-medium">DigitStores</span>
               </div>
               <Button variant="outline" className="ml-auto">
