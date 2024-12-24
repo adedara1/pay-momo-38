@@ -54,7 +54,7 @@ const menuItems = [
 ];
 
 const MainSidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const isMobile = useIsMobile();
   const location = useLocation();
 
@@ -105,19 +105,16 @@ const MainSidebar = () => {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => setIsCollapsed(false)}
-        className={cn(
-          "fixed top-4 left-4 z-[100] bg-background shadow-md hover:bg-accent",
-          !isCollapsed && "hidden"
-        )}
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="fixed top-4 left-4 z-50 bg-background shadow-md hover:bg-accent"
       >
         <Menu className="h-5 w-5" />
       </Button>
 
       <div
         className={cn(
-          "fixed inset-0 z-[90] bg-background transition-transform duration-300",
-          isCollapsed ? "translate-x-[-100%]" : "translate-x-0"
+          "fixed inset-0 z-40 bg-background transition-transform duration-300",
+          isCollapsed ? "-translate-x-full" : "translate-x-0"
         )}
       >
         <div className="flex h-full flex-col">
