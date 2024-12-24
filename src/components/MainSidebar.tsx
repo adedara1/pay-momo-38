@@ -17,8 +17,8 @@ import {
   Palette,
   Power,
   ChevronLeft,
-  ChevronRight,
   Menu,
+  LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { icon: Home, label: "Accueil", path: "/" },
+  { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
   { icon: Image, label: "Média", path: "/media" },
   { icon: Box, label: "Produits", path: "/products" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
