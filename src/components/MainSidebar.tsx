@@ -58,71 +58,108 @@ const MainSidebar = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
 
-  return (
-    <div className="relative">
-      {isCollapsed ? (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsCollapsed(false)}
-          className="fixed top-4 left-4 z-[100] bg-background shadow-md hover:bg-accent"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-      ) : (
-        <SidebarProvider defaultOpen={!isMobile}>
-          <Sidebar 
-            className={cn(
-              "border-r border-gray-200 dark:border-gray-800",
-              isMobile && "fixed inset-0 z-[100] bg-background shadow-lg"
-            )}
-          >
-            <SidebarHeader className="p-4 relative">
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <img
-                    src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
-                    alt="Logo"
-                    className="w-8 h-8"
-                  />
-                  <span className="font-semibold text-blue-600">Digit-Sarl</span>
-                </div>
-                <span className="text-sm">Welcome Arnel Anael</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsCollapsed(true)}
-                  className="absolute right-2 top-2 hover:bg-accent"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
+  if (!isMobile) {
+    return (
+      <SidebarProvider defaultOpen={true}>
+        <Sidebar className="border-r border-gray-200 dark:border-gray-800">
+          <SidebarHeader className="p-4">
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
+                  alt="Logo"
+                  className="w-8 h-8"
+                />
+                <span className="font-semibold text-blue-600">Digit-Sarl</span>
               </div>
-            </SidebarHeader>
-            <SidebarContent className="overflow-y-auto">
-              <SidebarMenu>
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton asChild>
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors",
-                          location.pathname === item.path && "bg-gray-100 dark:bg-gray-800"
-                        )}
-                        onClick={() => isMobile && setIsCollapsed(true)}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span className="flex-1">{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarContent>
-          </Sidebar>
-        </SidebarProvider>
-      )}
-    </div>
+              <span className="text-sm">Welcome Arnel Anael</span>
+            </div>
+          </SidebarHeader>
+          <SidebarContent className="overflow-y-auto">
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton asChild>
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors",
+                        location.pathname === item.path && "bg-gray-100 dark:bg-gray-800"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span className="flex-1">{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    );
+  }
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsCollapsed(false)}
+        className={cn(
+          "fixed top-4 left-4 z-[100] bg-background shadow-md hover:bg-accent",
+          !isCollapsed && "hidden"
+        )}
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      <div
+        className={cn(
+          "fixed inset-0 z-[90] bg-background transition-transform duration-300",
+          isCollapsed ? "translate-x-[-100%]" : "translate-x-0"
+        )}
+      >
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center gap-2">
+              <img
+                src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
+                alt="Logo"
+                className="w-8 h-8"
+              />
+              <span className="font-semibold text-blue-600">Digit-Sarl</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsCollapsed(true)}
+              className="hover:bg-accent"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="space-y-1">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors",
+                    location.pathname === item.path && "bg-gray-100 dark:bg-gray-800"
+                  )}
+                  onClick={() => setIsCollapsed(true)}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="flex-1">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
