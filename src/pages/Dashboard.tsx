@@ -1,90 +1,123 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import ProductForm from "@/components/ProductForm";
-import SimplePageForm from "@/components/SimplePageForm";
-import TransactionHistory from "@/components/TransactionHistory";
-import ApiKeys from "@/components/ApiKeys";
-import ProductsList from "@/components/ProductsList";
-import SimplePagesList from "@/components/SimplePagesList";
-import PaymentLinksList from "@/components/PaymentLinksList";
-import { Card } from "@/components/ui/card";
-import { Plus, FileText, CreditCard } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import StatCard from "@/components/StatCard";
 
 const Dashboard = () => {
-  const { toast } = useToast();
-  const [showProductForm, setShowProductForm] = useState(false);
-  const [showSimplePageForm, setShowSimplePageForm] = useState(false);
+  const [stats, setStats] = useState({
+    totalSales: 75990,
+    dailySales: 0,
+    monthlySales: 55545,
+    totalTransactions: 13,
+    dailyTransactions: 0,
+    monthlyTransactions: 9,
+    previousMonthSales: 9545,
+    previousMonthTransactions: 2,
+    salesGrowth: 481.93,
+    totalProducts: 17,
+    visibleProducts: 2,
+    soldAmount: 35990
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Fetch transactions for sales calculations
+        const { data: transactions } = await supabase
+          .from('transactions')
+          .select('*');
+
+        // Fetch products
+        const { data: products } = await supabase
+          .from('products')
+          .select('*');
+
+        if (transactions && products) {
+          // Update stats based on actual data
+          // This is where you would implement the actual calculations
+          console.log("Fetched data:", { transactions, products });
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-          <Button 
-            onClick={() => {
-              setShowProductForm(!showProductForm);
-              if (showSimplePageForm) setShowSimplePageForm(false);
-            }}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {showProductForm ? "Fermer" : "Créer une page produit"}
-          </Button>
-          
-          <Button 
-            onClick={() => {
-              setShowSimplePageForm(!showSimplePageForm);
-              if (showProductForm) setShowProductForm(false);
-            }}
-            className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            {showSimplePageForm ? "Fermer" : "Créer une page simple"}
-          </Button>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow">
-          <ApiKeys />
-        </Card>
-        
-        <div className="space-y-6">
-          {showProductForm && (
-            <Card className="p-6 bg-white shadow-lg">
-              <ProductForm />
-            </Card>
-          )}
-          {showSimplePageForm && (
-            <Card className="p-6 bg-white shadow-lg">
-              <SimplePageForm />
-            </Card>
-          )}
-        </div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold mb-2">Salut Arnel Angel!</h1>
       </div>
 
-      <div className="space-y-8">
-        <section>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-            <CreditCard className="mr-2 h-5 w-5" />
-            Mes produits et pages
-          </h2>
-          <div className="grid gap-6">
-            <ProductsList />
-            <SimplePagesList />
-            <PaymentLinksList />
-          </div>
-        </section>
-        
-        <section>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Historique des transactions
-          </h2>
-          <Card className="bg-white shadow-lg">
-            <TransactionHistory />
-          </Card>
-        </section>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <StatCard
+          title="Ventes Cumulées"
+          value={stats.totalSales}
+          suffix="Fcfa"
+          className="bg-blue-500 text-white"
+        />
+        <StatCard
+          title="Ventes du jours"
+          value={stats.dailySales}
+          className="bg-purple-500 text-white"
+        />
+        <StatCard
+          title="Ventes Du Mois"
+          value={stats.monthlySales}
+          className="bg-pink-500 text-white"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <StatCard
+          title="Total Des Transactions"
+          value={String(stats.totalTransactions).padStart(3, '0')}
+        />
+        <StatCard
+          title="Transactions Du Jour"
+          value={String(stats.dailyTransactions).padStart(2, '0')}
+        />
+        <StatCard
+          title="Transactions Du Mois"
+          value={String(stats.monthlyTransactions).padStart(2, '0')}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <StatCard
+          title="Ventes du Mois Précédent"
+          value={stats.previousMonthSales}
+          suffix="Fcfa"
+          className="bg-blue-800 text-white"
+        />
+        <StatCard
+          title="Transactions du Mois Précédent"
+          value={String(stats.previousMonthTransactions).padStart(2, '0')}
+          className="bg-purple-800 text-white"
+        />
+        <StatCard
+          title="Croissance Des Ventes"
+          value={stats.salesGrowth}
+          suffix="%"
+          className="bg-purple-900 text-white"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard
+          title="Totals Produits"
+          value={String(stats.totalProducts).padStart(3, '0')}
+        />
+        <StatCard
+          title="Totals Produits Visible"
+          value={String(stats.visibleProducts).padStart(2, '0')}
+        />
+        <StatCard
+          title="Solde(s)"
+          value={stats.soldAmount}
+          className="bg-gray-900 text-white"
+        />
       </div>
     </div>
   );
