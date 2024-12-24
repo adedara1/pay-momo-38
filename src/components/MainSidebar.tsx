@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Home,
   Image,
-  Box,
   ShoppingCart,
   CreditCard,
   Users,
@@ -37,7 +36,6 @@ const menuItems = [
   { icon: Home, label: "Accueil", path: "/" },
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
   { icon: Image, label: "Média", path: "/media" },
-  { icon: Box, label: "Produits", path: "/products" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
   { icon: CreditCard, label: "Paiements", path: "/payments" },
   { icon: Users, label: "Clients", path: "/clients" },
