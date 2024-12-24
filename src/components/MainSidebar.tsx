@@ -106,14 +106,14 @@ const MainSidebar = () => {
         variant="ghost"
         size="icon"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="fixed top-4 left-4 z-50 bg-background shadow-md hover:bg-accent"
+        className="fixed top-4 left-4 z-[60] bg-background shadow-md hover:bg-accent"
       >
         <Menu className="h-5 w-5" />
       </Button>
 
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-background transition-transform duration-300",
+          "fixed inset-0 z-[50] bg-background transition-transform duration-300",
           isCollapsed ? "-translate-x-full" : "translate-x-0"
         )}
       >
