@@ -1,17 +1,21 @@
-export interface PaymentLink {
-  id: string;
-  paydunya_token: string | null;
-}
-
 export interface Product {
   id: string;
   name: string;
   description: string;
-  amount: number;
-  image_url: string | null;
-  payment_link_id: string | null;
-  user_id: string | null;
+  price: number;
+  image_url?: string;
+  payment_link_id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SimplePage {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url?: string;
+  payment_link_id: string;
   created_at: string;
   updated_at: string;
-  payment_links?: PaymentLink;
 }
