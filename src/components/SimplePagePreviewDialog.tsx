@@ -28,7 +28,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
               alt={page.name} 
               className="w-8 h-8 object-cover rounded-full"
             />
-            <span className="text-lg font-medium">DigitStores - {page.name}</span>
+            <span className="text-lg font-medium">{page.name}</span>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-purple-600 font-medium">{page.amount} CFA</span>
