@@ -9,28 +9,17 @@ import { Card } from "@/components/ui/card";
 import { X } from "lucide-react";
 import PaymentLinkButton from "./PaymentLinkButton";
 import SimplePaymentButton from "./SimplePaymentButton";
+import { SimplePage } from "@/types/simple-page";
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  amount: number;
-  image_url?: string;
-  payment_links?: {
-    id: string;
-    paydunya_token: string | null;
-  };
-}
-
-interface ProductPreviewDialogProps {
-  product: Product | null;
+interface SimplePagePreviewDialogProps {
+  page: SimplePage | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isSimplePayment?: boolean;
 }
 
-const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = false }: ProductPreviewDialogProps) => {
-  if (!product) return null;
+const SimplePagePreviewDialog = ({ page, open, onOpenChange, isSimplePayment = false }: SimplePagePreviewDialogProps) => {
+  if (!page) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -39,7 +28,7 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
           <div className="grid md:grid-cols-2 gap-8 p-6">
             <div className="space-y-4">
               <div className="flex justify-between items-start">
-                <DialogTitle className="text-3xl font-bold">{product.name}</DialogTitle>
+                <DialogTitle className="text-3xl font-bold">{page.name}</DialogTitle>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -48,20 +37,20 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-gray-600">{product.description}</p>
-              <p className="text-2xl font-semibold">{product.amount} FCFA</p>
+              <p className="text-gray-600">{page.description}</p>
+              <p className="text-2xl font-semibold">{page.amount} FCFA</p>
               {isSimplePayment ? (
-                <SimplePaymentButton product={product} />
+                <SimplePaymentButton product={page} />
               ) : (
-                <PaymentLinkButton product={product} />
+                <PaymentLinkButton product={page} />
               )}
             </div>
             
             <div className="order-first md:order-last">
-              {product.image_url && (
+              {page.image_url && (
                 <img
-                  src={product.image_url}
-                  alt={product.name}
+                  src={page.image_url}
+                  alt={page.name}
                   className="w-full h-full object-cover rounded-lg"
                 />
               )}
@@ -73,4 +62,4 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
   );
 };
 
-export default ProductPreviewDialog;
+export default SimplePagePreviewDialog;
