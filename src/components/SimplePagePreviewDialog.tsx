@@ -26,7 +26,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
             <img 
               src={page.image_url || "/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png"} 
               alt={page.name} 
-              className="w-8 h-8 object-cover rounded-full"
+              className="w-[500px] h-[500px] object-cover rounded-lg"
             />
           </div>
           <div className="flex items-center gap-4">
@@ -49,7 +49,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
               <img 
                 src={page.image_url || "/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png"} 
                 alt={page.name} 
-                className="w-6 h-6 rounded-full object-cover"
+                className="w-[500px] h-[500px] object-cover rounded-lg"
               />
             </div>
             <div className="flex items-center gap-1">
@@ -102,7 +102,7 @@ const SimplePagePreviewDialog = ({ page, open, onOpenChange }: SimplePagePreview
                 <img 
                   src={page.image_url || "/lovable-uploads/95bf1d12-36c0-4134-af27-d44df247ff03.png"} 
                   alt={page.name} 
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-[500px] h-[500px] object-cover rounded-lg"
                 />
               </div>
               <Button variant="outline" className="ml-auto">
