@@ -9,8 +9,7 @@ import ProductsList from "@/components/ProductsList";
 import SimplePagesList from "@/components/SimplePagesList";
 import PaymentLinksList from "@/components/PaymentLinksList";
 import { Card } from "@/components/ui/card";
-import { Plus, FileText, CreditCard, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Plus, FileText, CreditCard } from "lucide-react";
 
 const Products = () => {
   const { toast } = useToast();
@@ -20,15 +19,7 @@ const Products = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div className="flex items-center gap-4">
-          <Link to="/">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Produits</h1>
-        </div>
-        
+        <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
           <Button 
             onClick={() => {
