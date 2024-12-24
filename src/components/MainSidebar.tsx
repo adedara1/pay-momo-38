@@ -65,7 +65,7 @@ const MainSidebar = () => {
           variant="ghost"
           size="icon"
           onClick={() => setIsCollapsed(false)}
-          className="fixed top-4 left-4 z-50"
+          className="fixed top-4 left-4 z-50 bg-background"
         >
           <Menu className="h-4 w-4" />
         </Button>
@@ -74,7 +74,7 @@ const MainSidebar = () => {
           <Sidebar 
             className={cn(
               "border-r border-gray-200 dark:border-gray-800",
-              isMobile && "fixed inset-0 z-50 bg-background"
+              isMobile && "fixed inset-0 z-50 bg-background shadow-lg"
             )}
           >
             <SidebarHeader className="p-4">
@@ -109,6 +109,7 @@ const MainSidebar = () => {
                           "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg",
                           location.pathname === item.path && "bg-gray-100 dark:bg-gray-800"
                         )}
+                        onClick={() => isMobile && setIsCollapsed(true)}
                       >
                         <item.icon className="h-5 w-5" />
                         <span className="flex-1">{item.label}</span>
