@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import StatCard from "@/components/StatCard";
+import WalletStats from "@/components/WalletStats";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -21,19 +22,15 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch transactions for sales calculations
         const { data: transactions } = await supabase
           .from('transactions')
           .select('*');
 
-        // Fetch products
         const { data: products } = await supabase
           .from('products')
           .select('*');
 
         if (transactions && products) {
-          // Update stats based on actual data
-          // This is where you would implement the actual calculations
           console.log("Fetched data:", { transactions, products });
         }
       } catch (error) {
@@ -47,7 +44,8 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Salut Arnel Angel!</h1>
+        <h1 className="text-2xl font-bold mb-6">Salut Arnel Angel!</h1>
+        <WalletStats />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
