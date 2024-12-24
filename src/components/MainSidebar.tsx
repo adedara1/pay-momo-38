@@ -71,7 +71,12 @@ const MainSidebar = () => {
         </Button>
       ) : (
         <SidebarProvider defaultOpen={!isMobile}>
-          <Sidebar className="border-r border-gray-200 dark:border-gray-800">
+          <Sidebar 
+            className={cn(
+              "border-r border-gray-200 dark:border-gray-800",
+              isMobile && "fixed inset-0 z-50 bg-background"
+            )}
+          >
             <SidebarHeader className="p-4">
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-2">
