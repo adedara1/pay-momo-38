@@ -72,23 +72,26 @@ const MainSidebar = () => {
       ) : (
         <SidebarProvider defaultOpen={!isMobile}>
           <Sidebar className="border-r border-gray-200 dark:border-gray-800">
-            <SidebarHeader className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <img
-                  src="/lovable-uploads/ece44648-5b4e-4397-bb44-63141b520b67.png"
-                  alt="Logo"
-                  className="w-8 h-8"
-                />
-                <span className="font-semibold">Ma Boutique</span>
+            <SidebarHeader className="p-4">
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <img
+                    src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
+                    alt="Logo"
+                    className="w-8 h-8"
+                  />
+                  <span className="font-semibold text-blue-600">Digit-Sarl</span>
+                </div>
+                <span className="text-sm">Welcome Arnel Anael</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsCollapsed(true)}
+                  className="absolute right-2 top-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsCollapsed(true)}
-                className="ml-auto"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
             </SidebarHeader>
             <SidebarContent>
               <SidebarMenu>
