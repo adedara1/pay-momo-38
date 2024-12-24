@@ -65,19 +65,19 @@ const MainSidebar = () => {
           variant="ghost"
           size="icon"
           onClick={() => setIsCollapsed(false)}
-          className="fixed top-4 left-4 z-50 bg-background"
+          className="fixed top-4 left-4 z-[100] bg-background shadow-md hover:bg-accent"
         >
-          <Menu className="h-4 w-4" />
+          <Menu className="h-5 w-5" />
         </Button>
       ) : (
         <SidebarProvider defaultOpen={!isMobile}>
           <Sidebar 
             className={cn(
               "border-r border-gray-200 dark:border-gray-800",
-              isMobile && "fixed inset-0 z-50 bg-background shadow-lg"
+              isMobile && "fixed inset-0 z-[100] bg-background shadow-lg"
             )}
           >
-            <SidebarHeader className="p-4">
+            <SidebarHeader className="p-4 relative">
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-2">
                   <img
@@ -92,13 +92,13 @@ const MainSidebar = () => {
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsCollapsed(true)}
-                  className="absolute right-2 top-2"
+                  className="absolute right-2 top-2 hover:bg-accent"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
               </div>
             </SidebarHeader>
-            <SidebarContent>
+            <SidebarContent className="overflow-y-auto">
               <SidebarMenu>
                 {menuItems.map((item) => (
                   <SidebarMenuItem key={item.path}>
@@ -106,7 +106,7 @@ const MainSidebar = () => {
                       <Link
                         to={item.path}
                         className={cn(
-                          "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg",
+                          "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors",
                           location.pathname === item.path && "bg-gray-100 dark:bg-gray-800"
                         )}
                         onClick={() => isMobile && setIsCollapsed(true)}
