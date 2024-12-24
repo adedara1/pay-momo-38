@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const menuItems = [
-  { icon: Home, label: "Accueil", path: "/" },
+  { icon: Home, label: "Accueil", path: "/home" },
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
   { icon: Box, label: "Produit", path: "/products" },
   { icon: Image, label: "Média", path: "/media" },
