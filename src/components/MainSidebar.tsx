@@ -59,22 +59,22 @@ const MainSidebar = () => {
   const location = useLocation();
 
   return (
-    <div className="relative h-screen">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="fixed top-4 left-4 z-[100] bg-background shadow-md hover:bg-accent md:hidden"
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
-
-      {!isCollapsed && (
+    <div className="relative">
+      {isCollapsed ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(false)}
+          className="fixed top-4 left-4 z-[100] bg-background shadow-md hover:bg-accent"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      ) : (
         <SidebarProvider defaultOpen={!isMobile}>
           <Sidebar 
             className={cn(
-              "border-r border-gray-200 dark:border-gray-800 transition-all duration-300",
-              isMobile && "fixed inset-0 z-[99] bg-background shadow-lg"
+              "border-r border-gray-200 dark:border-gray-800",
+              isMobile && "fixed inset-0 z-[100] bg-background shadow-lg"
             )}
           >
             <SidebarHeader className="p-4 relative">
@@ -92,7 +92,7 @@ const MainSidebar = () => {
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsCollapsed(true)}
-                  className="absolute right-2 top-2 hover:bg-accent md:hidden"
+                  className="absolute right-2 top-2 hover:bg-accent"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
