@@ -18,7 +18,6 @@ const Blog = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Vérifier la session actuelle
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
@@ -26,7 +25,6 @@ const Blog = () => {
       }
     });
 
-    // Écouter les changements d'authentification
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -41,22 +39,32 @@ const Blog = () => {
 
   const checkProfile = async (userId) => {
     try {
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking profile:", error);
+        return;
+      }
 
       if (!profile) {
         setShowProfileForm(true);
       }
     } catch (error) {
       console.error("Error checking profile:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de vérifier votre profil",
+        variant: "destructive",
+      });
     }
   };
 
   const generateCustomId = (userId: string, firstName: string, lastName: string) => {
-    const baseId = userId.split("-")[0]; // Prendre les caractères avant le premier tiret
+    const baseId = userId.split("-")[0];
     const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toLowerCase();
     return `${baseId}${initials}`;
   };
@@ -155,10 +163,8 @@ const Blog = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold text-gray-900">Blog</h1>
       </div>
-      
-      {/* Contenu du blog similaire à la page Products mais avec des données distinctes */}
       <div className="grid gap-6">
-        {/* ... Contenu spécifique au blog */}
+        {/* Contenu du blog */}
       </div>
     </div>
   );
