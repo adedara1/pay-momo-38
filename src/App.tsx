@@ -18,14 +18,17 @@ const queryClient = new QueryClient({
   },
 });
 
+// Routes that should not display the sidebar
+const noSidebarRoutes = ['/product'];
+
 const AppContent = () => {
   const location = useLocation();
-  const isProductsPage = location.pathname === '/products';
+  const shouldShowSidebar = !noSidebarRoutes.some(route => location.pathname.startsWith(route));
 
   return (
     <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden">
-      {isProductsPage && <MainSidebar />}
-      <main className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${isProductsPage ? 'md:w-[calc(100%-16rem)]' : 'md:w-full'}`}>
+      {shouldShowSidebar && <MainSidebar />}
+      <main className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${shouldShowSidebar ? 'md:w-[calc(100%-16rem)]' : 'md:w-full'}`}>
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
