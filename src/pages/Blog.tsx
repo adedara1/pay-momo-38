@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import ProductsList from "@/components/ProductsList";
 
 const Blog = () => {
   const { toast } = useToast();
@@ -163,9 +164,7 @@ const Blog = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold text-gray-900">Blog</h1>
       </div>
-      <div className="grid gap-6">
-        {/* Contenu du blog */}
-      </div>
+      <ProductsList />
     </div>
   );
 };
