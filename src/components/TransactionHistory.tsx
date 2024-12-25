@@ -9,9 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const TransactionHistory = () => {
-  const { data: transactions, isLoading } = useQuery({
+  const { toast } = useToast();
+
+  const { data: transactions, isLoading, error } = useQuery({
     queryKey: ["transactions"],
     queryFn: async () => {
       console.log("Fetching transactions...");
@@ -22,6 +25,11 @@ const TransactionHistory = () => {
 
       if (error) {
         console.error("Error fetching transactions:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les transactions",
+          variant: "destructive",
+        });
         throw error;
       }
 
@@ -29,6 +37,16 @@ const TransactionHistory = () => {
       return data;
     },
   });
+
+  if (error) {
+    return (
+      <Card className="p-6">
+        <div className="text-center text-red-600">
+          Une erreur est survenue lors du chargement des transactions
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6">
