@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 
 const Blog = () => {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 md:ml-64">
       <Card className="overflow-hidden">
         <div className="grid md:grid-cols-2 gap-8 p-6">
           <div className="space-y-4">
