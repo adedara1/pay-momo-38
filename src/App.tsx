@@ -4,7 +4,6 @@ import MainSidebar from "@/components/MainSidebar";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
 import Products from "@/pages/Products";
-import ProductsManagement from "@/pages/ProductsManagement";
 import ProductPage from "@/pages/ProductPage";
 import Blog from "@/pages/Blog";
 import NotFound from "@/pages/NotFound";
@@ -34,7 +33,6 @@ const AppContent = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/products-management" element={<ProductsManagement />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/" element={<Navigate to="/home" replace />} />
