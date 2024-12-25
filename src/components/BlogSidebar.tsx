@@ -1,20 +1,34 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { menuItems } from "@/lib/menuItems";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const BlogSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const isPaymentPage = location.pathname.includes("/payment");
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès",
+      });
+      
+      navigate("/blog");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isPaymentPage) {
     return null;
@@ -34,16 +48,27 @@ const BlogSidebar = () => {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-1">
             {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors ${
-                  location.pathname === item.path ? "bg-gray-100 dark:bg-gray-800" : ""
-                }`}
-              >
-                <item.icon className="h-5 w-5" />
-                <span className="flex-1">{item.label}</span>
-              </Link>
+              item.path === "/logout" ? (
+                <button
+                  key={item.path}
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="flex-1">{item.label}</span>
+                </button>
+              ) : (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors ${
+                    location.pathname === item.path ? "bg-gray-100 dark:bg-gray-800" : ""
+                  }`}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="flex-1">{item.label}</span>
+                </Link>
+              )
             ))}
           </div>
         </div>

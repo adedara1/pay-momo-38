@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import ProductsList from "@/components/ProductsList";
+import ProductForm from "@/components/ProductForm";
+import { Plus } from "lucide-react";
 
 const Blog = () => {
   const { toast } = useToast();
@@ -17,6 +19,7 @@ const Blog = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showProductForm, setShowProductForm] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -163,7 +166,21 @@ const Blog = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold text-gray-900">Blog</h1>
+        <Button 
+          onClick={() => setShowProductForm(!showProductForm)}
+          className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          {showProductForm ? "Fermer" : "Créer une page produit"}
+        </Button>
       </div>
+      
+      {showProductForm && (
+        <Card className="p-6 mb-8 bg-white shadow-lg">
+          <ProductForm />
+        </Card>
+      )}
+      
       <ProductsList />
     </div>
   );
