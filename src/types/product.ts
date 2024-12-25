@@ -1,6 +1,6 @@
 export interface PaymentLink {
   id: string;
-  paydunya_token: string | null;
+  moneroo_token: string | null;
 }
 
 export interface Product {

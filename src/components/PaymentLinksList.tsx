@@ -67,14 +67,14 @@ const PaymentLinksList = () => {
   const getPaymentUrl = (paymentLink: any) => {
     // If the payment link is associated with a product, use the product page URL
     if (paymentLink.products && paymentLink.products.id) {
-      return `/products/${paymentLink.products.id}`;
+      return `/product/${paymentLink.products.id}`;
     }
-    // Use PayDunya URL if token is available
-    if (paymentLink.paydunya_token) {
-      return `https://paydunya.com/checkout/invoice/${paymentLink.paydunya_token}`;
+    // Use Moneroo URL if token is available
+    if (paymentLink.moneroo_token) {
+      return `https://checkout.moneroo.io/${paymentLink.moneroo_token}`;
     }
-    // Fallback to product page if no PayDunya token
-    return `/products/${paymentLink.products?.id}`;
+    // Fallback to product page if no Moneroo token
+    return `/product/${paymentLink.products?.id}`;
   };
 
   return (
@@ -124,8 +124,8 @@ const PaymentLinksList = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {link.paydunya_token 
-                        ? `https://paydunya.com/checkout/invoice/${link.paydunya_token}`
+                      {link.moneroo_token 
+                        ? `https://checkout.moneroo.io/${link.moneroo_token}`
                         : window.location.origin + getPaymentUrl(link)
                       }
                     </a>
@@ -136,8 +136,8 @@ const PaymentLinksList = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          const url = link.paydunya_token 
-                            ? `https://paydunya.com/checkout/invoice/${link.paydunya_token}`
+                          const url = link.moneroo_token 
+                            ? `https://checkout.moneroo.io/${link.moneroo_token}`
                             : window.location.origin + getPaymentUrl(link);
                           navigator.clipboard.writeText(url);
                           toast({

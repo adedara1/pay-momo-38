@@ -69,7 +69,7 @@ const TransactionHistory = () => {
                       {transaction.status}
                     </span>
                   </TableCell>
-                  <TableCell>{transaction.paydunya_reference || "-"}</TableCell>
+                  <TableCell>{transaction.moneroo_reference || "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

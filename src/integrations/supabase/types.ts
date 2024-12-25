@@ -47,7 +47,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
-          paydunya_token: string | null
+          moneroo_token: string | null
           payment_type: string
           status: string | null
           updated_at: string | null
@@ -58,7 +58,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
-          paydunya_token?: string | null
+          moneroo_token?: string | null
           payment_type: string
           status?: string | null
           updated_at?: string | null
@@ -69,7 +69,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
-          paydunya_token?: string | null
+          moneroo_token?: string | null
           payment_type?: string
           status?: string | null
           updated_at?: string | null
@@ -167,7 +167,7 @@ export type Database = {
           amount: number
           created_at: string | null
           id: string
-          paydunya_reference: string | null
+          moneroo_reference: string | null
           status: string | null
           updated_at: string | null
           user_id: string | null
@@ -176,7 +176,7 @@ export type Database = {
           amount: number
           created_at?: string | null
           id?: string
-          paydunya_reference?: string | null
+          moneroo_reference?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -185,7 +185,7 @@ export type Database = {
           amount?: number
           created_at?: string | null
           id?: string
-          paydunya_reference?: string | null
+          moneroo_reference?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
