@@ -9,62 +9,39 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 const TransactionHistory = () => {
-  const { toast } = useToast();
-
-  const { data: transactions, isLoading, error } = useQuery({
+  const { data: transactions, isLoading } = useQuery({
     queryKey: ["transactions"],
     queryFn: async () => {
       console.log("Fetching transactions...");
       const { data, error } = await supabase
         .from("transactions")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*");
 
       if (error) {
         console.error("Error fetching transactions:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les transactions",
-          variant: "destructive",
-        });
         throw error;
       }
 
-      console.log("Transactions fetched:", data);
       return data;
     },
   });
 
-  if (error) {
-    return (
-      <Card className="p-6">
-        <div className="text-center text-red-600">
-          Une erreur est survenue lors du chargement des transactions
-        </div>
-      </Card>
-    );
-  }
-
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Historique des transactions</h2>
-      
+      <h2 className="text-2xl font-bold mb-6">Historique des transactions</h2>
       {isLoading ? (
-        <p className="text-center text-gray-500">Chargement...</p>
-      ) : transactions?.length === 0 ? (
-        <p className="text-center text-gray-500">Aucune transaction</p>
+        <div className="text-center">Chargement...</div>
       ) : (
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>Montant</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Référence</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="text-right">Montant</TableHead>
+                <TableHead>Statut</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -73,10 +50,16 @@ const TransactionHistory = () => {
                   <TableCell>
                     {new Date(transaction.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>{transaction.amount} FCFA</TableCell>
+                  <TableCell>{transaction.description}</TableCell>
+                  <TableCell className="text-right">
+                    {transaction.amount.toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "XOF",
+                    })}
+                  </TableCell>
                   <TableCell>
                     <span
-                      className={`px-2 py-1 rounded-full text-sm ${
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
                         transaction.status === "completed"
                           ? "bg-green-100 text-green-800"
                           : transaction.status === "pending"
@@ -84,10 +67,13 @@ const TransactionHistory = () => {
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {transaction.status}
+                      {transaction.status === "completed"
+                        ? "Complété"
+                        : transaction.status === "pending"
+                        ? "En attente"
+                        : "Échoué"}
                     </span>
                   </TableCell>
-                  <TableCell>{transaction.paydunya_reference || "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
