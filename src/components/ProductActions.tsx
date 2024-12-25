@@ -45,7 +45,7 @@ const ProductActions = ({ productId, hasPaymentLink, onPreview }: ProductActions
       <Button variant="ghost" size="sm" onClick={onPreview}>
         <Eye className="h-4 w-4" />
       </Button>
-      <Link to={`/products/${productId}`} target="_blank">
+      <Link to={`/product/${productId}`}>
         <Button variant="ghost" size="sm">
           <Eye className="h-4 w-4" />
         </Button>
