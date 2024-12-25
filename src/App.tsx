@@ -23,9 +23,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden">
           <MainSidebar />
-          <main className="flex-1 w-full md:w-[calc(100%-16rem)] overflow-auto p-8">
+          <main className="flex-1 w-full md:w-[calc(100%-16rem)] overflow-y-auto p-4 md:p-8">
             <Routes>
               <Route path="/home" element={<Home />} />
               <Route path="/dashboard" element={<Dashboard />} />

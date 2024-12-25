@@ -46,9 +46,9 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-6">Salut Arnel Angel!</h1>
+    <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
+      <div className="mb-4 md:mb-8">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Salut Arnel Angel!</h1>
         <WalletStats />
       </div>
 
@@ -64,7 +64,7 @@ const Home = () => {
         </div>
         
         <CollapsibleContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
             <StatCard
               title="Ventes Cumulées"
               value={stats.totalSales}
@@ -83,7 +83,7 @@ const Home = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
             <StatCard
               title="Total Des Transactions"
               value={String(stats.totalTransactions).padStart(3, '0')}
@@ -98,7 +98,7 @@ const Home = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
             <StatCard
               title="Ventes du Mois Précédent"
               value={stats.previousMonthSales}
@@ -118,7 +118,7 @@ const Home = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
             <StatCard
               title="Totals Produits"
               value={String(stats.totalProducts).padStart(3, '0')}
