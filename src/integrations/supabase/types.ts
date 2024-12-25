@@ -121,6 +121,30 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          custom_id: string | null
+          first_name: string
+          id: string
+          last_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          custom_id?: string | null
+          first_name: string
+          id: string
+          last_name: string
+        }
+        Update: {
+          created_at?: string | null
+          custom_id?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+        }
+        Relationships: []
+      }
       simple_pages: {
         Row: {
           amount: number
