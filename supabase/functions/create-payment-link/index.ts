@@ -44,7 +44,6 @@ serve(async (req) => {
       return_url: `${Deno.env.get('SUPABASE_URL')}/products/${product_id || ''}`,
       metadata: {
         payment_type: payment_type,
-        // Remove user_id from metadata since we're not using authentication
       }
     }
 
@@ -91,14 +90,14 @@ serve(async (req) => {
 
     console.log('Moneroo response data:', monerooData)
 
-    // Create payment link in database without user_id
+    // Create payment link in database
     const { data: paymentLink, error: dbError } = await supabaseClient
       .from('payment_links')
       .insert({
         amount: amount,
         description: description,
         payment_type: payment_type,
-        paydunya_token: monerooData.data.id, // Using this field for Moneroo ID
+        moneroo_token: monerooData.data.id,
         status: 'pending'
       })
       .select()

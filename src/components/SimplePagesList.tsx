@@ -31,7 +31,7 @@ const SimplePagesList = () => {
           *,
           payment_links (
             id,
-            paydunya_token
+            moneroo_token
           )
         `)
         .order("created_at", { ascending: false });

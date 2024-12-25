@@ -34,7 +34,7 @@ const ProductPage = () => {
             *,
             payment_links (
               id,
-              paydunya_token
+              moneroo_token
             )
           `)
           .eq("id", id)

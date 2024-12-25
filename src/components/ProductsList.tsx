@@ -31,7 +31,7 @@ const ProductsList = () => {
           *,
           payment_links (
             id,
-            paydunya_token
+            moneroo_token
           )
         `)
         .order("created_at", { ascending: false });
@@ -101,7 +101,7 @@ const ProductsList = () => {
                   <TableCell>
                     <ProductActions 
                       productId={product.id} 
-                      hasPaymentLink={!!product.payment_links?.paydunya_token}
+                      hasPaymentLink={!!product.payment_links?.moneroo_token}
                       onPreview={() => handlePreview(product)}
                     />
                   </TableCell>
