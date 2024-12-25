@@ -9,7 +9,7 @@ import { Home, Search, User } from "lucide-react";
 
 const Blog = () => {
   return (
-    <div className="container mx-auto px-4 py-8 md:ml-64">
+    <div className="container mx-auto px-4 py-8">
       <div className="hidden md:flex justify-center mb-8">
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#9b87f5] text-white hover:bg-[#8a74f4] transition-colors">
