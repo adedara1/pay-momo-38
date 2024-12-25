@@ -17,31 +17,36 @@ const TransactionHistory = () => {
       console.log("Fetching transactions...");
       const { data, error } = await supabase
         .from("transactions")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching transactions:", error);
         throw error;
       }
 
+      console.log("Transactions fetched:", data);
       return data;
     },
   });
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Historique des transactions</h2>
+      <h2 className="text-xl font-semibold mb-4">Historique des transactions</h2>
+      
       {isLoading ? (
-        <div className="text-center">Chargement...</div>
+        <p className="text-center text-gray-500">Chargement...</p>
+      ) : transactions?.length === 0 ? (
+        <p className="text-center text-gray-500">Aucune transaction</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Montant</TableHead>
-                <TableHead>Statut</TableHead>
+                <TableHead>Montant</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Référence</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -50,16 +55,10 @@ const TransactionHistory = () => {
                   <TableCell>
                     {new Date(transaction.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>{transaction.description}</TableCell>
-                  <TableCell className="text-right">
-                    {transaction.amount.toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "XOF",
-                    })}
-                  </TableCell>
+                  <TableCell>{transaction.amount} FCFA</TableCell>
                   <TableCell>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      className={`px-2 py-1 rounded-full text-sm ${
                         transaction.status === "completed"
                           ? "bg-green-100 text-green-800"
                           : transaction.status === "pending"
@@ -67,13 +66,10 @@ const TransactionHistory = () => {
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {transaction.status === "completed"
-                        ? "Complété"
-                        : transaction.status === "pending"
-                        ? "En attente"
-                        : "Échoué"}
+                      {transaction.status}
                     </span>
                   </TableCell>
+                  <TableCell>{transaction.paydunya_reference || "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
