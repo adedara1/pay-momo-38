@@ -10,7 +10,7 @@ import { Product } from "@/types/product";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ProductPage = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
