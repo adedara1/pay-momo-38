@@ -5,7 +5,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, Search, User } from "lucide-react";
+import { 
+  Home, 
+  LayoutDashboard, 
+  Package, 
+  Image, 
+  ShoppingCart, 
+  CreditCard, 
+  Users, 
+  RefreshCw,
+  Settings,
+  DollarSign,
+  MessageSquare,
+  Headphones,
+  Signal,
+  Globe,
+  Palette,
+  Power
+} from "lucide-react";
 
 const Blog = () => {
   return (
@@ -16,14 +33,82 @@ const Blog = () => {
             <Home className="w-5 h-5" />
             <span>Accueil</span>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-[200px]">
-            <DropdownMenuItem className="flex items-center gap-2 py-3 px-4 cursor-pointer bg-[#0EA5E9] text-white hover:bg-[#0284c7]">
-              <Search className="w-5 h-5" />
-              <span>Search</span>
+          <DropdownMenuContent align="start" className="w-[240px] p-2 space-y-1">
+            <div className="flex items-center gap-2 px-3 py-2 mb-2 border-b">
+              <img
+                src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
+                alt="Logo"
+                className="w-8 h-8"
+              />
+              <span className="font-semibold text-blue-600">Digit-Sarl</span>
+            </div>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Home className="w-5 h-5" />
+              <span>Accueil</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-2 py-3 px-4 cursor-pointer bg-[#F97316] text-white hover:bg-[#ea580c]">
-              <User className="w-5 h-5" />
-              <span>Profile</span>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <LayoutDashboard className="w-5 h-5" />
+              <span>Tableau de bord</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Package className="w-5 h-5" />
+              <span>Produit</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Image className="w-5 h-5" />
+              <span>Média</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <ShoppingCart className="w-5 h-5" />
+              <span>Commandes</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <CreditCard className="w-5 h-5" />
+              <span>Paiements</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Users className="w-5 h-5" />
+              <span>Clients</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <RefreshCw className="w-5 h-5" />
+              <span>Rembourser</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Settings className="w-5 h-5" />
+              <span>Réglages</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <DollarSign className="w-5 h-5" />
+              <span>Mon Argent</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <MessageSquare className="w-5 h-5" />
+              <span>Avis</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Headphones className="w-5 h-5" />
+              <span>Support</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Signal className="w-5 h-5" />
+              <span>Facebook Pixel</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Globe className="w-5 h-5" />
+              <span>Mon Domaine</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <DollarSign className="w-5 h-5" />
+              <span>Devise</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100">
+              <Palette className="w-5 h-5" />
+              <span>Configuration thème</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100 text-red-600">
+              <Power className="w-5 h-5" />
+              <span>Déconnexion</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
