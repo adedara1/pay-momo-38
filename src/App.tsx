@@ -9,7 +9,6 @@ import Blog from "@/pages/Blog";
 import NotFound from "@/pages/NotFound";
 import { Toaster } from "@/components/ui/toaster";
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
