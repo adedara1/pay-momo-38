@@ -18,25 +18,33 @@ const ProfileForm = () => {
     setIsSubmitting(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
+      if (userError) {
+        console.error('User error:', userError);
+        throw userError;
+      }
+
       if (!user) {
+        console.error('No user found');
         throw new Error("No user found");
       }
 
-      console.log("Updating profile for user:", user.id);
+      console.log("Upserting profile for user:", user.id);
       
-      const { error } = await supabase
+      const { error: upsertError } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           first_name: firstName,
           last_name: lastName,
-        })
-        .eq('id', user.id);
+        }, {
+          onConflict: 'id'
+        });
 
-      if (error) {
-        console.error('Update error:', error);
-        throw error;
+      if (upsertError) {
+        console.error('Upsert error:', upsertError);
+        throw upsertError;
       }
 
       console.log("Profile updated successfully");
