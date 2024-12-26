@@ -33,7 +33,7 @@ const ProductPage = () => {
               status
             )
           `)
-          .eq("id", id)
+          .eq('id', id)
           .maybeSingle();
 
         if (queryError) {
