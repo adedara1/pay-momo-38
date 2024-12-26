@@ -11,6 +11,10 @@ const MobileSidebar = () => {
   const location = useLocation();
   const { signOut } = useAuth();
 
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <>
       <Button
@@ -69,7 +73,7 @@ const MobileSidebar = () => {
             <Button
               variant="ghost"
               className="w-full flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={signOut}
+              onClick={handleSignOut}
             >
               <LogOut className="h-5 w-5" />
               <span>Déconnexion</span>
