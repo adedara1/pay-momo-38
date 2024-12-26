@@ -34,7 +34,7 @@ const ProductPage = () => {
             )
           `)
           .eq('id', id)
-          .maybeSingle();
+          .single();
 
         if (queryError) {
           console.error("Error fetching product:", queryError);
