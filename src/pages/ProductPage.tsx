@@ -27,14 +27,14 @@ const ProductPage = () => {
           .from("products")
           .select(`
             *,
-            payment_links (
+            payment_links!inner (
               id,
               moneroo_token,
               status
             )
           `)
           .eq("id", id)
-          .single();
+          .maybeSingle();
 
         if (queryError) {
           console.error("Error fetching product:", queryError);
@@ -47,17 +47,10 @@ const ProductPage = () => {
           return;
         }
 
-        // Verify that the product has a valid payment link
-        if (!data.payment_link_id || !data.payment_links) {
-          console.error("Product has no payment link");
-          setError("Ce produit n'est pas disponible pour le paiement");
-          return;
-        }
-
         // Verify that the payment link is active
-        if (data.payment_links.status !== 'active') {
-          console.error("Payment link is not active");
-          setError("Ce produit n'est plus disponible pour le paiement");
+        if (!data.payment_links || data.payment_links.status !== 'active') {
+          console.error("Product payment link is not active");
+          setError("Ce produit n'est pas disponible pour le paiement");
           return;
         }
         
