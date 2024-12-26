@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const ProfileForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -24,6 +24,7 @@ const ProfileForm = () => {
         throw new Error("No user found");
       }
 
+      // Mise à jour du profil avec first_name et last_name
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -32,7 +33,10 @@ const ProfileForm = () => {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
 
       toast({
         title: "Profil mis à jour",
