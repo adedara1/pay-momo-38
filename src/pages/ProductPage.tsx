@@ -23,7 +23,7 @@ const ProductPage = () => {
       try {
         console.log("Fetching product with ID:", id);
         
-        const { data, error } = await supabase
+        const { data, error: queryError } = await supabase
           .from("products")
           .select(`
             *,
@@ -35,7 +35,7 @@ const ProductPage = () => {
           .eq("id", id)
           .maybeSingle();
 
-        if (error) throw error;
+        if (queryError) throw queryError;
         
         if (!data) {
           setError("Produit non trouvé");

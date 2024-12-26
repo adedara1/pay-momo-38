@@ -40,7 +40,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           .from('profiles')
           .select('first_name, last_name')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
         
         setHasProfile(!!profile?.first_name && !!profile?.last_name);
       }
