@@ -8,9 +8,21 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN") {
-        navigate("/profile");
+        // Vérifier si c'est une première inscription ou une connexion
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', session?.user?.id)
+          .single();
+
+        // Si le profil n'a pas de nom/prénom, c'est une première inscription
+        if (!profile?.first_name || !profile?.last_name) {
+          navigate("/profile");
+        } else {
+          navigate("/home");
+        }
       }
     });
 

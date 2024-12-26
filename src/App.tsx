@@ -55,7 +55,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             throw profileError;
           }
           
-          setHasProfile(!!profile?.first_name && !!profile?.last_name);
+          // Vérifier si le profil est complet
+          const isProfileComplete = !!profile?.first_name && !!profile?.last_name;
+          setHasProfile(isProfileComplete);
+
+          // Si on est sur /profile mais que le profil est déjà complet, rediriger vers home
+          if (location.pathname === '/profile' && isProfileComplete) {
+            navigate('/home');
+          }
         }
       } catch (error) {
         console.error('Auth check error:', error);
@@ -81,7 +88,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [toast]);
+  }, [toast, location.pathname]);
 
   if (isLoading) {
     return (
@@ -95,6 +102,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
+  // Ne rediriger vers /profile que si le profil n'est pas complet et qu'on n'est pas déjà sur /profile
   if (isAuthenticated && !hasProfile && location.pathname !== '/profile') {
     return <Navigate to="/profile" replace />;
   }
