@@ -12,7 +12,7 @@ import {
   BarChart,
   Globe,
   Palette,
-  Power,
+  LogOut,
   LayoutDashboard,
   Box,
 } from "lucide-react";
@@ -34,5 +34,10 @@ export const menuItems = [
   { icon: Globe, label: "Mon Domaine", path: "/domain" },
   { icon: DollarSign, label: "Devise", path: "/currency" },
   { icon: Palette, label: "Configuration theme", path: "/theme" },
-  { icon: Power, label: "Deconnexion", path: "/logout" },
 ];
+
+export const logoutMenuItem = {
+  icon: LogOut,
+  label: "Déconnexion",
+  path: "/logout",
+};
