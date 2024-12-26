@@ -21,7 +21,7 @@ const ProductsList = () => {
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [userId, setUserId] = useState<string>();
+  const [userId, setUserId] = useState<string | null>(null);
   
   // Récupérer l'ID de l'utilisateur
   useEffect(() => {
@@ -35,12 +35,17 @@ const ProductsList = () => {
   }, []);
 
   // Activer la synchronisation en temps réel
-  useStatsSync(userId);
+  useStatsSync(userId || undefined);
   
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", userId],
     queryFn: async () => {
-      console.log("Fetching products...");
+      if (!userId) {
+        console.log("No user ID available");
+        return [];
+      }
+
+      console.log("Fetching products for user:", userId);
       const { data, error } = await supabase
         .from("products")
         .select(`
@@ -50,16 +55,23 @@ const ProductsList = () => {
             moneroo_token
           )
         `)
+        .eq('user_id', userId)
         .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching products:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les produits",
+          variant: "destructive",
+        });
         throw error;
       }
 
       console.log("Products fetched:", data);
       return data as Product[];
     },
+    enabled: !!userId, // Only run query when userId is available
   });
 
   const handlePreview = (product: Product) => {
@@ -84,7 +96,7 @@ const ProductsList = () => {
       
       {isLoading ? (
         <LoadingSkeleton />
-      ) : products?.length === 0 ? (
+      ) : !products || products.length === 0 ? (
         <p className="text-center text-gray-500 py-8">Aucun produit</p>
       ) : (
         <div className="overflow-x-auto">
