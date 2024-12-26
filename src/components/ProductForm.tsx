@@ -15,7 +15,6 @@ const ProductForm = () => {
   const [amount, setAmount] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [productUrl, setProductUrl] = useState<string | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -26,7 +25,6 @@ const ProductForm = () => {
   const createProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation du montant minimum
     if (parseInt(amount) < 200) {
       toast({
         title: "Montant invalide",
@@ -39,6 +37,13 @@ const ProductForm = () => {
     setIsLoading(true);
     
     try {
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error("Utilisateur non authentifié");
+      }
+
       let imageUrl = null;
       if (image) {
         const fileExt = image.name.split('.').pop();
@@ -56,7 +61,7 @@ const ProductForm = () => {
         imageUrl = publicUrl;
       }
 
-      // Create payment link with PayDunya integration
+      // Create payment link
       const { data: paymentLinkData, error: paymentLinkError } = await supabase.functions.invoke(
         "create-payment-link",
         {
@@ -70,7 +75,7 @@ const ProductForm = () => {
 
       if (paymentLinkError) throw paymentLinkError;
 
-      // Create product without user_id
+      // Create product with user_id
       const { data: productData, error: productError } = await supabase
         .from('products')
         .insert({
@@ -78,25 +83,20 @@ const ProductForm = () => {
           description,
           amount: parseInt(amount),
           image_url: imageUrl,
+          user_id: user.id,
           payment_link_id: paymentLinkData.payment_link_id
         })
         .select()
         .single();
 
       if (productError) throw productError;
-
-      const productPageUrl = `${window.location.origin}/products/${productData.id}`;
-      setProductUrl(productPageUrl);
       
       toast({
         title: "Produit créé",
-        description: "La page de paiement a été créée avec succès",
+        description: "Le produit a été créé avec succès",
       });
       
-      // Copy product URL to clipboard
-      await navigator.clipboard.writeText(productPageUrl);
-      
-      // Refresh both products and payment links lists
+      // Refresh lists
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["payment-links"] });
       
@@ -140,7 +140,7 @@ const ProductForm = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Montant (FCFA)</label>
+          <label className="block text-sm font-medium mb-1">Prix (FCFA)</label>
           <Input
             type="number"
             value={amount}
@@ -152,7 +152,7 @@ const ProductForm = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Image du produit</label>
+          <label className="block text-sm font-medium mb-1">Image</label>
           <Input
             type="file"
             accept="image/*"
@@ -165,21 +165,6 @@ const ProductForm = () => {
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Création..." : "Créer le produit"}
         </Button>
-
-        {productUrl && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium mb-2">URL de la page de paiement :</p>
-            <p className="text-xs break-all text-blue-600">{productUrl}</p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={() => navigator.clipboard.writeText(productUrl)}
-            >
-              Copier l'URL
-            </Button>
-          </div>
-        )}
       </form>
     </Card>
   );
