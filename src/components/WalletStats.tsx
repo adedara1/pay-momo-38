@@ -3,8 +3,10 @@ import { Wallet, Timer, PiggyBank } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRealtimeUpdates } from "@/hooks/use-realtime-updates";
 
 const WalletStats = () => {
+  const [userId, setUserId] = useState<string>();
   const [stats, setStats] = useState({
     available: 0,
     pending: 0,
@@ -14,11 +16,16 @@ const WalletStats = () => {
   });
   const { toast } = useToast();
 
+  // Enable realtime updates
+  useRealtimeUpdates(userId);
+
   useEffect(() => {
     const fetchWalletStats = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
+
+        setUserId(user.id);
 
         const { data: transactions, error } = await supabase
           .from('transactions')
@@ -49,6 +56,8 @@ const WalletStats = () => {
 
     fetchWalletStats();
   }, [toast]);
+
+  // ... keep existing code (component JSX)
 
   return (
     <div className="grid grid-cols-3 gap-2 md:gap-[2vw]">
