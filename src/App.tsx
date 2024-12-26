@@ -32,54 +32,53 @@ const AppContent = () => {
     <div className="flex min-h-screen bg-background">
       {shouldShowSidebar && <MainSidebar />}
       <div className={`flex-1 ${shouldShowSidebar ? 'md:ml-64' : ''}`}>
-        <main className="h-full p-4 md:p-8">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/home"
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/products"
-              element={
-                <ProtectedRoute>
-                  <Products />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/product/:id"
-              element={
-                <ProtectedRoute>
-                  <ProductPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/blog"
-              element={
-                <ProtectedRoute>
-                  <Blog />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/home" replace />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products"
+            element={
+              <ProtectedRoute>
+                <Products />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/product/:id"
+            element={
+              <ProtectedRoute>
+                <ProductPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/blog"
+            element={
+              <ProtectedRoute>
+                <Blog />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </div>
+      <Toaster />
     </div>
   );
 };
@@ -90,7 +89,6 @@ function App() {
       <Router>
         <AuthProvider>
           <AppContent />
-          <Toaster />
         </AuthProvider>
       </Router>
     </QueryClientProvider>
