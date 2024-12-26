@@ -24,7 +24,8 @@ const ProfileForm = () => {
         throw new Error("No user found");
       }
 
-      // Mise à jour du profil avec first_name et last_name
+      console.log("Updating profile for user:", user.id);
+      
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -38,6 +39,8 @@ const ProfileForm = () => {
         throw error;
       }
 
+      console.log("Profile updated successfully");
+      
       toast({
         title: "Profil mis à jour",
         description: "Vos informations ont été enregistrées avec succès",
