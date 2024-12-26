@@ -27,7 +27,7 @@ const ProductPage = () => {
           .from("products")
           .select(`
             *,
-            payment_links!inner (
+            payment_links (
               id,
               moneroo_token,
               status
@@ -47,13 +47,6 @@ const ProductPage = () => {
           return;
         }
 
-        // Verify that the payment link is active
-        if (!data.payment_links || data.payment_links.status !== 'active') {
-          console.error("Product payment link is not active");
-          setError("Ce produit n'est pas disponible pour le paiement");
-          return;
-        }
-        
         console.log("Product fetched:", data);
         setProduct(data as Product);
       } catch (err) {
