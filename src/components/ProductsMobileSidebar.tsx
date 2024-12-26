@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, ChevronLeft, LayoutDashboard, Box, ShoppingCart, CreditCard, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
@@ -11,15 +10,11 @@ const menuItems = [
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
   { icon: CreditCard, label: "Paiements", path: "/payments" },
   { icon: Settings, label: "Réglages", path: "/settings" },
+  { icon: LogOut, label: "Déconnexion", path: "/logout" },
 ];
 
 const ProductsMobileSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
 
   return (
     <>
@@ -71,16 +66,6 @@ const ProductsMobileSidebar = () => {
                 </Link>
               ))}
             </div>
-          </div>
-          <div className="p-4 border-t">
-            <Button
-              variant="ghost"
-              className="w-full flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={handleSignOut}
-            >
-              <LogOut className="h-5 w-5" />
-              <span>Déconnexion</span>
-            </Button>
           </div>
         </div>
       </div>

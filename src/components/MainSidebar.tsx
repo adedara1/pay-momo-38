@@ -6,9 +6,9 @@ const MainSidebar = () => {
   const isMobile = useIsMobile();
 
   return (
-    <aside className="fixed top-0 left-0 z-40 h-screen">
+    <>
       {isMobile ? <MobileSidebar /> : <BlogSidebar />}
-    </aside>
+    </>
   );
 };
 

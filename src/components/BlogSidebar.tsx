@@ -9,12 +9,8 @@ const BlogSidebar = () => {
   const location = useLocation();
   const { signOut } = useAuth();
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
   return (
-    <div className="hidden md:flex flex-col fixed w-64 bg-white border-r h-screen">
+    <div className="hidden md:flex flex-col w-64 bg-white border-r min-h-screen">
       <div className="p-4 border-b">
         <div className="flex items-center gap-2">
           <img
@@ -25,7 +21,7 @@ const BlogSidebar = () => {
           <span className="font-semibold text-blue-600">Digit-Sarl</span>
         </div>
       </div>
-      <div className="flex-1 py-4 overflow-y-auto">
+      <div className="flex-1 py-4">
         <div className="space-y-1 px-3">
           {menuItems.map((item) => (
             <Link
@@ -46,7 +42,7 @@ const BlogSidebar = () => {
         <Button
           variant="ghost"
           className="w-full flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-          onClick={handleSignOut}
+          onClick={signOut}
         >
           <LogOut className="h-5 w-5" />
           <span>Déconnexion</span>
