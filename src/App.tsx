@@ -157,6 +157,7 @@ const AppContent = () => {
         <Routes>
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
+          {/* Product page route moved outside of ProtectedRoute */}
           <Route path="/product/:id" element={<ProductPage />} />
           <Route
             path="/home"
