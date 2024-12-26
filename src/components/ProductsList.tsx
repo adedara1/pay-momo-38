@@ -11,15 +11,31 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import ProductActions from "./ProductActions";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ProductPreviewDialog from "./ProductPreviewDialog";
 import { Product } from "@/types/product";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useStatsSync } from "@/hooks/use-stats-sync";
 
 const ProductsList = () => {
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [userId, setUserId] = useState<string>();
+  
+  // Récupérer l'ID de l'utilisateur
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    getUserId();
+  }, []);
+
+  // Activer la synchronisation en temps réel
+  useStatsSync(userId);
   
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
