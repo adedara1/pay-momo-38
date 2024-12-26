@@ -221,7 +221,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_custom_id: {
+        Args: {
+          user_id: string
+          first_name: string
+          last_name: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
