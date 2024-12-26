@@ -1,13 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { menuItems } from "@/lib/menuItems";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "./ui/button";
-import { LogOut } from "lucide-react";
 
 const BlogSidebar = () => {
   const location = useLocation();
-  const { signOut } = useAuth();
 
   return (
     <div className="hidden md:flex flex-col w-64 bg-white border-r min-h-screen">
@@ -37,16 +33,6 @@ const BlogSidebar = () => {
             </Link>
           ))}
         </div>
-      </div>
-      <div className="p-4 border-t">
-        <Button
-          variant="ghost"
-          className="w-full flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-          onClick={signOut}
-        >
-          <LogOut className="h-5 w-5" />
-          <span>Déconnexion</span>
-        </Button>
       </div>
     </div>
   );

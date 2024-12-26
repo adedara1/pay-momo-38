@@ -7,10 +7,7 @@ import Products from "@/pages/Products";
 import ProductPage from "@/pages/ProductPage";
 import Blog from "@/pages/Blog";
 import NotFound from "@/pages/NotFound";
-import Login from "@/pages/Login";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/contexts/AuthContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,7 +19,7 @@ const queryClient = new QueryClient({
 });
 
 // Routes that should not display the sidebar
-const noSidebarRoutes = ['/product', '/login'];
+const noSidebarRoutes = ['/product'];
 
 const AppContent = () => {
   const location = useLocation();
@@ -33,47 +30,11 @@ const AppContent = () => {
       {shouldShowSidebar && <MainSidebar />}
       <main className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${shouldShowSidebar ? 'md:w-[calc(100%-16rem)]' : 'md:w-full'}`}>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products"
-            element={
-              <ProtectedRoute>
-                <Products />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/product/:id"
-            element={
-              <ProtectedRoute>
-                <ProductPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/blog"
-            element={
-              <ProtectedRoute>
-                <Blog />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/home" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/blog" element={<Blog />} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -86,10 +47,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <AuthProvider>
-          <AppContent />
-          <Toaster />
-        </AuthProvider>
+        <AppContent />
+        <Toaster />
       </Router>
     </QueryClientProvider>
   );

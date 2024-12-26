@@ -1,15 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Menu, LogOut } from "lucide-react";
+import { ChevronLeft, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { menuItems } from "@/lib/menuItems";
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 
 const MobileSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const location = useLocation();
-  const { signOut } = useAuth();
 
   return (
     <>
@@ -64,16 +62,6 @@ const MobileSidebar = () => {
                 </Link>
               ))}
             </div>
-          </div>
-          <div className="p-4 border-t">
-            <Button
-              variant="ghost"
-              className="w-full flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={signOut}
-            >
-              <LogOut className="h-5 w-5" />
-              <span>Déconnexion</span>
-            </Button>
           </div>
         </div>
       </div>
