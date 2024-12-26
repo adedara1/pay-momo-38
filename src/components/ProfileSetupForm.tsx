@@ -60,7 +60,7 @@ const ProfileSetupForm = () => {
 
   return (
     <Dialog open={true}>
-      <DialogContent className="sm:max-w-md" showClose={false}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
             Complétez votre profil
