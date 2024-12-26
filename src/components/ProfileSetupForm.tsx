@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProfileSetupForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -14,6 +15,7 @@ const ProfileSetupForm = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { refreshSession } = useAuth();
 
   const generateCustomId = (userId: string, firstName: string, lastName: string) => {
     const baseId = userId.split("-")[0];
@@ -56,10 +58,8 @@ const ProfileSetupForm = () => {
         duration: 3000,
       });
 
-      // Attendre un peu avant de recharger pour que l'utilisateur puisse voir le toast
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      // Rafraîchir la session pour mettre à jour les informations du profil
+      await refreshSession();
       
     } catch (error: any) {
       console.error("Erreur lors de la création du profil:", error);
