@@ -24,15 +24,32 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data: transactions } = await supabase
+        console.log("Fetching stats for user:", profile?.id);
+        
+        // Fetch user-specific transactions
+        const { data: transactions, error: transactionError } = await supabase
           .from('transactions')
           .select('*')
           .eq('user_id', profile?.id);
 
-        const { data: products } = await supabase
+        if (transactionError) {
+          console.error("Error fetching transactions:", transactionError);
+          return;
+        }
+
+        // Fetch user-specific products
+        const { data: products, error: productError } = await supabase
           .from('products')
           .select('*')
           .eq('user_id', profile?.id);
+
+        if (productError) {
+          console.error("Error fetching products:", productError);
+          return;
+        }
+
+        console.log("Fetched transactions:", transactions);
+        console.log("Fetched products:", products);
 
         if (transactions && products) {
           const totalSales = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
@@ -62,8 +79,6 @@ const Dashboard = () => {
             monthlyTransactions: transactions.filter(t => new Date(t.created_at) >= firstDayOfMonth).length,
             dailyTransactions: transactions.filter(t => new Date(t.created_at) >= startOfDay).length,
           }));
-          
-          console.log("Fetched data:", { transactions, products });
         }
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -76,13 +91,19 @@ const Dashboard = () => {
   }, [profile?.id]);
 
   if (!profile) {
-    return null;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-500">Chargement...</p>
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Salut {profile.first_name} {profile.last_name}!</h1>
+        <h1 className="text-2xl font-bold mb-2">
+          Salut {profile.first_name} {profile.last_name}!
+        </h1>
         <p className="text-gray-600 mb-6">ID: {profile.custom_id}</p>
         <WalletStats />
       </div>
@@ -97,11 +118,13 @@ const Dashboard = () => {
         <StatCard
           title="Ventes du jours"
           value={stats.dailySales}
+          suffix="Fcfa"
           className="bg-purple-500 text-white"
         />
         <StatCard
           title="Ventes Du Mois"
           value={stats.monthlySales}
+          suffix="Fcfa"
           className="bg-pink-500 text-white"
         />
       </div>
@@ -121,38 +144,19 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard
-          title="Ventes du Mois Précédent"
-          value={stats.previousMonthSales}
-          suffix="Fcfa"
-          className="bg-blue-800 text-white"
-        />
-        <StatCard
-          title="Transactions du Mois Précédent"
-          value={String(stats.previousMonthTransactions).padStart(2, '0')}
-          className="bg-purple-800 text-white"
-        />
-        <StatCard
-          title="Croissance Des Ventes"
-          value={stats.salesGrowth}
-          suffix="%"
-          className="bg-purple-900 text-white"
-        />
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
-          title="Totals Produits"
+          title="Total Produits"
           value={String(stats.totalProducts).padStart(3, '0')}
         />
         <StatCard
-          title="Totals Produits Visible"
+          title="Produits Visibles"
           value={String(stats.visibleProducts).padStart(2, '0')}
         />
         <StatCard
-          title="Solde(s)"
+          title="Solde"
           value={stats.soldAmount}
+          suffix="Fcfa"
           className="bg-gray-900 text-white"
         />
       </div>
