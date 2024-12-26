@@ -5,6 +5,7 @@ import WalletStats from "@/components/WalletStats";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import ProfileSetupForm from "@/components/ProfileSetupForm";
 
 const Home = () => {
   const { profile } = useAuth();
@@ -61,8 +62,9 @@ const Home = () => {
     }
   }, [profile?.id]);
 
-  if (!profile) {
-    return null;
+  // If there's no profile, show the profile setup form
+  if (!profile?.first_name || !profile?.last_name) {
+    return <ProfileSetupForm />;
   }
 
   return (
