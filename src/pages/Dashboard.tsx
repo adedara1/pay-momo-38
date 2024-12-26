@@ -4,47 +4,86 @@ import StatCard from "@/components/StatCard";
 import WalletStats from "@/components/WalletStats";
 
 const Dashboard = () => {
+  const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [stats, setStats] = useState({
-    totalSales: 75990,
+    totalSales: 0,
     dailySales: 0,
-    monthlySales: 55545,
-    totalTransactions: 13,
+    monthlySales: 0,
+    totalTransactions: 0,
     dailyTransactions: 0,
-    monthlyTransactions: 9,
-    previousMonthSales: 9545,
-    previousMonthTransactions: 2,
-    salesGrowth: 481.93,
-    totalProducts: 17,
-    visibleProducts: 2,
-    soldAmount: 35990
+    monthlyTransactions: 0,
+    previousMonthSales: 0,
+    previousMonthTransactions: 0,
+    salesGrowth: 0,
+    totalProducts: 0,
+    visibleProducts: 0,
+    soldAmount: 0
   });
 
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setUserProfile(profile);
+        }
+      }
+    };
+
     const fetchStats = async () => {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
         const { data: transactions } = await supabase
           .from('transactions')
-          .select('*');
+          .select('*')
+          .eq('user_id', user.id);
 
         const { data: products } = await supabase
           .from('products')
-          .select('*');
+          .select('*')
+          .eq('user_id', user.id);
 
         if (transactions && products) {
           console.log("Fetched data:", { transactions, products });
+          // Calculate user-specific stats
+          setStats({
+            totalSales: transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
+            dailySales: 0,
+            monthlySales: 0,
+            totalTransactions: transactions?.length || 0,
+            dailyTransactions: 0,
+            monthlyTransactions: 0,
+            previousMonthSales: 0,
+            previousMonthTransactions: 0,
+            salesGrowth: 0,
+            totalProducts: products?.length || 0,
+            visibleProducts: products?.filter(p => p.payment_link_id).length || 0,
+            soldAmount: 0
+          });
         }
       } catch (error) {
         console.error("Error fetching stats:", error);
       }
     };
 
+    fetchUserProfile();
     fetchStats();
   }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-6">Salut Arnel Angel!</h1>
+        <h1 className="text-2xl font-bold mb-6">
+          Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
+        </h1>
         <WalletStats />
       </div>
 
