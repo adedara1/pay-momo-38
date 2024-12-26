@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import StatCard from "@/components/StatCard";
 import WalletStats from "@/components/WalletStats";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
+  const { toast } = useToast();
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [stats, setStats] = useState({
     totalSales: 0,
@@ -22,17 +24,35 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast({
+            title: "Erreur",
+            description: "Vous devez être connecté pour accéder à cette page",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('first_name, last_name')
           .eq('id', user.id)
           .single();
         
+        if (profileError) throw profileError;
+        
         if (profile) {
           setUserProfile(profile);
         }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger votre profil",
+          variant: "destructive",
+        });
       }
     };
 
@@ -41,42 +61,86 @@ const Dashboard = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: transactions } = await supabase
+        // Get current date info
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+        const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
+
+        // Fetch all user's transactions
+        const { data: transactions, error: transError } = await supabase
           .from('transactions')
           .select('*')
           .eq('user_id', user.id);
 
-        const { data: products } = await supabase
+        if (transError) throw transError;
+
+        // Fetch all user's products
+        const { data: products, error: prodError } = await supabase
           .from('products')
           .select('*')
           .eq('user_id', user.id);
 
+        if (prodError) throw prodError;
+
         if (transactions && products) {
-          console.log("Fetched data:", { transactions, products });
-          // Calculate user-specific stats
+          // Calculate daily transactions
+          const dailyTrans = transactions.filter(t => 
+            new Date(t.created_at) >= new Date(startOfDay)
+          );
+
+          // Calculate monthly transactions
+          const monthlyTrans = transactions.filter(t => 
+            new Date(t.created_at) >= new Date(startOfMonth)
+          );
+
+          // Calculate previous month transactions
+          const prevMonthTrans = transactions.filter(t => 
+            new Date(t.created_at) >= new Date(startOfPrevMonth) &&
+            new Date(t.created_at) <= new Date(endOfPrevMonth)
+          );
+
+          // Calculate sales amounts
+          const totalSales = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+          const dailySales = dailyTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
+          const monthlySales = monthlyTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
+          const prevMonthSales = prevMonthTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
+
+          // Calculate growth
+          const salesGrowth = prevMonthSales ? 
+            ((monthlySales - prevMonthSales) / prevMonthSales) * 100 : 0;
+
           setStats({
-            totalSales: transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
-            dailySales: 0,
-            monthlySales: 0,
-            totalTransactions: transactions?.length || 0,
-            dailyTransactions: 0,
-            monthlyTransactions: 0,
-            previousMonthSales: 0,
-            previousMonthTransactions: 0,
-            salesGrowth: 0,
-            totalProducts: products?.length || 0,
-            visibleProducts: products?.filter(p => p.payment_link_id).length || 0,
-            soldAmount: 0
+            totalSales,
+            dailySales,
+            monthlySales,
+            totalTransactions: transactions.length,
+            dailyTransactions: dailyTrans.length,
+            monthlyTransactions: monthlyTrans.length,
+            previousMonthSales: prevMonthSales,
+            previousMonthTransactions: prevMonthTrans.length,
+            salesGrowth,
+            totalProducts: products.length,
+            visibleProducts: products.filter(p => p.payment_link_id).length,
+            soldAmount: transactions
+              .filter(t => t.status === 'completed')
+              .reduce((sum, t) => sum + (t.amount || 0), 0)
           });
         }
       } catch (error) {
         console.error("Error fetching stats:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger vos statistiques",
+          variant: "destructive",
+        });
       }
     };
 
     fetchUserProfile();
     fetchStats();
-  }, []);
+  }, [toast]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -97,11 +161,13 @@ const Dashboard = () => {
         <StatCard
           title="Ventes du jours"
           value={stats.dailySales}
+          suffix="Fcfa"
           className="bg-purple-500 text-white"
         />
         <StatCard
           title="Ventes Du Mois"
           value={stats.monthlySales}
+          suffix="Fcfa"
           className="bg-pink-500 text-white"
         />
       </div>
@@ -135,7 +201,7 @@ const Dashboard = () => {
         />
         <StatCard
           title="Croissance Des Ventes"
-          value={stats.salesGrowth}
+          value={stats.salesGrowth.toFixed(1)}
           suffix="%"
           className="bg-purple-900 text-white"
         />
@@ -153,6 +219,7 @@ const Dashboard = () => {
         <StatCard
           title="Solde(s)"
           value={stats.soldAmount}
+          suffix="Fcfa"
           className="bg-gray-900 text-white"
         />
       </div>
