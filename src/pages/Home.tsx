@@ -4,21 +4,23 @@ import StatCard from "@/components/StatCard";
 import WalletStats from "@/components/WalletStats";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Home = () => {
+  const { profile } = useAuth();
   const [stats, setStats] = useState({
-    totalSales: 75990,
+    totalSales: 0,
     dailySales: 0,
-    monthlySales: 55545,
-    totalTransactions: 13,
+    monthlySales: 0,
+    totalTransactions: 0,
     dailyTransactions: 0,
-    monthlyTransactions: 9,
-    previousMonthSales: 9545,
-    previousMonthTransactions: 2,
-    salesGrowth: 481.93,
-    totalProducts: 17,
-    visibleProducts: 2,
-    soldAmount: 35990
+    monthlyTransactions: 0,
+    previousMonthSales: 0,
+    previousMonthTransactions: 0,
+    salesGrowth: 0,
+    totalProducts: 0,
+    visibleProducts: 0,
+    soldAmount: 0
   });
 
   const [isOpen, setIsOpen] = useState(false);
@@ -28,13 +30,25 @@ const Home = () => {
       try {
         const { data: transactions } = await supabase
           .from('transactions')
-          .select('*');
+          .select('*')
+          .eq('user_id', profile?.id);
 
         const { data: products } = await supabase
           .from('products')
-          .select('*');
+          .select('*')
+          .eq('user_id', profile?.id);
 
         if (transactions && products) {
+          const totalSales = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+          const totalProducts = products.length;
+          
+          setStats(prev => ({
+            ...prev,
+            totalSales,
+            totalProducts,
+            totalTransactions: transactions.length,
+          }));
+          
           console.log("Fetched data:", { transactions, products });
         }
       } catch (error) {
@@ -42,13 +56,20 @@ const Home = () => {
       }
     };
 
-    fetchStats();
-  }, []);
+    if (profile?.id) {
+      fetchStats();
+    }
+  }, [profile?.id]);
+
+  if (!profile) {
+    return null;
+  }
 
   return (
     <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
       <div className="mb-4 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Salut Arnel Angel!</h1>
+        <h1 className="text-xl md:text-2xl font-bold mb-2">Salut {profile.first_name} {profile.last_name}!</h1>
+        <p className="text-gray-600 mb-4">ID: {profile.custom_id}</p>
         <WalletStats />
       </div>
 
