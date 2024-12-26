@@ -157,24 +157,12 @@ const AppContent = () => {
         <Routes>
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
-          {/* Product page route moved outside of ProtectedRoute */}
           <Route path="/product/:id" element={<ProductPage />} />
-          <Route
-            path="/home"
-            element={<ProtectedRoute><Home /></ProtectedRoute>}
-          />
-          <Route
-            path="/dashboard"
-            element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
-          />
-          <Route
-            path="/products"
-            element={<ProtectedRoute><Products /></ProtectedRoute>}
-          />
-          <Route
-            path="/blog"
-            element={<ProtectedRoute><Blog /></ProtectedRoute>}
-          />
+          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          {/* Products and Blog routes moved outside of ProtectedRoute */}
+          <Route path="/products" element={<Products />} />
+          <Route path="/blog" element={<Blog />} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
