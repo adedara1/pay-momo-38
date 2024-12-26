@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 const ProfileSetupForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -52,10 +53,14 @@ const ProfileSetupForm = () => {
       toast({
         title: "Profil créé avec succès",
         description: `Votre ID personnalisé est : ${customId}`,
+        duration: 3000,
       });
 
-      // Recharger la page pour mettre à jour le contexte d'authentification
-      window.location.reload();
+      // Attendre un peu avant de recharger pour que l'utilisateur puisse voir le toast
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
     } catch (error: any) {
       console.error("Erreur lors de la création du profil:", error);
       toast({
@@ -89,6 +94,8 @@ const ProfileSetupForm = () => {
                 onChange={(e) => setFirstName(e.target.value)}
                 required
                 placeholder="Entrez votre prénom"
+                disabled={loading}
+                className="w-full"
               />
             </div>
             <div>
@@ -102,10 +109,23 @@ const ProfileSetupForm = () => {
                 onChange={(e) => setLastName(e.target.value)}
                 required
                 placeholder="Entrez votre nom"
+                disabled={loading}
+                className="w-full"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Création du profil..." : "Créer le profil"}
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Création du profil...
+                </>
+              ) : (
+                "Créer le profil"
+              )}
             </Button>
           </form>
         </Card>
