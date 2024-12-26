@@ -13,12 +13,6 @@ const ProfileSetupForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const generateCustomId = (userId: string, firstName: string, lastName: string) => {
-    const baseId = userId.split("-")[0];
-    const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-    return `${baseId}_${initials}`;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -30,27 +24,25 @@ const ProfileSetupForm = () => {
         throw new Error("Utilisateur non connecté");
       }
 
-      const customId = generateCustomId(user.id, firstName, lastName);
-
+      // L'ID personnalisé est maintenant géré par la fonction handle_new_user dans Supabase
       const { error } = await supabase
         .from("profiles")
         .upsert({
           id: user.id,
           first_name: firstName,
           last_name: lastName,
-          custom_id: customId,
         });
 
       if (error) throw error;
 
-      toast({
-        title: "Profil créé avec succès",
-        description: `Votre ID personnel est : ${customId}`,
-      });
-
-      // Update user metadata
+      // Mettre à jour les métadonnées de l'utilisateur
       await supabase.auth.updateUser({
         data: { first_name: firstName, last_name: lastName }
+      });
+
+      toast({
+        title: "Profil créé avec succès",
+        description: "Votre profil a été mis à jour",
       });
 
       navigate("/home");
