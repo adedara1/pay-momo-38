@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -58,42 +59,48 @@ const ProfileSetupForm = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-md p-4">
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold mb-6">Complétez votre profil</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="firstName" className="block text-sm font-medium mb-1">
-              Prénom
-            </label>
-            <Input
-              id="firstName"
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              placeholder="Entrez votre prénom"
-            />
-          </div>
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium mb-1">
-              Nom
-            </label>
-            <Input
-              id="lastName"
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-              placeholder="Entrez votre nom"
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Création du profil..." : "Créer le profil"}
-          </Button>
-        </form>
-      </Card>
-    </div>
+    <Dialog open={true}>
+      <DialogContent className="sm:max-w-md" showClose={false}>
+        <DialogHeader>
+          <DialogTitle className="text-center text-2xl font-bold">
+            Complétez votre profil
+          </DialogTitle>
+        </DialogHeader>
+        <Card className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium mb-1">
+                Prénom
+              </label>
+              <Input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                placeholder="Entrez votre prénom"
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium mb-1">
+                Nom
+              </label>
+              <Input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                placeholder="Entrez votre nom"
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Création du profil..." : "Créer le profil"}
+            </Button>
+          </form>
+        </Card>
+      </DialogContent>
+    </Dialog>
   );
 };
 
