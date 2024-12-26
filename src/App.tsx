@@ -12,6 +12,7 @@ import NotFound from "@/pages/NotFound";
 import Auth from "@/components/Auth";
 import ProfileForm from "@/pages/ProfileForm";
 import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,21 +29,45 @@ const noSidebarRoutes = ['/product', '/auth', '/profile'];
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-
-      if (session) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', session.user.id)
-          .maybeSingle();
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        setHasProfile(!!profile?.first_name && !!profile?.last_name);
+        if (sessionError) {
+          throw sessionError;
+        }
+
+        setIsAuthenticated(!!session);
+
+        if (session) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          
+          if (profileError) {
+            throw profileError;
+          }
+          
+          setHasProfile(!!profile?.first_name && !!profile?.last_name);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        toast({
+          title: "Error",
+          description: "Une erreur est survenue lors de la vérification de l'authentification",
+          variant: "destructive",
+        });
+        setIsAuthenticated(false);
+        setHasProfile(false);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -50,13 +75,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session);
+      if (!session) {
+        setHasProfile(false);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
 
-  if (isAuthenticated === null || hasProfile === null) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -72,18 +104,30 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session);
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     checkAuth();
   }, []);
 
-  if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   if (isAuthenticated) {
