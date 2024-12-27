@@ -22,6 +22,7 @@ interface Order {
 const Orders = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isOpen, setIsOpen] = useState(false);
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['unprocessed-orders'],
@@ -68,7 +69,6 @@ const Orders = () => {
         description: "La commande a été marquée comme traitée",
       });
 
-      // Refresh orders data
       queryClient.invalidateQueries({ queryKey: ['unprocessed-orders'] });
     } catch (error) {
       console.error('Error marking order as processed:', error);
@@ -84,8 +84,7 @@ const Orders = () => {
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold mb-6">Commandes</h1>
       
-      {/* Stats Card with Collapsible */}
-      <Collapsible>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="w-full">
           <Card className="p-6 flex items-center space-x-4 bg-white hover:shadow-lg transition-shadow cursor-pointer">
             <div className="relative">
@@ -112,7 +111,6 @@ const Orders = () => {
           </Card>
         </CollapsibleTrigger>
 
-        {/* Orders List */}
         <CollapsibleContent>
           <div className="space-y-4 mt-6">
             {isLoading ? (
