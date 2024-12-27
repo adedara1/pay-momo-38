@@ -13,7 +13,7 @@ interface Order {
   customer_name: string | null;
   customer_contact: string | null;
   processed: boolean;
-  products: {
+  product: {
     name: string;
     image_url: string | null;
   } | null;
@@ -26,6 +26,7 @@ const Orders = () => {
   const { data: orders, isLoading } = useQuery({
     queryKey: ['unprocessed-orders'],
     queryFn: async () => {
+      console.log('Fetching unprocessed orders...');
       const { data, error } = await supabase
         .from('transactions')
         .select(`
@@ -34,7 +35,7 @@ const Orders = () => {
           customer_name,
           customer_contact,
           processed,
-          products (
+          product:product_id (
             name,
             image_url
           )
@@ -47,12 +48,14 @@ const Orders = () => {
         throw error;
       }
 
+      console.log('Fetched orders:', data);
       return data as Order[];
     }
   });
 
   const handleMarkAsProcessed = async (orderId: string) => {
     try {
+      console.log('Marking order as processed:', orderId);
       const { error } = await supabase
         .from('transactions')
         .update({ processed: true })
@@ -121,10 +124,10 @@ const Orders = () => {
                 <Card key={order.id} className="p-4">
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 relative">
-                      {order.products?.image_url ? (
+                      {order.product?.image_url ? (
                         <img
-                          src={order.products.image_url}
-                          alt={order.products.name}
+                          src={order.product.image_url}
+                          alt={order.product.name}
                           className="w-full h-full object-cover rounded"
                         />
                       ) : (
@@ -134,7 +137,7 @@ const Orders = () => {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold">{order.products?.name || 'Produit inconnu'}</h3>
+                      <h3 className="font-semibold">{order.product?.name || 'Produit inconnu'}</h3>
                       <p className="text-gray-600">Montant: {order.amount.toLocaleString()} FCFA</p>
                       <p className="text-sm text-gray-500">
                         Client: {order.customer_name || 'Non spécifié'}

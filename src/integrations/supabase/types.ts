@@ -192,6 +192,7 @@ export type Database = {
           id: string
           moneroo_reference: string | null
           processed: boolean | null
+          product_id: string | null
           status: string | null
           type: string | null
           updated_at: string | null
@@ -205,6 +206,7 @@ export type Database = {
           id?: string
           moneroo_reference?: string | null
           processed?: boolean | null
+          product_id?: string | null
           status?: string | null
           type?: string | null
           updated_at?: string | null
@@ -218,12 +220,20 @@ export type Database = {
           id?: string
           moneroo_reference?: string | null
           processed?: boolean | null
+          product_id?: string | null
           status?: string | null
           type?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transactions_user_id_fkey"
             columns: ["user_id"]
