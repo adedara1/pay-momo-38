@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import PaymentLinksList from "./PaymentLinksList";
-import TransactionHistory from "./TransactionHistory";
+import WithdrawalsList from "./WithdrawalsList";
 
 const PaymentTabs = () => {
   const [activeTab, setActiveTab] = useState<'payments' | 'withdrawals'>('payments');
@@ -28,7 +28,7 @@ const PaymentTabs = () => {
       {activeTab === 'payments' ? (
         <PaymentLinksList />
       ) : (
-        <TransactionHistory />
+        <WithdrawalsList />
       )}
     </div>
   );
