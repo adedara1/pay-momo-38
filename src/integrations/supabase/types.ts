@@ -187,8 +187,11 @@ export type Database = {
         Row: {
           amount: number
           created_at: string | null
+          customer_contact: string | null
+          customer_name: string | null
           id: string
           moneroo_reference: string | null
+          processed: boolean | null
           status: string | null
           type: string | null
           updated_at: string | null
@@ -197,8 +200,11 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string | null
+          customer_contact?: string | null
+          customer_name?: string | null
           id?: string
           moneroo_reference?: string | null
+          processed?: boolean | null
           status?: string | null
           type?: string | null
           updated_at?: string | null
@@ -207,8 +213,11 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string | null
+          customer_contact?: string | null
+          customer_name?: string | null
           id?: string
           moneroo_reference?: string | null
+          processed?: boolean | null
           status?: string | null
           type?: string | null
           updated_at?: string | null
