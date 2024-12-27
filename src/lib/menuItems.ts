@@ -15,6 +15,7 @@ import {
   LogOut,
   LayoutDashboard,
   Package,
+  Wallet,
 } from "lucide-react";
 
 export const menuItems = [
@@ -24,6 +25,7 @@ export const menuItems = [
   { icon: CreditCard, label: "Transaction", path: "/transaction" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
   { icon: Users, label: "Clients", path: "/clients" },
+  { icon: Wallet, label: "Retraits", path: "/withdrawals" },
   { icon: Image, label: "Média", path: "/media" },
   { icon: RefreshCw, label: "Rembourser", path: "/refunds" },
   { icon: Settings, label: "Réglages", path: "/settings" },

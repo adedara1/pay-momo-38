@@ -9,6 +9,7 @@ import ProductPage from "@/pages/ProductPage";
 import Blog from "@/pages/Blog";
 import Transaction from "@/pages/Transaction";
 import Clients from "@/pages/Clients";
+import Withdrawals from "@/pages/Withdrawals";
 import NotFound from "@/pages/NotFound";
 import Auth from "@/components/Auth";
 import ProfileForm from "@/pages/ProfileForm";
@@ -164,6 +165,7 @@ const AppContent = () => {
           <Route path="/blog" element={<Blog />} />
           <Route path="/transaction" element={<ProtectedRoute><Transaction /></ProtectedRoute>} />
           <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
+          <Route path="/withdrawals" element={<ProtectedRoute><Withdrawals /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
