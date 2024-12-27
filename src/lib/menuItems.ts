@@ -14,13 +14,13 @@ import {
   Palette,
   LogOut,
   LayoutDashboard,
-  Package,
+  BookOpen,
 } from "lucide-react";
 
 export const menuItems = [
   { icon: Home, label: "Accueil", path: "/home" },
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
-  { icon: Package, label: "Produit", path: "/product" },
+  { icon: BookOpen, label: "Blog", path: "/blog" },
   { icon: Image, label: "Média", path: "/media" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
   { icon: CreditCard, label: "Paiements", path: "/payments" },
