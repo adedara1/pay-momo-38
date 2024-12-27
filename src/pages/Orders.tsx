@@ -106,7 +106,7 @@ const Orders = () => {
               <h2 className="text-xl font-semibold text-[#00BFB3]">
                 {orders?.length || 0} commande{orders?.length !== 1 ? 's' : ''}
               </h2>
-              <p className="text-gray-600 text-sm">non traitée{orders?.length !== 1 ? 's' : ''}</p>
+              <p className="text-gray-600 text-sm">Cliquer pour voir les nouvelles commandes</p>
             </div>
           </Card>
         </CollapsibleTrigger>
