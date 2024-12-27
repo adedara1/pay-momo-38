@@ -13,25 +13,24 @@ import {
   Wallet,
   RefreshCw,
 } from "lucide-react";
-import { createElement } from "react";
 
 export const menuItems = [
-  { icon: () => createElement(Home), label: "Accueil", href: "/home" },
-  { icon: () => createElement(LayoutDashboard), label: "Tableau de bord", href: "/dashboard" },
-  { icon: () => createElement(Package), label: "Produit", href: "/blog" },
-  { icon: () => createElement(ShoppingCart), label: "Commandes", href: "/orders" },
-  { icon: () => createElement(CreditCard), label: "Transaction", href: "/transaction" },
-  { icon: () => createElement(Users), label: "Clients", href: "/clients" },
-  { icon: () => createElement(Wallet), label: "Retraits", href: "/withdrawals" },
-  { icon: () => createElement(RefreshCw), label: "Remboursements", href: "/refunds" },
-  { icon: () => createElement(Settings), label: "Réglages", href: "/settings" },
-  { icon: () => createElement(MessageSquare), label: "Avis", href: "/reviews" },
-  { icon: () => createElement(Headphones), label: "Support", href: "/support" },
-  { icon: () => createElement(BarChart), label: "Facebook Pixel", href: "/facebook-pixel" },
+  { icon: Home, label: "Accueil", path: "/home" },
+  { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
+  { icon: Package, label: "Produit", path: "/blog" },
+  { icon: ShoppingCart, label: "Commandes", path: "/orders" },
+  { icon: CreditCard, label: "Transaction", path: "/transaction" },
+  { icon: Users, label: "Clients", path: "/clients" },
+  { icon: Wallet, label: "Retraits", path: "/withdrawals" },
+  { icon: RefreshCw, label: "Remboursements", path: "/refunds" },
+  { icon: Settings, label: "Réglages", path: "/settings" },
+  { icon: MessageSquare, label: "Avis", path: "/reviews" },
+  { icon: Headphones, label: "Support", path: "/support" },
+  { icon: BarChart, label: "Facebook Pixel", path: "/facebook-pixel" },
 ];
 
 export const logoutMenuItem = {
-  icon: () => createElement(LogOut),
+  icon: LogOut,
   label: "Déconnexion",
-  href: "/logout",
+  path: "/logout",
 };

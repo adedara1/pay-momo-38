@@ -40,14 +40,14 @@ const BlogSidebar = () => {
         <div className="space-y-1 px-3">
           {menuItems.map((item) => (
             <Link
-              key={item.href}
-              to={item.href}
+              key={item.path}
+              to={item.path}
               className={cn(
                 "flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 rounded-lg transition-colors",
-                location.pathname === item.href && "bg-gray-100"
+                location.pathname === item.path && "bg-gray-100"
               )}
             >
-              {item.icon()}
+              <item.icon className="h-5 w-5" />
               <span>{item.label}</span>
             </Link>
           ))}
@@ -58,7 +58,7 @@ const BlogSidebar = () => {
           onClick={handleLogout}
           className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
         >
-          {logoutMenuItem.icon()}
+          <logoutMenuItem.icon className="h-5 w-5" />
           <span>{logoutMenuItem.label}</span>
         </button>
       </div>
