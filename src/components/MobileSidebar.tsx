@@ -7,7 +7,16 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
-const MobileSidebar = () => {
+interface UserProfile {
+  first_name: string;
+  last_name: string;
+}
+
+interface MobileSidebarProps {
+  userProfile: UserProfile | null;
+}
+
+const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,8 +31,8 @@ const MobileSidebar = () => {
     } catch (error) {
       console.error("Error logging out:", error);
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la déconnexion",
+        title: "Error",
+        description: "An error occurred while logging out",
         variant: "destructive",
       });
     }
@@ -65,6 +74,22 @@ const MobileSidebar = () => {
               <ChevronLeft className="h-4 w-4" />
             </Button>
           </div>
+
+          {userProfile && (
+            <div className="p-4 text-center border-b">
+              <div className="mb-4">
+                <img
+                  src="/placeholder.svg"
+                  alt="Profile"
+                  className="w-20 h-20 mx-auto rounded-full"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Welcome {userProfile.first_name} {userProfile.last_name}
+              </p>
+            </div>
+          )}
+
           <div className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
               {menuItems.map((item) => (
