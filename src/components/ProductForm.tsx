@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const ProductForm = () => {
   const { toast } = useToast();
@@ -13,8 +14,40 @@ const ProductForm = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
+  const [currency, setCurrency] = useState("XOF");
   const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [feePercentage, setFeePercentage] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(0);
+  const [redirectUrl, setRedirectUrl] = useState("");
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: settings } = await supabase
+          .from('settings')
+          .select('product_fee_percentage')
+          .single();
+        
+        if (settings) {
+          setFeePercentage(settings.product_fee_percentage);
+        }
+      }
+    };
+    
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    if (amount && !isNaN(parseFloat(amount))) {
+      const baseAmount = parseFloat(amount);
+      const fee = (baseAmount * feePercentage) / 100;
+      setFinalAmount(baseAmount + fee);
+    } else {
+      setFinalAmount(0);
+    }
+  }, [amount, feePercentage]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -37,7 +70,6 @@ const ProductForm = () => {
     setIsLoading(true);
     
     try {
-      // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
@@ -61,14 +93,16 @@ const ProductForm = () => {
         imageUrl = publicUrl;
       }
 
-      // Create payment link
+      // Create payment link with new parameters
       const { data: paymentLinkData, error: paymentLinkError } = await supabase.functions.invoke(
         "create-payment-link",
         {
           body: {
             amount: parseInt(amount),
             description: description || name,
-            payment_type: "product"
+            payment_type: "product",
+            currency,
+            redirect_url: redirectUrl || null
           }
         }
       );
@@ -104,6 +138,7 @@ const ProductForm = () => {
       setDescription("");
       setAmount("");
       setImage(null);
+      setRedirectUrl("");
     } catch (error) {
       console.error("Error creating product:", error);
       toast({
@@ -139,15 +174,55 @@ const ProductForm = () => {
           />
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Devise</label>
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez une devise" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="XOF">FCFA (XOF)</SelectItem>
+                <SelectItem value="USD">Dollar (USD)</SelectItem>
+                <SelectItem value="EUR">Euro (EUR)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Prix</label>
+            <Input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Minimum 200 FCFA"
+              min="200"
+              required
+            />
+          </div>
+        </div>
+
+        {amount && (
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <label className="block text-sm font-medium mb-2">Votre Client verra</label>
+            <div className="text-lg font-semibold">
+              {finalAmount.toFixed(2)} {currency}
+              {feePercentage > 0 && (
+                <span className="text-sm text-gray-500 ml-2">
+                  (inclus {feePercentage}% de frais)
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         <div>
-          <label className="block text-sm font-medium mb-1">Prix (FCFA)</label>
+          <label className="block text-sm font-medium mb-1">URL de redirection après paiement (optionnel)</label>
           <Input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Minimum 200 FCFA"
-            min="200"
-            required
+            type="url"
+            value={redirectUrl}
+            onChange={(e) => setRedirectUrl(e.target.value)}
+            placeholder="https://votre-site.com/merci"
           />
         </div>
 

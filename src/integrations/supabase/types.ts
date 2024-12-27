@@ -142,6 +142,30 @@ export type Database = {
         }
         Relationships: []
       }
+      settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_fee_percentage: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_fee_percentage?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_fee_percentage?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       simple_pages: {
         Row: {
           amount: number
