@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import TransactionStats from "./TransactionStats";
 import TransactionPieChart from "./TransactionPieChart";
+import TransactionsTable from "./TransactionsTable";
 
 const PaymentLinksList = () => {
   // Fetch transactions for statistics
@@ -43,6 +44,8 @@ const PaymentLinksList = () => {
         <TransactionStats stats={stats} />
         <TransactionPieChart data={pieData} />
       </div>
+
+      <TransactionsTable />
     </div>
   );
 };
