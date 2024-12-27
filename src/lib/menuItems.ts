@@ -1,21 +1,17 @@
 import {
   Home,
-  Image,
   ShoppingCart,
   CreditCard,
   Users,
-  RefreshCw,
   Settings,
-  DollarSign,
   MessageSquare,
   Headphones,
   BarChart,
-  Globe,
-  Palette,
   LogOut,
   LayoutDashboard,
   Package,
   Wallet,
+  RefreshCw,
 } from "lucide-react";
 
 export const menuItems = [
@@ -26,16 +22,11 @@ export const menuItems = [
   { icon: CreditCard, label: "Transaction", path: "/transaction" },
   { icon: Users, label: "Clients", path: "/clients" },
   { icon: Wallet, label: "Retraits", path: "/withdrawals" },
-  { icon: Image, label: "Média", path: "/media" },
-  { icon: RefreshCw, label: "Rembourser", path: "/refunds" },
+  { icon: RefreshCw, label: "Remboursements", path: "/refunds" },
   { icon: Settings, label: "Réglages", path: "/settings" },
-  { icon: DollarSign, label: "Mon Argent", path: "/money" },
   { icon: MessageSquare, label: "Avis", path: "/reviews" },
   { icon: Headphones, label: "Support", path: "/support" },
   { icon: BarChart, label: "Facebook Pixel", path: "/facebook-pixel" },
-  { icon: Globe, label: "Mon Domaine", path: "/domain" },
-  { icon: DollarSign, label: "Devise", path: "/currency" },
-  { icon: Palette, label: "Configuration theme", path: "/theme" },
 ];
 
 export const logoutMenuItem = {
