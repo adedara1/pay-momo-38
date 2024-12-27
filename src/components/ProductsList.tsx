@@ -23,7 +23,7 @@ const ProductsList = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   
-  // Récupérer l'ID de l'utilisateur
+  // Récupérer l'ID de l'utilisateur s'il est connecté
   useEffect(() => {
     const getUserId = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -34,19 +34,15 @@ const ProductsList = () => {
     getUserId();
   }, []);
 
-  // Activer la synchronisation en temps réel
+  // Activer la synchronisation en temps réel seulement si l'utilisateur est connecté
   useStatsSync(userId || undefined);
   
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products", userId],
+    queryKey: ["products"],
     queryFn: async () => {
-      if (!userId) {
-        console.log("No user ID available");
-        return [];
-      }
-
-      console.log("Fetching products for user:", userId);
-      const { data, error } = await supabase
+      console.log("Fetching products, user ID:", userId);
+      
+      let query = supabase
         .from("products")
         .select(`
           *,
@@ -55,8 +51,14 @@ const ProductsList = () => {
             moneroo_token
           )
         `)
-        .eq('user_id', userId)
         .order("created_at", { ascending: false });
+
+      // Si l'utilisateur est connecté, filtrer par user_id
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching products:", error);
@@ -71,7 +73,7 @@ const ProductsList = () => {
       console.log("Products fetched:", data);
       return data as Product[];
     },
-    enabled: !!userId, // Only run query when userId is available
+    enabled: true, // La requête est toujours activée, même pour les visiteurs
   });
 
   const handlePreview = (product: Product) => {
@@ -92,7 +94,9 @@ const ProductsList = () => {
 
   return (
     <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow">
-      <h2 className="text-xl font-semibold mb-4">Mes produits</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        {userId ? "Mes produits" : "Tous les produits"}
+      </h2>
       
       {isLoading ? (
         <LoadingSkeleton />
@@ -107,7 +111,7 @@ const ProductsList = () => {
                 <TableHead className="font-semibold">Nom</TableHead>
                 <TableHead className="font-semibold">Description</TableHead>
                 <TableHead className="font-semibold">Montant</TableHead>
-                <TableHead className="font-semibold">Actions</TableHead>
+                {userId && <TableHead className="font-semibold">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -126,13 +130,15 @@ const ProductsList = () => {
                   <TableCell className="font-semibold text-blue-600">
                     {product.amount} FCFA
                   </TableCell>
-                  <TableCell>
-                    <ProductActions 
-                      productId={product.id} 
-                      hasPaymentLink={!!product.payment_links?.moneroo_token}
-                      onPreview={() => handlePreview(product)}
-                    />
-                  </TableCell>
+                  {userId && (
+                    <TableCell>
+                      <ProductActions 
+                        productId={product.id} 
+                        hasPaymentLink={!!product.payment_links?.moneroo_token}
+                        onPreview={() => handlePreview(product)}
+                      />
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
