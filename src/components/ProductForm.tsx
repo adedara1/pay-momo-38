@@ -9,6 +9,7 @@ import { PriceCalculator } from "./PriceCalculator";
 import { ProductImageInput } from "./product/ProductImageInput";
 import { ProductBasicInfo } from "./product/ProductBasicInfo";
 import { RedirectUrlInput } from "./product/RedirectUrlInput";
+import { CustomerInfoInput } from "./product/CustomerInfoInput";
 
 const ProductForm = () => {
   const { toast } = useToast();
@@ -21,6 +22,12 @@ const ProductForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const [redirectUrl, setRedirectUrl] = useState("");
+  
+  // Nouveaux états pour les informations client
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerFirstName, setCustomerFirstName] = useState("");
+  const [customerLastName, setCustomerLastName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -41,17 +48,6 @@ const ProductForm = () => {
         
         if (settings) {
           setFeePercentage(settings.product_fee_percentage);
-        } else {
-          const { error: insertError } = await supabase
-            .from('settings')
-            .insert({
-              user_id: user.id,
-              product_fee_percentage: 0
-            });
-          
-          if (insertError) {
-            console.error('Error creating default settings:', insertError);
-          }
         }
       } catch (error) {
         console.error('Error in fetchSettings:', error);
@@ -115,7 +111,13 @@ const ProductForm = () => {
             description: description || name,
             payment_type: "product",
             currency,
-            redirect_url: redirectUrl || null
+            redirect_url: redirectUrl || null,
+            customer: {
+              email: customerEmail || undefined,
+              first_name: customerFirstName || undefined,
+              last_name: customerLastName || undefined,
+              phone: customerPhone || undefined
+            }
           }
         }
       );
@@ -145,11 +147,16 @@ const ProductForm = () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["payment-links"] });
       
+      // Reset form
       setName("");
       setDescription("");
       setAmount("");
       setImage(null);
       setRedirectUrl("");
+      setCustomerEmail("");
+      setCustomerFirstName("");
+      setCustomerLastName("");
+      setCustomerPhone("");
     } catch (error) {
       console.error("Error creating product:", error);
       toast({
@@ -186,6 +193,17 @@ const ProductForm = () => {
             currency={currency}
           />
         )}
+
+        <CustomerInfoInput
+          customerEmail={customerEmail}
+          setCustomerEmail={setCustomerEmail}
+          customerFirstName={customerFirstName}
+          setCustomerFirstName={setCustomerFirstName}
+          customerLastName={customerLastName}
+          setCustomerLastName={setCustomerLastName}
+          customerPhone={customerPhone}
+          setCustomerPhone={setCustomerPhone}
+        />
 
         <RedirectUrlInput
           redirectUrl={redirectUrl}

@@ -6,11 +6,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface CustomerInfo {
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+}
+
 interface PaymentRequest {
-  amount: number
-  description: string
-  payment_type: string
-  product_id?: string
+  amount: number;
+  description: string;
+  payment_type: string;
+  currency?: string;
+  redirect_url?: string | null;
+  customer?: CustomerInfo;
 }
 
 serve(async (req) => {
@@ -21,9 +30,23 @@ serve(async (req) => {
 
   try {
     console.log('Starting payment link creation with Moneroo...')
-    const { amount, description, payment_type, product_id } = await req.json() as PaymentRequest
+    const { 
+      amount, 
+      description, 
+      payment_type, 
+      currency = "XOF",
+      redirect_url,
+      customer = {}
+    } = await req.json() as PaymentRequest
     
-    console.log('Request payload:', { amount, description, payment_type, product_id })
+    console.log('Request payload:', { 
+      amount, 
+      description, 
+      payment_type, 
+      currency,
+      redirect_url,
+      customer 
+    })
 
     // Create Supabase client
     const supabaseClient = createClient(
@@ -34,14 +57,15 @@ serve(async (req) => {
     // Initialize payment with Moneroo
     const monerooPayload = {
       amount: amount,
-      currency: "XOF", // FCFA
+      currency: currency,
       description: description,
       customer: {
-        email: "guest@example.com",
-        first_name: "Guest",
-        last_name: "User"
+        email: customer.email || "guest@example.com",
+        first_name: customer.first_name || "Guest",
+        last_name: customer.last_name || "User",
+        phone: customer.phone
       },
-      return_url: `${Deno.env.get('SUPABASE_URL')}/products/${product_id || ''}`,
+      return_url: redirect_url || `${Deno.env.get('SUPABASE_URL')}/products`,
       metadata: {
         payment_type: payment_type,
       }
@@ -109,18 +133,6 @@ serve(async (req) => {
     }
 
     console.log('Payment link created in database:', paymentLink)
-
-    // If it's a product payment, update the product with the payment link ID
-    if (product_id && payment_type === 'product') {
-      const { error: updateError } = await supabaseClient
-        .from('products')
-        .update({ payment_link_id: paymentLink.id })
-        .eq('id', product_id)
-
-      if (updateError) {
-        console.error('Error updating product:', updateError)
-      }
-    }
 
     // Return success response with payment link info
     return new Response(
