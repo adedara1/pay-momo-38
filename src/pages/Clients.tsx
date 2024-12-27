@@ -14,7 +14,7 @@ import { User } from "lucide-react";
 
 interface Client {
   id: string;
-  email: string;
+  email: string | null;
   created_at: string;
 }
 
@@ -22,13 +22,32 @@ export default function Clients() {
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
+      console.log("Fetching clients...");
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email:auth.users!profiles_id_fkey(email), created_at:auth.users!profiles_id_fkey(created_at)")
-        .order("created_at", { ascending: false });
+        .select(`
+          id,
+          auth_user:id (
+            email,
+            created_at
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data as Client[];
+      if (error) {
+        console.error("Error fetching clients:", error);
+        throw error;
+      }
+
+      // Transform the data to match our Client interface
+      const transformedData: Client[] = data.map((profile: any) => ({
+        id: profile.id,
+        email: profile.auth_user?.email,
+        created_at: profile.auth_user?.created_at,
+      }));
+
+      console.log("Clients fetched:", transformedData);
+      return transformedData;
     },
   });
 
@@ -65,7 +84,7 @@ export default function Clients() {
                   <span className="text-blue-600">{client.email}</span>
                 </TableCell>
                 <TableCell className="text-right">
-                  {format(new Date(client.created_at), "dd MMM yyyy, HH:mm:ss", { locale: fr })}
+                  {client.created_at && format(new Date(client.created_at), "dd MMM yyyy, HH:mm:ss", { locale: fr })}
                 </TableCell>
               </TableRow>
             ))}
