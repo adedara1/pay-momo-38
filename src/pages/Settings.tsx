@@ -15,13 +15,32 @@ const Settings = () => {
     const fetchSettings = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: settings } = await supabase
+        const { data: settings, error } = await supabase
           .from('settings')
           .select('product_fee_percentage')
-          .single();
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching settings:', error);
+          return;
+        }
         
         if (settings) {
           setPercentage(settings.product_fee_percentage.toString());
+        } else {
+          // Create default settings if none exist
+          const { error: insertError } = await supabase
+            .from('settings')
+            .insert({
+              user_id: user.id,
+              product_fee_percentage: 0
+            });
+          
+          if (insertError) {
+            console.error('Error creating default settings:', insertError);
+          }
+          setPercentage("0");
         }
       }
     };
@@ -37,12 +56,15 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Non authentifié");
 
-      const { data: existingSettings } = await supabase
+      const { data: settings, error: settingsError } = await supabase
         .from('settings')
         .select('id')
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (existingSettings) {
+      if (settingsError) throw settingsError;
+
+      if (settings) {
         // Update existing settings
         await supabase
           .from('settings')

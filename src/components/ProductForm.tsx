@@ -25,13 +25,31 @@ const ProductForm = () => {
     const fetchSettings = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: settings } = await supabase
+        const { data: settings, error } = await supabase
           .from('settings')
           .select('product_fee_percentage')
-          .single();
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching settings:', error);
+          return;
+        }
         
         if (settings) {
           setFeePercentage(settings.product_fee_percentage);
+        } else {
+          // Create default settings if none exist
+          const { error: insertError } = await supabase
+            .from('settings')
+            .insert({
+              user_id: user.id,
+              product_fee_percentage: 0
+            });
+          
+          if (insertError) {
+            console.error('Error creating default settings:', insertError);
+          }
         }
       }
     };
