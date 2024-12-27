@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PriceInput } from "./PriceInput";
+import { PriceCalculator } from "./PriceCalculator";
 
 const ProductForm = () => {
   const { toast } = useToast();
@@ -18,7 +19,6 @@ const ProductForm = () => {
   const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
-  const [finalAmount, setFinalAmount] = useState(0);
   const [redirectUrl, setRedirectUrl] = useState("");
 
   useEffect(() => {
@@ -56,16 +56,6 @@ const ProductForm = () => {
     
     fetchSettings();
   }, []);
-
-  useEffect(() => {
-    if (amount && !isNaN(parseFloat(amount))) {
-      const baseAmount = parseFloat(amount);
-      const fee = (baseAmount * feePercentage) / 100;
-      setFinalAmount(baseAmount + fee);
-    } else {
-      setFinalAmount(0);
-    }
-  }, [amount, feePercentage]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -111,12 +101,14 @@ const ProductForm = () => {
         imageUrl = publicUrl;
       }
 
+      const finalAmount = amount ? parseFloat(amount) + (parseFloat(amount) * feePercentage / 100) : 0;
+
       // Create payment link with new parameters
       const { data: paymentLinkData, error: paymentLinkError } = await supabase.functions.invoke(
         "create-payment-link",
         {
           body: {
-            amount: parseInt(amount),
+            amount: Math.round(finalAmount),
             description: description || name,
             payment_type: "product",
             currency,
@@ -133,7 +125,7 @@ const ProductForm = () => {
         .insert({
           name,
           description,
-          amount: parseInt(amount),
+          amount: Math.round(finalAmount),
           image_url: imageUrl,
           user_id: user.id,
           payment_link_id: paymentLinkData.payment_link_id
@@ -192,46 +184,19 @@ const ProductForm = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Devise</label>
-            <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionnez une devise" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="XOF">FCFA (XOF)</SelectItem>
-                <SelectItem value="USD">Dollar (USD)</SelectItem>
-                <SelectItem value="EUR">Euro (EUR)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Prix</label>
-            <Input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="Minimum 200 FCFA"
-              min="200"
-              required
-            />
-          </div>
-        </div>
+        <PriceInput
+          currency={currency}
+          setCurrency={setCurrency}
+          amount={amount}
+          setAmount={setAmount}
+        />
 
         {amount && (
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <label className="block text-sm font-medium mb-2">Votre Client verra</label>
-            <div className="text-lg font-semibold">
-              {finalAmount.toFixed(2)} {currency}
-              {feePercentage > 0 && (
-                <span className="text-sm text-gray-500 ml-2">
-                  (inclus {feePercentage}% de frais)
-                </span>
-              )}
-            </div>
-          </div>
+          <PriceCalculator
+            amount={amount}
+            feePercentage={feePercentage}
+            currency={currency}
+          />
         )}
 
         <div>
