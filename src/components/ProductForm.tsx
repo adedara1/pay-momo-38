@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { PriceInput } from "./PriceInput";
 import { PriceCalculator } from "./PriceCalculator";
+import { ProductImageInput } from "./product/ProductImageInput";
+import { ProductBasicInfo } from "./product/ProductBasicInfo";
+import { RedirectUrlInput } from "./product/RedirectUrlInput";
 
 const ProductForm = () => {
   const { toast } = useToast();
@@ -23,8 +24,10 @@ const ProductForm = () => {
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
         const { data: settings, error } = await supabase
           .from('settings')
           .select('product_fee_percentage')
@@ -39,7 +42,6 @@ const ProductForm = () => {
         if (settings) {
           setFeePercentage(settings.product_fee_percentage);
         } else {
-          // Create default settings if none exist
           const { error: insertError } = await supabase
             .from('settings')
             .insert({
@@ -51,6 +53,8 @@ const ProductForm = () => {
             console.error('Error creating default settings:', insertError);
           }
         }
+      } catch (error) {
+        console.error('Error in fetchSettings:', error);
       }
     };
     
@@ -103,7 +107,6 @@ const ProductForm = () => {
 
       const finalAmount = amount ? parseFloat(amount) + (parseFloat(amount) * feePercentage / 100) : 0;
 
-      // Create payment link with new parameters
       const { data: paymentLinkData, error: paymentLinkError } = await supabase.functions.invoke(
         "create-payment-link",
         {
@@ -119,7 +122,6 @@ const ProductForm = () => {
 
       if (paymentLinkError) throw paymentLinkError;
 
-      // Create product with user_id
       const { data: productData, error: productError } = await supabase
         .from('products')
         .insert({
@@ -140,7 +142,6 @@ const ProductForm = () => {
         description: "Le produit a été créé avec succès",
       });
       
-      // Refresh lists
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["payment-links"] });
       
@@ -164,26 +165,13 @@ const ProductForm = () => {
   return (
     <Card className="p-6">
       <form onSubmit={createProduct} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Nom du produit</label>
-          <Input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nom du produit"
-            required
-          />
-        </div>
+        <ProductBasicInfo
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
+        />
         
-        <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <Textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description du produit"
-            required
-          />
-        </div>
-
         <PriceInput
           currency={currency}
           setCurrency={setCurrency}
@@ -199,26 +187,14 @@ const ProductForm = () => {
           />
         )}
 
-        <div>
-          <label className="block text-sm font-medium mb-1">URL de redirection après paiement (optionnel)</label>
-          <Input
-            type="url"
-            value={redirectUrl}
-            onChange={(e) => setRedirectUrl(e.target.value)}
-            placeholder="https://votre-site.com/merci"
-          />
-        </div>
+        <RedirectUrlInput
+          redirectUrl={redirectUrl}
+          setRedirectUrl={setRedirectUrl}
+        />
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Image</label>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="cursor-pointer"
-            required
-          />
-        </div>
+        <ProductImageInput
+          handleImageChange={handleImageChange}
+        />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Création..." : "Créer le produit"}
