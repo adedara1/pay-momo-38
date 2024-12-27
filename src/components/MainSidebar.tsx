@@ -9,7 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 type UserProfile = {
   username?: string;
-  company_name?: string;
   avatar_url?: string;
   first_name?: string;
   last_name?: string;
@@ -25,12 +24,11 @@ const MainSidebar = () => {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, last_name, company_name, avatar_url')
+          .select('first_name, last_name, avatar_url')
           .eq('id', user.id)
           .single();
         
         if (profile) {
-          // Construire le nom d'utilisateur à partir du prénom et du nom
           const username = profile.first_name && profile.last_name 
             ? `${profile.first_name} ${profile.last_name}`
             : "Utilisateur";
@@ -55,7 +53,7 @@ const MainSidebar = () => {
       {/* Profil utilisateur */}
       <div className="flex flex-col items-center py-6 border-b space-y-4">
         <span className="text-lg font-semibold">
-          {userProfile?.company_name || "Mon Entreprise"}
+          Digit-Sarl
         </span>
         
         <Avatar className="w-20 h-20">
