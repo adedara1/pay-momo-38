@@ -23,10 +23,10 @@ export const menuItems = [
   { icon: Users, label: "Clients", path: "/clients" },
   { icon: Wallet, label: "Retraits", path: "/withdrawals" },
   { icon: RefreshCw, label: "Remboursements", path: "/refunds" },
-  { icon: Settings, label: "Réglages", path: "/settings" },
   { icon: MessageSquare, label: "Avis", path: "/reviews" },
   { icon: Headphones, label: "Support", path: "/support" },
   { icon: BarChart, label: "Facebook Pixel", path: "/facebook-pixel" },
+  { icon: Settings, label: "Réglages", path: "/settings" },
 ];
 
 export const logoutMenuItem = {
