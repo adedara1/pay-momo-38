@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, Download, Filter, Plus } from "lucide-react";
 
 const TransactionsTable = () => {
-  const { data: transactions } = useQuery({
+  const { data: transactions, isLoading } = useQuery({
     queryKey: ["transactions-list"],
     queryFn: async () => {
+      console.log("Fetching transactions with profiles...");
       const { data, error } = await supabase
         .from("transactions")
         .select(`
@@ -21,7 +22,12 @@ const TransactionsTable = () => {
         `)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching transactions:", error);
+        throw error;
+      }
+      
+      console.log("Fetched transactions:", data);
       return data;
     },
   });
@@ -55,6 +61,14 @@ const TransactionsTable = () => {
         return status;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
