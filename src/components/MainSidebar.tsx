@@ -7,13 +7,17 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+type UserProfile = {
+  username?: string;
+  company_name?: string;
+  avatar_url?: string;
+  first_name?: string;
+  last_name?: string;
+}
+
 const MainSidebar = () => {
   const location = useLocation();
-  const [userProfile, setUserProfile] = useState<{
-    username: string;
-    company_name?: string;
-    avatar_url?: string;
-  } | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -21,12 +25,20 @@ const MainSidebar = () => {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('username, company_name, avatar_url')
+          .select('first_name, last_name, company_name, avatar_url')
           .eq('id', user.id)
           .single();
         
         if (profile) {
-          setUserProfile(profile);
+          // Construire le nom d'utilisateur à partir du prénom et du nom
+          const username = profile.first_name && profile.last_name 
+            ? `${profile.first_name} ${profile.last_name}`
+            : "Utilisateur";
+            
+          setUserProfile({
+            ...profile,
+            username
+          });
         }
       }
     };
@@ -75,7 +87,7 @@ const MainSidebar = () => {
               )}
             >
               <Link to={item.href}>
-                {item.icon}
+                {item.icon()}
                 {item.label}
               </Link>
             </Button>
