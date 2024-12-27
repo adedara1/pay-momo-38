@@ -4,6 +4,7 @@ import StatCard from "@/components/StatCard";
 import WalletStats from "@/components/WalletStats";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import SalesCharts from "@/components/SalesCharts";
 
 const Home = () => {
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
@@ -175,6 +176,8 @@ const Home = () => {
           </div>
         </CollapsibleContent>
       </Collapsible>
+
+      <SalesCharts />
     </div>
   );
 };
