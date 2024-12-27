@@ -23,7 +23,7 @@ export const menuItems = [
   { icon: Package, label: "Produit", path: "/blog" },
   { icon: Image, label: "Média", path: "/media" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
-  { icon: CreditCard, label: "Paiements", path: "/payments" },
+  { icon: CreditCard, label: "Transactions", path: "/payments" },
   { icon: Users, label: "Clients", path: "/clients" },
   { icon: RefreshCw, label: "Rembourser", path: "/refunds" },
   { icon: Settings, label: "Réglages", path: "/settings" },
