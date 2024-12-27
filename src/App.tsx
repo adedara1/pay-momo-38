@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import MainSidebar from "@/components/MainSidebar";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
-import Products from "@/pages/Products";
 import ProductPage from "@/pages/ProductPage";
 import Blog from "@/pages/Blog";
 import NotFound from "@/pages/NotFound";
@@ -160,8 +159,6 @@ const AppContent = () => {
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          {/* Products and Blog routes moved outside of ProtectedRoute */}
-          <Route path="/products" element={<Products />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />

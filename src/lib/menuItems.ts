@@ -14,7 +14,6 @@ import {
   Palette,
   LogOut,
   LayoutDashboard,
-  Box,
   BookOpen,
 } from "lucide-react";
 
@@ -22,7 +21,6 @@ export const menuItems = [
   { icon: Home, label: "Accueil", path: "/home" },
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
   { icon: BookOpen, label: "Blog", path: "/blog" },
-  { icon: Box, label: "Produit", path: "/products" },
   { icon: Image, label: "Média", path: "/media" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
   { icon: CreditCard, label: "Paiements", path: "/payments" },
