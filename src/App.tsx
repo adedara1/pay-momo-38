@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
 import ProductPage from "@/pages/ProductPage";
 import Blog from "@/pages/Blog";
+import Transaction from "@/pages/Transaction";
 import NotFound from "@/pages/NotFound";
 import Auth from "@/components/Auth";
 import ProfileForm from "@/pages/ProfileForm";
@@ -160,6 +161,7 @@ const AppContent = () => {
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/transaction" element={<ProtectedRoute><Transaction /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
