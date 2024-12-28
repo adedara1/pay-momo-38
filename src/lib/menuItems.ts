@@ -12,11 +12,20 @@ import {
   Package,
   Wallet,
   RefreshCw,
+  Menu,
 } from "lucide-react";
 
 export const menuItems = [
   { icon: Home, label: "Accueil", path: "/home" },
   { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
+  {
+    icon: Menu,
+    label: "Menu Admin",
+    path: "#",
+    submenu: [
+      { icon: Settings, label: "Réglages", path: "/settings" },
+    ]
+  },
   { icon: Package, label: "Produit", path: "/blog" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
   { icon: CreditCard, label: "Transaction", path: "/transaction" },
@@ -26,7 +35,6 @@ export const menuItems = [
   { icon: MessageSquare, label: "Avis", path: "/reviews" },
   { icon: Headphones, label: "Support", path: "/support" },
   { icon: BarChart, label: "Facebook Pixel", path: "/facebook-pixel" },
-  { icon: Settings, label: "Réglages", path: "/settings" },
 ];
 
 export const logoutMenuItem = {

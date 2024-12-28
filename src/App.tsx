@@ -18,6 +18,7 @@ import Auth from "@/components/Auth";
 import ProfileForm from "@/pages/ProfileForm";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
+import SettingsSidebar from "@/components/SettingsSidebar";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,9 @@ const queryClient = new QueryClient({
 
 // Routes that should not display the sidebar
 const noSidebarRoutes = ['/product', '/auth', '/profile'];
+
+// Routes that should display the settings sidebar
+const settingsRoutes = ['/settings'];
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -154,10 +158,12 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
 const AppContent = () => {
   const location = useLocation();
   const shouldShowSidebar = !noSidebarRoutes.some(route => location.pathname.startsWith(route));
+  const isSettingsPage = settingsRoutes.some(route => location.pathname.startsWith(route));
 
   return (
     <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden">
-      {shouldShowSidebar && <MainSidebar />}
+      {shouldShowSidebar && !isSettingsPage && <MainSidebar />}
+      {isSettingsPage && <SettingsSidebar userProfile={null} />}
       <main className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${shouldShowSidebar ? 'md:ml-64 max-w-7xl mx-auto' : 'md:w-full'}`}>
         <Routes>
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
