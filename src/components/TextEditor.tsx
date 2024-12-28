@@ -1,73 +1,64 @@
-import { useState } from "react";
-import { Bold, Italic, Underline, Strikethrough, Grid, Link } from "lucide-react";
-import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
+import React, { useState } from 'react';
+import { Bold, Italic, Underline, Strikethrough, ChevronDown } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 const TextEditor = () => {
-  const [text, setText] = useState("");
-  const [isBold, setIsBold] = useState(false);
-  const [isItalic, setIsItalic] = useState(false);
-  const [isUnderline, setIsUnderline] = useState(false);
-  const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const pages = [
+    { name: "Dashboard", path: "/dashboard" },
+    { name: "Settings", path: "/settings" },
+    { name: "Blog", path: "/blog" },
+    { name: "Payments", path: "/payments" },
+    { name: "Orders", path: "/orders" },
+    { name: "Clients", path: "/clients" },
+    { name: "Withdrawals", path: "/withdrawals" },
+    { name: "Refunds", path: "/refunds" },
+  ];
 
   return (
-    <div className="space-y-2">
+    <div className="w-full">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="ghost" 
+            className="w-full flex items-center justify-between mb-2 bg-accent"
+          >
+            Liste des pages
+            <ChevronDown className="h-4 w-4 ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-[200px]">
+          {pages.map((page) => (
+            <DropdownMenuItem key={page.path}>
+              {page.name}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <div className="flex items-center gap-1 bg-blue-500 p-1 rounded-t-md">
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`h-8 w-8 ${isBold ? 'bg-blue-600' : ''} hover:bg-blue-600`}
-          onClick={() => setIsBold(!isBold)}
-        >
-          <Bold className="h-4 w-4 text-white" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`h-8 w-8 ${isItalic ? 'bg-blue-600' : ''} hover:bg-blue-600`}
-          onClick={() => setIsItalic(!isItalic)}
-        >
-          <Italic className="h-4 w-4 text-white" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`h-8 w-8 ${isUnderline ? 'bg-blue-600' : ''} hover:bg-blue-600`}
-          onClick={() => setIsUnderline(!isUnderline)}
-        >
-          <Underline className="h-4 w-4 text-white" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`h-8 w-8 ${isStrikethrough ? 'bg-blue-600' : ''} hover:bg-blue-600`}
-          onClick={() => setIsStrikethrough(!isStrikethrough)}
-        >
-          <Strikethrough className="h-4 w-4 text-white" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 hover:bg-blue-600"
-        >
-          <Grid className="h-4 w-4 text-white" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 hover:bg-blue-600"
-        >
-          <Link className="h-4 w-4 text-white" />
-        </Button>
+        <button className="p-1 hover:bg-blue-600 rounded">
+          <Bold className="w-4 h-4 text-white" />
+        </button>
+        <button className="p-1 hover:bg-blue-600 rounded">
+          <Italic className="w-4 h-4 text-white" />
+        </button>
+        <button className="p-1 hover:bg-blue-600 rounded">
+          <Underline className="w-4 h-4 text-white" />
+        </button>
+        <button className="p-1 hover:bg-blue-600 rounded">
+          <Strikethrough className="w-4 h-4 text-white" />
+        </button>
       </div>
-      <Textarea
-        placeholder="Entrer votre texte ici"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        className={`min-h-[200px] ${isBold ? 'font-bold' : ''} ${isItalic ? 'italic' : ''} ${
-          isUnderline ? 'underline' : ''
-        } ${isStrikethrough ? 'line-through' : ''}`}
-      />
+      
+      <textarea className="w-full h-64 p-2 border rounded" placeholder="Écrivez votre texte ici..."></textarea>
     </div>
   );
 };
