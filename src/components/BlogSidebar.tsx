@@ -1,8 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface UserProfile {
   first_name: string;
@@ -15,10 +17,37 @@ interface BlogSidebarProps {
 
 const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Menu Admin");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const toggleSubmenu = (label: string) => {
     setOpenSubmenu(openSubmenu === label ? null : label);
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès",
+      });
+      
+      navigate("/auth");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -112,13 +141,14 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       </div>
 
       <div className="p-4 border-t">
-        <Link
-          to="/auth"
-          className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+        <button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
         >
           <logoutMenuItem.icon className="w-4 h-4" />
-          <span>{logoutMenuItem.label}</span>
-        </Link>
+          <span>{isLoggingOut ? "Déconnexion..." : "Déconnexion"}</span>
+        </button>
       </div>
     </div>
   );
