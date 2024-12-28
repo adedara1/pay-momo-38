@@ -23,7 +23,6 @@ interface PaymentRequest {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -134,7 +133,6 @@ serve(async (req) => {
 
     console.log('Payment link created in database:', paymentLink)
 
-    // Return success response with payment link info
     return new Response(
       JSON.stringify({
         success: true,
