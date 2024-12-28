@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 
@@ -20,6 +20,7 @@ const settingsMenuItems = [
 const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isEditSidebarOpen, setIsEditSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -33,24 +34,45 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const toggleSidebar = () => {
+  const toggleMainSidebar = () => {
     setIsCollapsed(!isCollapsed);
+    if (!isCollapsed) {
+      setIsEditSidebarOpen(false);
+    }
+  };
+
+  const toggleEditSidebar = () => {
+    setIsEditSidebarOpen(!isEditSidebarOpen);
+    if (!isEditSidebarOpen) {
+      setIsCollapsed(true);
+    }
   };
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleSidebar}
-        className={cn(
-          "fixed top-4 left-4 z-50 bg-background shadow-md hover:bg-accent",
-          !isCollapsed && isMobile && "left-[270px]"
-        )}
-      >
-        {isCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
-      </Button>
+      <div className="fixed top-4 left-4 z-50 flex gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleMainSidebar}
+          className={cn(
+            "bg-background shadow-md hover:bg-accent",
+            !isCollapsed && isMobile && "left-[270px]"
+          )}
+        >
+          {isCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleEditSidebar}
+          className="bg-background shadow-md hover:bg-accent"
+        >
+          <Edit2 className="h-5 w-5" />
+        </Button>
+      </div>
 
+      {/* Main Settings Sidebar */}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-40 bg-background transition-transform duration-300 ease-in-out",
@@ -103,6 +125,38 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
                   <span>{item.label}</span>
                 </Link>
               ))}
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Settings Sidebar */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 bg-background transition-transform duration-300 ease-in-out",
+          isMobile ? (
+            !isEditSidebarOpen ? "-translate-x-full" : "translate-x-0 w-full md:w-64"
+          ) : (
+            !isEditSidebarOpen ? "-translate-x-full" : "translate-x-0 w-64"
+          ),
+          "border-r"
+        )}
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex items-center gap-2 px-4 py-6 border-b">
+            <img
+              src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
+              alt="Logo"
+              className="w-8 h-8"
+            />
+            <span className="font-semibold text-blue-600">Mode Édition</span>
+          </div>
+
+          <div className="px-4 py-2">
+            <nav className="space-y-1">
+              <div className="flex items-center gap-3 px-4 py-2 text-sm rounded-lg">
+                <span>Contenu du mode édition</span>
+              </div>
             </nav>
           </div>
         </div>
