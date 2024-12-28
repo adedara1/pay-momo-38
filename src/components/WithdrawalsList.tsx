@@ -18,7 +18,7 @@ const WithdrawalsList = () => {
         .from("payouts")
         .select(`
           *,
-          profiles (
+          profile:user_id (
             first_name,
             last_name
           )
@@ -138,7 +138,7 @@ const WithdrawalsList = () => {
                   </TableCell>
                   <TableCell>balances.add_request.mtn_open</TableCell>
                   <TableCell>
-                    {withdrawal.profiles?.first_name} {withdrawal.profiles?.last_name}
+                    {withdrawal.profile?.first_name} {withdrawal.profile?.last_name}
                   </TableCell>
                   <TableCell>
                     {withdrawal.status === "completed" 
