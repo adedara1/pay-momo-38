@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, CreditCard } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from 'uuid';
@@ -17,20 +17,8 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPayNow, setShowPayNow] = useState(false);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
-  const [sessionId, setSessionId] = useState<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const existingSessionId = localStorage.getItem('cart_session_id');
-    if (existingSessionId) {
-      setSessionId(existingSessionId);
-    } else {
-      const newSessionId = uuidv4();
-      localStorage.setItem('cart_session_id', newSessionId);
-      setSessionId(newSessionId);
-    }
-  }, []);
 
   const handleAddToCart = async () => {
     try {
@@ -67,6 +55,7 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
   };
 
   const handlePayNow = () => {
+    console.log("Opening customer form dialog");
     setShowCustomerForm(true);
   };
 

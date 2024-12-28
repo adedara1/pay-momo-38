@@ -25,6 +25,15 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
     setIsLoading(true);
 
     try {
+      console.log("Initiating payment with customer info:", {
+        amount,
+        description,
+        customerEmail,
+        customerFirstName,
+        customerLastName,
+        customerPhone
+      });
+
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke(
         "create-payment-link",
         {
@@ -43,6 +52,8 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
       );
 
       if (paymentError) throw paymentError;
+
+      console.log("Payment initiated successfully:", paymentData);
 
       // Redirect to Moneroo payment page
       window.location.href = paymentData.payment_url;
