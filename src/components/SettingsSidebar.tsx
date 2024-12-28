@@ -3,6 +3,16 @@ import { cn } from "@/lib/utils";
 import { Menu, X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Slider } from "./ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 interface UserProfile {
   first_name: string;
@@ -22,6 +32,12 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditSidebarOpen, setIsEditSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // États pour l'éditeur de texte
+  const [fontSize, setFontSize] = useState(20);
+  const [lineHeight, setLineHeight] = useState(26);
+  const [letterSpacing, setLetterSpacing] = useState(0);
+  const [fontFamily, setFontFamily] = useState("Même police que la page Palanquin");
 
   useEffect(() => {
     const checkMobile = () => {
@@ -149,15 +165,68 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
               alt="Logo"
               className="w-8 h-8"
             />
-            <span className="font-semibold text-blue-600">Mode Édition</span>
+            <span className="font-semibold text-blue-600">Police de texte</span>
           </div>
 
-          <div className="px-4 py-2">
-            <nav className="space-y-1">
-              <div className="flex items-center gap-3 px-4 py-2 text-sm rounded-lg">
-                <span>Contenu du mode édition</span>
+          <div className="px-4 py-6 space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Taille</Label>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    value={[fontSize]}
+                    onValueChange={(value) => setFontSize(value[0])}
+                    max={100}
+                    step={1}
+                    className="flex-1"
+                  />
+                  <span className="w-12 text-right">{fontSize}</span>
+                </div>
               </div>
-            </nav>
+
+              <div className="space-y-2">
+                <Label>Hauteur de la ligne</Label>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    value={[lineHeight]}
+                    onValueChange={(value) => setLineHeight(value[0])}
+                    max={100}
+                    step={1}
+                    className="flex-1"
+                  />
+                  <span className="w-12 text-right">{lineHeight}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Type de police</Label>
+                <Select value={fontFamily} onValueChange={setFontFamily}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez une police" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Même police que la page Palanquin">
+                      Même police que la page Palanquin
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Espacement des lettres</Label>
+                <div className="flex items-center gap-4">
+                  <Slider
+                    value={[letterSpacing]}
+                    onValueChange={(value) => setLetterSpacing(value[0])}
+                    min={-10}
+                    max={10}
+                    step={1}
+                    className="flex-1"
+                  />
+                  <span className="w-12 text-right">{letterSpacing}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
