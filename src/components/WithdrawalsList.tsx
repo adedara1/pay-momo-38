@@ -15,7 +15,7 @@ const WithdrawalsList = () => {
     queryFn: async () => {
       console.log("Fetching withdrawals...");
       const { data, error } = await supabase
-        .from("transactions")
+        .from("payouts")
         .select(`
           *,
           profiles (
@@ -23,7 +23,6 @@ const WithdrawalsList = () => {
             last_name
           )
         `)
-        .eq('type', 'withdrawal')
         .order("created_at", { ascending: false });
 
       if (error) {
