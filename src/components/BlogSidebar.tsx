@@ -26,18 +26,24 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
     setOpenSubmenu(openSubmenu === label ? null : label);
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any default behavior
+    
     try {
       setIsLoggingOut(true);
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès",
       });
       
-      navigate("/auth");
+      // Force navigation to auth page
+      window.location.href = "/auth";
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
       toast({
