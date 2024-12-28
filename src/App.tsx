@@ -23,14 +23,68 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const Auth = lazy(() => import("@/components/Auth"));
 const ProfileForm = lazy(() => import("@/pages/ProfileForm"));
 
-// Create a new LoadingSpinner component
-<lov-write file_path="src/components/LoadingSpinner.tsx">
-const LoadingSpinner = () => {
-  return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-    </div>
-  );
-};
+// Create QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // Data is fresh for 5 minutes
+      cacheTime: 1000 * 60 * 30, // Cache kept for 30 minutes
+    },
+  },
+});
 
-export default LoadingSpinner;
+function App() {
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <div className="flex">
+          <MainSidebar />
+          <div className="flex-1">
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    session ? <Dashboard /> : <Navigate to="/auth" replace />
+                  }
+                />
+                <Route path="/product/:id" element={<ProductPage />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/transaction" element={<Transaction />} />
+                <Route path="/clients" element={<Clients />} />
+                <Route path="/withdrawals" element={<Withdrawals />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/refunds" element={<Refunds />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/profile" element={<ProfileForm />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </div>
+          <SettingsSidebar />
+        </div>
+        <Toaster />
+      </Router>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
