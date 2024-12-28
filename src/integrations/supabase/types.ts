@@ -185,22 +185,64 @@ export type Database = {
       }
       profiles: {
         Row: {
+          auto_transfer: boolean | null
+          business_sector: string | null
+          city: string | null
+          company_description: string | null
+          company_email: string | null
+          company_logo_url: string | null
+          company_name: string | null
+          country: string | null
           created_at: string | null
+          document_number: string | null
+          document_url: string | null
           first_name: string
           id: string
           last_name: string
+          momo_number: string | null
+          momo_provider: string | null
+          phone_number: string | null
+          whatsapp_number: string | null
         }
         Insert: {
+          auto_transfer?: boolean | null
+          business_sector?: string | null
+          city?: string | null
+          company_description?: string | null
+          company_email?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          country?: string | null
           created_at?: string | null
+          document_number?: string | null
+          document_url?: string | null
           first_name: string
           id: string
           last_name: string
+          momo_number?: string | null
+          momo_provider?: string | null
+          phone_number?: string | null
+          whatsapp_number?: string | null
         }
         Update: {
+          auto_transfer?: boolean | null
+          business_sector?: string | null
+          city?: string | null
+          company_description?: string | null
+          company_email?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          country?: string | null
           created_at?: string | null
+          document_number?: string | null
+          document_url?: string | null
           first_name?: string
           id?: string
           last_name?: string
+          momo_number?: string | null
+          momo_provider?: string | null
+          phone_number?: string | null
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
