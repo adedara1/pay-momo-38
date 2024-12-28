@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { Menu, X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Slider } from "./ui/slider";
 import {
@@ -13,6 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import TextEditor from "./TextEditor";
+import MarginControls from "./MarginControls";
 
 interface UserProfile {
   first_name: string;
@@ -39,7 +40,7 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
   const [letterSpacing, setLetterSpacing] = useState(0);
   const [fontFamily, setFontFamily] = useState("Même police que la page Palanquin");
 
-  // Ajout des états pour les marges
+  // États pour les marges
   const [marginTop, setMarginTop] = useState(44);
   const [marginRight, setMarginRight] = useState(0);
   const [marginBottom, setMarginBottom] = useState(0);
@@ -175,6 +176,8 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
           </div>
 
           <div className="px-4 py-6 space-y-6 overflow-y-auto">
+            <TextEditor />
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Taille</Label>
@@ -233,66 +236,16 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
                 </div>
               </div>
 
-              {/* Contrôles de marge */}
-              <div className="space-y-4 pt-4 border-t">
-                <h3 className="font-medium">Marge</h3>
-                
-                <div className="space-y-2">
-                  <Label>En haut</Label>
-                  <div className="flex items-center gap-4">
-                    <Slider
-                      value={[marginTop]}
-                      onValueChange={(value) => setMarginTop(value[0])}
-                      max={100}
-                      step={1}
-                      className="flex-1"
-                    />
-                    <span className="w-12 text-right">{marginTop}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Droite</Label>
-                  <div className="flex items-center gap-4">
-                    <Slider
-                      value={[marginRight]}
-                      onValueChange={(value) => setMarginRight(value[0])}
-                      max={100}
-                      step={1}
-                      className="flex-1"
-                    />
-                    <span className="w-12 text-right">{marginRight}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>En bas</Label>
-                  <div className="flex items-center gap-4">
-                    <Slider
-                      value={[marginBottom]}
-                      onValueChange={(value) => setMarginBottom(value[0])}
-                      max={100}
-                      step={1}
-                      className="flex-1"
-                    />
-                    <span className="w-12 text-right">{marginBottom}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Gauche</Label>
-                  <div className="flex items-center gap-4">
-                    <Slider
-                      value={[marginLeft]}
-                      onValueChange={(value) => setMarginLeft(value[0])}
-                      max={100}
-                      step={1}
-                      className="flex-1"
-                    />
-                    <span className="w-12 text-right">{marginLeft}</span>
-                  </div>
-                </div>
-              </div>
+              <MarginControls
+                marginTop={marginTop}
+                marginRight={marginRight}
+                marginBottom={marginBottom}
+                marginLeft={marginLeft}
+                setMarginTop={setMarginTop}
+                setMarginRight={setMarginRight}
+                setMarginBottom={setMarginBottom}
+                setMarginLeft={setMarginLeft}
+              />
             </div>
           </div>
         </div>
