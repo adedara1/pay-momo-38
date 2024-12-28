@@ -1,11 +1,13 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { momoProviders } from "@/data/locationData";
 
 interface WithdrawalInfoStepProps {
   momoProvider: string;
   momoNumber: string;
   autoTransfer: boolean;
   onChange: (field: string, value: string | boolean) => void;
+  onBack?: () => void;
 }
 
 export const WithdrawalInfoStep = ({
@@ -13,9 +15,32 @@ export const WithdrawalInfoStep = ({
   momoNumber,
   autoTransfer,
   onChange,
+  onBack,
 }: WithdrawalInfoStepProps) => {
   return (
     <div className="space-y-4">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="mb-4 flex items-center text-sm text-gray-600 hover:text-gray-900"
+        >
+          <svg
+            className="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Retour
+        </button>
+      )}
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Fournisseur Mobile Money</label>
         <Select value={momoProvider} onValueChange={(value) => onChange('momoProvider', value)}>
@@ -23,10 +48,11 @@ export const WithdrawalInfoStep = ({
             <SelectValue placeholder="Sélectionnez un fournisseur" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="mtn_ci">MTN Money Côte d'Ivoire</SelectItem>
-            <SelectItem value="orange_ci">Orange Money Côte d'Ivoire</SelectItem>
-            <SelectItem value="moov_ci">Moov Money Côte d'Ivoire</SelectItem>
-            <SelectItem value="wave_ci">Wave Côte d'Ivoire</SelectItem>
+            {momoProviders.map((provider) => (
+              <SelectItem key={provider.value} value={provider.value}>
+                {provider.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

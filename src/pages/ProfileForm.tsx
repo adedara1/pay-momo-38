@@ -15,7 +15,6 @@ const ProfileForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
   
-  // États pour chaque étape
   const [personalInfo, setPersonalInfo] = useState({
     firstName: "",
     lastName: "",
@@ -42,7 +41,6 @@ const ProfileForm = () => {
   const [companyLogo, setCompanyLogo] = useState<File | null>(null);
   const [document, setDocument] = useState<File | null>(null);
 
-  // Validation des étapes
   const isPersonalInfoValid = () => {
     return personalInfo.firstName && personalInfo.lastName && personalInfo.phoneNumber;
   };
@@ -66,7 +64,6 @@ const ProfileForm = () => {
     return withdrawalInfo.momoProvider && withdrawalInfo.momoNumber;
   };
 
-  // Gestion des changements d'étape
   const handleTabChange = (value: string) => {
     if (value === "company" && !isPersonalInfoValid()) {
       toast({
@@ -87,7 +84,14 @@ const ProfileForm = () => {
     setActiveTab(value);
   };
 
-  // Gestion des fichiers
+  const handleBack = async () => {
+    if (activeTab === "company") {
+      setActiveTab("personal");
+    } else if (activeTab === "withdrawal") {
+      setActiveTab("company");
+    }
+  };
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setCompanyLogo(e.target.files[0]);
@@ -100,7 +104,6 @@ const ProfileForm = () => {
     }
   };
 
-  // Soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isWithdrawalInfoValid()) {
@@ -157,11 +160,22 @@ const ProfileForm = () => {
         .from('profiles')
         .upsert({
           id: user.id,
-          ...personalInfo,
-          ...companyInfo,
+          first_name: personalInfo.firstName,
+          last_name: personalInfo.lastName,
+          phone_number: personalInfo.phoneNumber,
+          company_name: companyInfo.companyName,
+          company_description: companyInfo.companyDescription,
+          whatsapp_number: companyInfo.whatsappNumber,
+          company_email: companyInfo.companyEmail,
+          country: companyInfo.country,
+          city: companyInfo.city,
+          business_sector: companyInfo.businessSector,
+          document_number: companyInfo.documentNumber,
           company_logo_url: companyLogoUrl,
           document_url: documentUrl,
-          ...withdrawalInfo,
+          momo_provider: withdrawalInfo.momoProvider,
+          momo_number: withdrawalInfo.momoNumber,
+          auto_transfer: withdrawalInfo.autoTransfer,
         });
 
       if (upsertError) throw upsertError;
@@ -227,6 +241,7 @@ const ProfileForm = () => {
                 onChange={(field, value) =>
                   setCompanyInfo(prev => ({ ...prev, [field]: value }))
                 }
+                onBack={handleBack}
               />
               <Button
                 type="button"
@@ -244,6 +259,7 @@ const ProfileForm = () => {
                 onChange={(field, value) =>
                   setWithdrawalInfo(prev => ({ ...prev, [field]: typeof value === 'boolean' ? value : value }))
                 }
+                onBack={handleBack}
               />
               <Button
                 type="submit"

@@ -1,5 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cedeaoCountries, citiesByCountry } from "@/data/locationData";
 
 interface CompanyInfoStepProps {
   companyName: string;
@@ -13,6 +15,7 @@ interface CompanyInfoStepProps {
   onCompanyLogoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDocumentChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onChange: (field: string, value: string) => void;
+  onBack?: () => void;
 }
 
 export const CompanyInfoStep = ({
@@ -27,9 +30,32 @@ export const CompanyInfoStep = ({
   onCompanyLogoChange,
   onDocumentChange,
   onChange,
+  onBack,
 }: CompanyInfoStepProps) => {
   return (
     <div className="space-y-4">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="mb-4 flex items-center text-sm text-gray-600 hover:text-gray-900"
+        >
+          <svg
+            className="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Retour
+        </button>
+      )}
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Nom de l'entreprise</label>
         <Input
@@ -82,20 +108,38 @@ export const CompanyInfoStep = ({
 
       <div>
         <label className="block text-sm font-medium text-gray-700">Pays</label>
-        <Input
-          value={country}
-          onChange={(e) => onChange('country', e.target.value)}
-          required
-        />
+        <Select value={country} onValueChange={(value) => onChange('country', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Sélectionnez un pays" />
+          </SelectTrigger>
+          <SelectContent>
+            {cedeaoCountries.map((countryName) => (
+              <SelectItem key={countryName} value={countryName}>
+                {countryName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700">Ville</label>
-        <Input
-          value={city}
-          onChange={(e) => onChange('city', e.target.value)}
-          required
-        />
+        <Select 
+          value={city} 
+          onValueChange={(value) => onChange('city', value)}
+          disabled={!country || !citiesByCountry[country]}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Sélectionnez une ville" />
+          </SelectTrigger>
+          <SelectContent>
+            {country && citiesByCountry[country]?.map((cityName) => (
+              <SelectItem key={cityName} value={cityName}>
+                {cityName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
