@@ -1,78 +1,57 @@
 import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Product } from "@/types/product";
 import { SimplePage } from "@/types/simple-page";
+import CustomerInfoForm from "./CustomerInfoForm";
+import { Dialog, DialogContent } from "./ui/dialog";
 
 interface SimplePaymentButtonProps {
   product: Product | SimplePage;
 }
 
 const SimplePaymentButton = ({ product }: SimplePaymentButtonProps) => {
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleDirectPayment = async () => {
-    try {
-      if (product.amount < 200) {
-        toast({
-          title: "Montant invalide",
-          description: "Le montant minimum est de 200 FCFA",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      setIsProcessing(true);
-      console.log("Creating direct payment for product:", product);
-
-      const { data: paymentResponse, error: paymentError } = await supabase.functions.invoke(
-        "create-payment-link",
-        {
-          body: {
-            amount: product.amount,
-            description: product.description,
-            payment_type: "direct"
-          }
-        }
-      );
-
-      if (paymentError) {
-        console.error("Payment link creation error:", paymentError);
-        throw paymentError;
-      }
-
-      console.log("Payment link created:", paymentResponse);
-
-      window.location.href = paymentResponse.payment_url;
-
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    } catch (error) {
-      console.error("Error processing payment:", error);
+  const handlePayNow = () => {
+    if (product.amount < 200) {
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'initialisation du paiement",
+        title: "Montant invalide",
+        description: "Le montant minimum est de 200 FCFA",
         variant: "destructive",
       });
-    } finally {
-      setIsProcessing(false);
+      return;
     }
+
+    setShowCustomerForm(true);
   };
 
   return (
-    <Button 
-      size="lg"
-      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
-      onClick={handleDirectPayment}
-      disabled={isProcessing}
-    >
-      <CreditCard className="mr-2 h-5 w-5" />
-      {isProcessing ? "Traitement..." : "Payer maintenant"}
-    </Button>
+    <>
+      <Button 
+        size="lg"
+        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+        onClick={handlePayNow}
+      >
+        <CreditCard className="mr-2 h-5 w-5" />
+        Payer maintenant
+      </Button>
+
+      <Dialog open={showCustomerForm} onOpenChange={setShowCustomerForm}>
+        <DialogContent className="sm:max-w-[500px]">
+          <CustomerInfoForm
+            amount={product.amount}
+            description={product.description || product.name}
+            paymentLinkId={product.payment_link_id || ""}
+            onClose={() => setShowCustomerForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
