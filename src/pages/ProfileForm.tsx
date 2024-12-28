@@ -125,15 +125,15 @@ const ProfileForm = () => {
       let companyLogoUrl = null;
       if (companyLogo) {
         const fileExt = companyLogo.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        const fileName = `company-logo-${Math.random()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
-          .from('company-logos')
+          .from('product-images')  // Changed from 'company-logos' to 'product-images'
           .upload(fileName, companyLogo);
 
         if (uploadError) throw uploadError;
         
         const { data: { publicUrl } } = supabase.storage
-          .from('company-logos')
+          .from('product-images')  // Changed from 'company-logos' to 'product-images'
           .getPublicUrl(fileName);
           
         companyLogoUrl = publicUrl;
@@ -142,15 +142,15 @@ const ProfileForm = () => {
       let documentUrl = null;
       if (document) {
         const fileExt = document.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        const fileName = `document-${Math.random()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
-          .from('documents')
+          .from('product-images')  // Changed from 'documents' to 'product-images'
           .upload(fileName, document);
 
         if (uploadError) throw uploadError;
         
         const { data: { publicUrl } } = supabase.storage
-          .from('documents')
+          .from('product-images')  // Changed from 'documents' to 'product-images'
           .getPublicUrl(fileName);
           
         documentUrl = publicUrl;
