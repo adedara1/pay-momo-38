@@ -3,10 +3,6 @@ import { cn } from "@/lib/utils";
 import { Menu, X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Switch } from "./ui/switch";
-import { Label } from "./ui/label";
-import { Separator } from "./ui/separator";
 
 interface UserProfile {
   first_name: string;
@@ -26,26 +22,6 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditSidebarOpen, setIsEditSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
-  // Form states
-  const [formData, setFormData] = useState({
-    productName: "",
-    productDescription: "",
-    price: "",
-    quantity: "",
-    isPublic: false,
-    isDownloadable: false,
-    isSubscription: false,
-    subscriptionDuration: "",
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }));
-  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -71,8 +47,6 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
       setIsCollapsed(true);
     }
   };
-
-  // ... keep existing code (main sidebar JSX)
 
   return (
     <>
@@ -165,7 +139,7 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
           ) : (
             !isEditSidebarOpen ? "-translate-x-full" : "translate-x-0 w-64"
           ),
-          "border-r overflow-y-auto"
+          "border-r"
         )}
       >
         <div className="flex flex-col h-full">
@@ -178,114 +152,12 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
             <span className="font-semibold text-blue-600">Mode Édition</span>
           </div>
 
-          <div className="px-4 py-4 space-y-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="productName">Nom du produit</Label>
-                <Input
-                  id="productName"
-                  name="productName"
-                  value={formData.productName}
-                  onChange={handleInputChange}
-                  placeholder="Entrez le nom du produit"
-                />
+          <div className="px-4 py-2">
+            <nav className="space-y-1">
+              <div className="flex items-center gap-3 px-4 py-2 text-sm rounded-lg">
+                <span>Contenu du mode édition</span>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="productDescription">Description du produit</Label>
-                <Input
-                  id="productDescription"
-                  name="productDescription"
-                  value={formData.productDescription}
-                  onChange={handleInputChange}
-                  placeholder="Entrez la description"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="price">Prix</Label>
-                <Input
-                  id="price"
-                  name="price"
-                  type="number"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="quantity">Quantité</Label>
-                <Input
-                  id="quantity"
-                  name="quantity"
-                  type="number"
-                  value={formData.quantity}
-                  onChange={handleInputChange}
-                  placeholder="1"
-                />
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="isPublic">Produit public</Label>
-                <Switch
-                  id="isPublic"
-                  name="isPublic"
-                  checked={formData.isPublic}
-                  onCheckedChange={(checked) => 
-                    setFormData(prev => ({ ...prev, isPublic: checked }))
-                  }
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="isDownloadable">Produit téléchargeable</Label>
-                <Switch
-                  id="isDownloadable"
-                  name="isDownloadable"
-                  checked={formData.isDownloadable}
-                  onCheckedChange={(checked) => 
-                    setFormData(prev => ({ ...prev, isDownloadable: checked }))
-                  }
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="isSubscription">Abonnement</Label>
-                <Switch
-                  id="isSubscription"
-                  name="isSubscription"
-                  checked={formData.isSubscription}
-                  onCheckedChange={(checked) => 
-                    setFormData(prev => ({ ...prev, isSubscription: checked }))
-                  }
-                />
-              </div>
-
-              {formData.isSubscription && (
-                <div className="space-y-2">
-                  <Label htmlFor="subscriptionDuration">Durée de l'abonnement (en jours)</Label>
-                  <Input
-                    id="subscriptionDuration"
-                    name="subscriptionDuration"
-                    type="number"
-                    value={formData.subscriptionDuration}
-                    onChange={handleInputChange}
-                    placeholder="30"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="pt-4">
-              <Button className="w-full" type="submit">
-                Enregistrer les modifications
-              </Button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
