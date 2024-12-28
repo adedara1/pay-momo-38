@@ -28,13 +28,14 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // Data is fresh for 5 minutes
-      cacheTime: 1000 * 60 * 30, // Cache kept for 30 minutes
+      gcTime: 1000 * 60 * 30, // Cache garbage collection after 30 minutes
     },
   },
 });
 
 function App() {
   const [session, setSession] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -49,6 +50,27 @@ function App() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!session?.user?.id) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return;
+      }
+      
+      setUserProfile(data);
+    };
+
+    fetchUserProfile();
+  }, [session]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -79,7 +101,7 @@ function App() {
               </Routes>
             </Suspense>
           </div>
-          <SettingsSidebar />
+          <SettingsSidebar userProfile={userProfile} />
         </div>
         <Toaster />
       </Router>
