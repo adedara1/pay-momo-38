@@ -12,12 +12,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import MarginControls from './MarginControls';
 
 const TextEditor = () => {
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
   const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
   const { toast } = useToast();
+
+  // États pour les contrôles de style
+  const [marginTop, setMarginTop] = useState(0);
+  const [marginRight, setMarginRight] = useState(0);
+  const [marginBottom, setMarginBottom] = useState(0);
+  const [marginLeft, setMarginLeft] = useState(0);
 
   const pages = [
     { name: "Dashboard", path: "/dashboard" },
@@ -91,15 +98,32 @@ const TextEditor = () => {
       
       <div className="w-full min-h-[500px] border rounded-b-md p-4 bg-white">
         {selectedPage ? (
-          <div 
-            className="w-full h-full" 
-            onClick={handleElementSelect}
-          >
-            <iframe 
-              src={selectedPage}
-              className="w-full h-full border-0"
-              title="Page Editor"
-            />
+          <div className="flex gap-4">
+            <div 
+              className="flex-1" 
+              onClick={handleElementSelect}
+            >
+              <iframe 
+                src={selectedPage}
+                className="w-full h-full border-0"
+                title="Page Editor"
+              />
+            </div>
+            <div className="w-64 bg-gray-50 p-4 rounded-md">
+              <h2 className="font-semibold mb-4">Propriétés</h2>
+              {selectedElement && (
+                <MarginControls
+                  marginTop={marginTop}
+                  marginRight={marginRight}
+                  marginBottom={marginBottom}
+                  marginLeft={marginLeft}
+                  setMarginTop={setMarginTop}
+                  setMarginRight={setMarginRight}
+                  setMarginBottom={setMarginBottom}
+                  setMarginLeft={setMarginLeft}
+                />
+              )}
+            </div>
           </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-500">
