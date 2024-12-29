@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Bold, Italic, Underline, Strikethrough, ChevronDown } from 'lucide-react';
+import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ const TextEditor = () => {
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
   const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
+  const { toast } = useToast();
 
   const pages = [
     { name: "Dashboard", path: "/dashboard" },
@@ -28,31 +30,27 @@ const TextEditor = () => {
     { name: "Refunds", path: "/refunds" },
   ];
 
-  const handlePreviewClick = () => {
-    window.open('https://preview--paydunya-bridge-46.lovable.app/pages-previews', '_blank');
-  };
-
   const handlePageSelect = (path: string) => {
     setSelectedPage(path);
-    setIsPageEditorOpen(true);
+    toast({
+      title: "Page sélectionnée",
+      description: `La page ${path} a été chargée pour édition.`,
+    });
   };
 
   const handleElementSelect = (event: React.MouseEvent) => {
     if (event.target instanceof HTMLElement) {
       setSelectedElement(event.target);
+      toast({
+        title: "Élément sélectionné",
+        description: `L'élément ${event.target.tagName.toLowerCase()} a été sélectionné pour édition.`,
+      });
     }
   };
 
   return (
     <div className="w-full">
       <div className="flex items-center gap-2 mb-2">
-        <Button 
-          variant="ghost" 
-          className="flex-1 bg-accent"
-          onClick={handlePreviewClick}
-        >
-          Pages Previews
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -91,19 +89,24 @@ const TextEditor = () => {
         </button>
       </div>
       
-      <textarea className="w-full h-64 p-2 border rounded" placeholder="Écrivez votre texte ici..."></textarea>
-
-      <Dialog open={isPageEditorOpen} onOpenChange={setIsPageEditorOpen}>
-        <DialogContent className="max-w-[90vw] h-[90vh] p-0">
-          <div className="w-full h-full overflow-auto p-4" onClick={handleElementSelect}>
+      <div className="w-full min-h-[500px] border rounded-b-md p-4 bg-white">
+        {selectedPage ? (
+          <div 
+            className="w-full h-full" 
+            onClick={handleElementSelect}
+          >
             <iframe 
-              src={selectedPage ? selectedPage : ''} 
+              src={selectedPage}
               className="w-full h-full border-0"
               title="Page Editor"
             />
           </div>
-        </DialogContent>
-      </Dialog>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-500">
+            Sélectionnez une page à éditer
+          </div>
+        )}
+      </div>
     </div>
   );
 };
