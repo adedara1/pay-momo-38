@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Bold, Italic, Underline, Strikethrough, ChevronDown } from 'lucide-react';
 import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -9,7 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 
 const TextEditor = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPage, setSelectedPage] = useState<string | null>(null);
+  const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
+  const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
 
   const pages = [
     { name: "Dashboard", path: "/dashboard" },
@@ -24,6 +30,17 @@ const TextEditor = () => {
 
   const handlePreviewClick = () => {
     window.open('https://preview--paydunya-bridge-46.lovable.app/pages-previews', '_blank');
+  };
+
+  const handlePageSelect = (path: string) => {
+    setSelectedPage(path);
+    setIsPageEditorOpen(true);
+  };
+
+  const handleElementSelect = (event: React.MouseEvent) => {
+    if (event.target instanceof HTMLElement) {
+      setSelectedElement(event.target);
+    }
   };
 
   return (
@@ -48,7 +65,10 @@ const TextEditor = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[200px]">
             {pages.map((page) => (
-              <DropdownMenuItem key={page.path}>
+              <DropdownMenuItem 
+                key={page.path}
+                onClick={() => handlePageSelect(page.path)}
+              >
                 {page.name}
               </DropdownMenuItem>
             ))}
@@ -72,6 +92,18 @@ const TextEditor = () => {
       </div>
       
       <textarea className="w-full h-64 p-2 border rounded" placeholder="Écrivez votre texte ici..."></textarea>
+
+      <Dialog open={isPageEditorOpen} onOpenChange={setIsPageEditorOpen}>
+        <DialogContent className="max-w-[90vw] h-[90vh] p-0">
+          <div className="w-full h-full overflow-auto p-4" onClick={handleElementSelect}>
+            <iframe 
+              src={selectedPage ? selectedPage : ''} 
+              className="w-full h-full border-0"
+              title="Page Editor"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
