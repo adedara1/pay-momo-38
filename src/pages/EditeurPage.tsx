@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ElementEditor from "@/components/ElementEditor";
 import StyleControls from "@/components/StyleControls";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const EditeurPage = () => {
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
+  const [selectedPage, setSelectedPage] = useState<string | null>(null);
   const [styles, setStyles] = useState({
     fontSize: 20,
     lineHeight: 45,
@@ -16,9 +24,36 @@ const EditeurPage = () => {
     marginLeft: 0
   });
 
-  const handleElementSelect = (element: HTMLElement) => {
-    console.log("Element selected:", element);
-    setSelectedElement(element);
+  const pages = [
+    { name: "Dashboard", path: "/dashboard" },
+    { name: "Blog", path: "/blog" },
+    { name: "Orders", path: "/orders" },
+    { name: "Clients", path: "/clients" },
+    { name: "Withdrawals", path: "/withdrawals" },
+    { name: "Refunds", path: "/refunds" },
+  ];
+
+  const handleElementClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (event.target instanceof HTMLElement) {
+      console.log("Element clicked:", event.target);
+      setSelectedElement(event.target);
+      
+      // Récupérer les styles actuels de l'élément
+      const computedStyle = window.getComputedStyle(event.target);
+      setStyles({
+        fontSize: parseInt(computedStyle.fontSize) || 20,
+        lineHeight: parseInt(computedStyle.lineHeight) || 45,
+        fontFamily: computedStyle.fontFamily || "Palanquin",
+        letterSpacing: parseFloat(computedStyle.letterSpacing) || 1,
+        marginTop: parseInt(computedStyle.marginTop) || 44,
+        marginRight: parseInt(computedStyle.marginRight) || 0,
+        marginBottom: parseInt(computedStyle.marginBottom) || 0,
+        marginLeft: parseInt(computedStyle.marginLeft) || 0
+      });
+    }
   };
 
   const handleStyleChange = (newStyles: typeof styles) => {
@@ -41,14 +76,41 @@ const EditeurPage = () => {
 
   return (
     <div className="flex gap-4">
-      <Card className="flex-1">
-        <CardHeader>
-          <CardTitle>Editeur de page</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ElementEditor onElementSelect={handleElementSelect} />
-        </CardContent>
-      </Card>
+      <div className="flex-1">
+        <div className="mb-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full flex justify-between items-center">
+                {selectedPage ? pages.find(p => p.path === selectedPage)?.name : "Liste des pages"}
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[200px]">
+              {pages.map((page) => (
+                <DropdownMenuItem 
+                  key={page.path}
+                  onClick={() => setSelectedPage(page.path)}
+                >
+                  {page.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {selectedPage && (
+          <div 
+            className="w-full min-h-[600px] border rounded-lg overflow-auto bg-white" 
+            onClick={handleElementClick}
+          >
+            <iframe 
+              src={selectedPage}
+              className="w-full h-full border-0"
+              title="Page Editor"
+            />
+          </div>
+        )}
+      </div>
       
       <div className="w-80">
         <StyleControls 
