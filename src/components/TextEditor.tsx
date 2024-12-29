@@ -11,12 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 
 const TextEditor = () => {
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
+  const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
-  const { toast } = useToast();
 
   const pages = [
     { name: "Dashboard", path: "/dashboard" },
@@ -33,38 +32,14 @@ const TextEditor = () => {
     window.open('https://preview--paydunya-bridge-46.lovable.app/pages-previews', '_blank');
   };
 
-  const handlePageSelect = async (path: string) => {
-    try {
-      setSelectedPage(path);
-      // Reset selected element when changing page
-      setSelectedElement(null);
-      
-      toast({
-        title: "Page chargée",
-        description: `La page ${path} a été chargée avec succès`,
-      });
-    } catch (error) {
-      console.error('Error loading page:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger la page",
-        variant: "destructive",
-      });
-    }
+  const handlePageSelect = (path: string) => {
+    setSelectedPage(path);
+    setIsPageEditorOpen(true);
   };
 
-  const handleElementClick = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    
+  const handleElementSelect = (event: React.MouseEvent) => {
     if (event.target instanceof HTMLElement) {
       setSelectedElement(event.target);
-      console.log('Selected element:', event.target);
-      
-      toast({
-        title: "Élément sélectionné",
-        description: `Type: ${event.target.tagName.toLowerCase()}`,
-      });
     }
   };
 
@@ -115,23 +90,20 @@ const TextEditor = () => {
           <Strikethrough className="w-4 h-4 text-white" />
         </button>
       </div>
+      
+      <textarea className="w-full h-64 p-2 border rounded" placeholder="Écrivez votre texte ici..."></textarea>
 
-      {selectedPage ? (
-        <div 
-          className="w-full min-h-[500px] border rounded-b p-4 bg-white"
-          onClick={handleElementClick}
-        >
-          <iframe
-            src={selectedPage}
-            className="w-full h-full border-0"
-            title="Page Editor"
-          />
-        </div>
-      ) : (
-        <div className="w-full h-64 border rounded-b p-4 flex items-center justify-center text-gray-500">
-          Sélectionnez une page à éditer
-        </div>
-      )}
+      <Dialog open={isPageEditorOpen} onOpenChange={setIsPageEditorOpen}>
+        <DialogContent className="max-w-[90vw] h-[90vh] p-0">
+          <div className="w-full h-full overflow-auto p-4" onClick={handleElementSelect}>
+            <iframe 
+              src={selectedPage ? selectedPage : ''} 
+              className="w-full h-full border-0"
+              title="Page Editor"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
