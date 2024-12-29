@@ -57,8 +57,6 @@ const WalletStats = () => {
     fetchWalletStats();
   }, [toast]);
 
-  // ... keep existing code (component JSX)
-
   return (
     <div className="grid grid-cols-3 gap-2 md:gap-[2vw]">
       <Card className="p-2 md:p-[2vw] flex items-center justify-between">
@@ -69,7 +67,7 @@ const WalletStats = () => {
               {stats.available} CFA
             </span>
           </div>
-          <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw]">
+          <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
             Disponible(s)
           </p>
         </div>
@@ -83,7 +81,7 @@ const WalletStats = () => {
               {stats.pending} CFA
             </span>
           </div>
-          <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw]">
+          <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
             {stats.pendingCount} Demande(s) en attente
           </p>
         </div>
@@ -98,7 +96,7 @@ const WalletStats = () => {
                 {stats.validated} CFA
               </span>
             </div>
-            <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw]">
+            <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
               {stats.validatedCount} Demande(s) validée(s)
             </p>
           </div>
