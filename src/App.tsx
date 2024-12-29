@@ -12,7 +12,6 @@ import Clients from "@/pages/Clients";
 import Withdrawals from "@/pages/Withdrawals";
 import Orders from "@/pages/Orders";
 import Refunds from "@/pages/Refunds";
-import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 import Auth from "@/components/Auth";
 import ProfileForm from "@/pages/ProfileForm";
@@ -34,7 +33,7 @@ const queryClient = new QueryClient({
 const noSidebarRoutes = ['/product', '/auth', '/profile'];
 
 // Routes that should display the settings sidebar
-const settingsRoutes = ['/settings'];
+const settingsRoutes = ['/configuration'];
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -178,7 +177,6 @@ const AppContent = () => {
           <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
           <Route path="/withdrawals" element={<ProtectedRoute><Withdrawals /></ProtectedRoute>} />
           <Route path="/refunds" element={<ProtectedRoute><Refunds /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/configuration" element={<ProtectedRoute><Configuration /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
