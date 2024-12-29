@@ -13,6 +13,7 @@ import {
   Wallet,
   RefreshCw,
   Menu,
+  Cog,
 } from "lucide-react";
 
 export const menuItems = [
@@ -24,6 +25,7 @@ export const menuItems = [
     path: "#",
     submenu: [
       { icon: Settings, label: "Réglages", path: "/settings" },
+      { icon: Cog, label: "Configuration", path: "/configuration" },
     ]
   },
   { icon: Package, label: "Produit", path: "/blog" },

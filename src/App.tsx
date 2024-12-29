@@ -19,6 +19,7 @@ import ProfileForm from "@/pages/ProfileForm";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import SettingsSidebar from "@/components/SettingsSidebar";
+import Configuration from "@/pages/Configuration";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -178,6 +179,7 @@ const AppContent = () => {
           <Route path="/withdrawals" element={<ProtectedRoute><Withdrawals /></ProtectedRoute>} />
           <Route path="/refunds" element={<ProtectedRoute><Refunds /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/configuration" element={<ProtectedRoute><Configuration /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
