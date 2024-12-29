@@ -19,6 +19,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import Configuration from "@/pages/Configuration";
+import EditeurPage from "@/pages/EditeurPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +34,7 @@ const queryClient = new QueryClient({
 const noSidebarRoutes = ['/product', '/auth', '/profile'];
 
 // Routes that should display the settings sidebar
-const settingsRoutes = ['/configuration'];
+const settingsRoutes = ['/configuration', '/editeur'];
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -178,6 +179,7 @@ const AppContent = () => {
           <Route path="/withdrawals" element={<ProtectedRoute><Withdrawals /></ProtectedRoute>} />
           <Route path="/refunds" element={<ProtectedRoute><Refunds /></ProtectedRoute>} />
           <Route path="/configuration" element={<ProtectedRoute><Configuration /></ProtectedRoute>} />
+          <Route path="/editeur" element={<ProtectedRoute><EditeurPage /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

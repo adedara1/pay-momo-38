@@ -25,7 +25,8 @@ interface SettingsSidebarProps {
 }
 
 const settingsMenuItems = [
-  { label: "Réglage actuel", path: "/settings" },
+  { label: "Réglage actuel", path: "/configuration" },
+  { label: "Editeur de page", path: "/editeur" },
 ];
 
 const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
