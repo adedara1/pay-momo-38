@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Bold, Italic, Underline, Strikethrough, ChevronDown } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -12,23 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import MarginControls from './MarginControls';
 
 const TextEditor = () => {
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
   const [isPageEditorOpen, setIsPageEditorOpen] = useState(false);
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
-  const { toast } = useToast();
-
-  // États pour les contrôles de style
-  const [fontSize, setFontSize] = useState(20);
-  const [lineHeight, setLineHeight] = useState(45);
-  const [letterSpacing, setLetterSpacing] = useState(1);
-  const [marginTop, setMarginTop] = useState(44);
-  const [marginRight, setMarginRight] = useState(0);
-  const [marginBottom, setMarginBottom] = useState(0);
-  const [marginLeft, setMarginLeft] = useState(0);
-  const [fontFamily, setFontFamily] = useState("Palanquin");
 
   const pages = [
     { name: "Dashboard", path: "/dashboard" },
@@ -41,52 +28,31 @@ const TextEditor = () => {
     { name: "Refunds", path: "/refunds" },
   ];
 
+  const handlePreviewClick = () => {
+    window.open('https://preview--paydunya-bridge-46.lovable.app/pages-previews', '_blank');
+  };
+
   const handlePageSelect = (path: string) => {
     setSelectedPage(path);
-    toast({
-      title: "Page sélectionnée",
-      description: `La page ${path} a été chargée pour édition.`,
-    });
+    setIsPageEditorOpen(true);
   };
 
   const handleElementSelect = (event: React.MouseEvent) => {
     if (event.target instanceof HTMLElement) {
       setSelectedElement(event.target);
-      // Mettre à jour les contrôles avec les valeurs actuelles de l'élément
-      const styles = window.getComputedStyle(event.target);
-      setFontSize(parseInt(styles.fontSize));
-      setLineHeight(parseInt(styles.lineHeight));
-      setLetterSpacing(parseFloat(styles.letterSpacing));
-      setMarginTop(parseInt(styles.marginTop));
-      setMarginRight(parseInt(styles.marginRight));
-      setMarginBottom(parseInt(styles.marginBottom));
-      setMarginLeft(parseInt(styles.marginLeft));
-      setFontFamily(styles.fontFamily);
-
-      toast({
-        title: "Élément sélectionné",
-        description: `L'élément ${event.target.tagName.toLowerCase()} a été sélectionné pour édition.`,
-      });
     }
   };
-
-  // Appliquer les styles à l'élément sélectionné
-  useEffect(() => {
-    if (selectedElement) {
-      selectedElement.style.fontSize = `${fontSize}px`;
-      selectedElement.style.lineHeight = `${lineHeight}px`;
-      selectedElement.style.letterSpacing = `${letterSpacing}px`;
-      selectedElement.style.marginTop = `${marginTop}px`;
-      selectedElement.style.marginRight = `${marginRight}px`;
-      selectedElement.style.marginBottom = `${marginBottom}px`;
-      selectedElement.style.marginLeft = `${marginLeft}px`;
-      selectedElement.style.fontFamily = fontFamily;
-    }
-  }, [fontSize, lineHeight, letterSpacing, marginTop, marginRight, marginBottom, marginLeft, fontFamily, selectedElement]);
 
   return (
     <div className="w-full">
       <div className="flex items-center gap-2 mb-2">
+        <Button 
+          variant="ghost" 
+          className="flex-1 bg-accent"
+          onClick={handlePreviewClick}
+        >
+          Pages Previews
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -125,41 +91,19 @@ const TextEditor = () => {
         </button>
       </div>
       
-      <div className="w-full min-h-[500px] border rounded-b-md p-4 bg-white">
-        {selectedPage ? (
-          <div className="flex gap-4">
-            <div 
-              className="flex-1 border rounded-md overflow-hidden" 
-              onClick={handleElementSelect}
-            >
-              <iframe 
-                src={selectedPage}
-                className="w-full h-full min-h-[600px] border-0"
-                title="Page Editor"
-              />
-            </div>
-            <div className="w-64 bg-gray-50 p-4 rounded-md">
-              <h2 className="font-semibold mb-4">Propriétés</h2>
-              {selectedElement && (
-                <MarginControls
-                  marginTop={marginTop}
-                  marginRight={marginRight}
-                  marginBottom={marginBottom}
-                  marginLeft={marginLeft}
-                  setMarginTop={setMarginTop}
-                  setMarginRight={setMarginRight}
-                  setMarginBottom={setMarginBottom}
-                  setMarginLeft={setMarginLeft}
-                />
-              )}
-            </div>
+      <textarea className="w-full h-64 p-2 border rounded" placeholder="Écrivez votre texte ici..."></textarea>
+
+      <Dialog open={isPageEditorOpen} onOpenChange={setIsPageEditorOpen}>
+        <DialogContent className="max-w-[90vw] h-[90vh] p-0">
+          <div className="w-full h-full overflow-auto p-4" onClick={handleElementSelect}>
+            <iframe 
+              src={selectedPage ? selectedPage : ''} 
+              className="w-full h-full border-0"
+              title="Page Editor"
+            />
           </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-500">
-            Sélectionnez une page à éditer
-          </div>
-        )}
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
