@@ -23,7 +23,7 @@ export const menuItems = [
     label: "Menu Admin",
     path: "#",
     submenu: [
-      { icon: Settings, label: "Réglages", path: "https://preview--paydunya-bridge-46.lovable.app/general-settings" },
+      { icon: Settings, label: "Réglages", path: "/settings" },
     ]
   },
   { icon: Package, label: "Produit", path: "/blog" },

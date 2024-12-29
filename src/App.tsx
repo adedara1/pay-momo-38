@@ -159,31 +159,11 @@ const AppContent = () => {
   const location = useLocation();
   const shouldShowSidebar = !noSidebarRoutes.some(route => location.pathname.startsWith(route));
   const isSettingsPage = settingsRoutes.some(route => location.pathname.startsWith(route));
-  const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile) {
-          setUserProfile(profile);
-        }
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
 
   return (
     <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden">
-      {shouldShowSidebar && !isSettingsPage && <MainSidebar userProfile={userProfile} />}
-      {isSettingsPage && <SettingsSidebar userProfile={userProfile} />}
+      {shouldShowSidebar && !isSettingsPage && <MainSidebar />}
+      {isSettingsPage && <SettingsSidebar userProfile={null} />}
       <main className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${shouldShowSidebar ? 'md:ml-64 max-w-7xl mx-auto' : 'md:w-full'}`}>
         <Routes>
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
