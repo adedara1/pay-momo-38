@@ -98,7 +98,6 @@ const Settings = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Editeur de Page</h1>
       <div className="flex items-center gap-3 mb-8">
         <SettingsIcon className="h-6 w-6" />
         <h1 className="text-2xl font-bold">Réglages</h1>
