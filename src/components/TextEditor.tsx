@@ -75,8 +75,6 @@ const TextEditor = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      
-      <textarea className="w-full h-64 p-2 border rounded" placeholder="Écrivez votre texte ici..."></textarea>
 
       <Dialog open={isPageEditorOpen} onOpenChange={setIsPageEditorOpen}>
         <DialogContent className="max-w-[90vw] h-[90vh] p-0">
