@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PersonalInfoStep } from "@/components/profile/PersonalInfoStep";
 import { CompanyInfoStep } from "@/components/profile/CompanyInfoStep";
 import { WithdrawalInfoStep } from "@/components/profile/WithdrawalInfoStep";
+import { ArrowLeft } from "lucide-react";
 
 const ProfileForm = () => {
   const navigate = useNavigate();
@@ -85,10 +86,15 @@ const ProfileForm = () => {
   };
 
   const handleBack = async () => {
-    if (activeTab === "company") {
-      setActiveTab("personal");
-    } else if (activeTab === "withdrawal") {
-      setActiveTab("company");
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion",
+        variant: "destructive",
+      });
+    } else {
+      navigate('/auth');
     }
   };
 
@@ -201,7 +207,17 @@ const ProfileForm = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
       <Card className="w-full max-w-4xl p-6 space-y-6">
-        <h1 className="text-3xl font-bold text-center mb-8">Digit-Sarl</h1>
+        <div className="flex justify-between items-center">
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </Button>
+          <h1 className="text-3xl font-bold text-center">Digit-Sarl</h1>
+        </div>
         <h2 className="text-2xl font-bold text-center">Complétez votre profil</h2>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
