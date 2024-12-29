@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bold, Italic, Underline, Strikethrough, ChevronDown } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -21,10 +21,14 @@ const TextEditor = () => {
   const { toast } = useToast();
 
   // États pour les contrôles de style
-  const [marginTop, setMarginTop] = useState(0);
+  const [fontSize, setFontSize] = useState(20);
+  const [lineHeight, setLineHeight] = useState(45);
+  const [letterSpacing, setLetterSpacing] = useState(1);
+  const [marginTop, setMarginTop] = useState(44);
   const [marginRight, setMarginRight] = useState(0);
   const [marginBottom, setMarginBottom] = useState(0);
   const [marginLeft, setMarginLeft] = useState(0);
+  const [fontFamily, setFontFamily] = useState("Palanquin");
 
   const pages = [
     { name: "Dashboard", path: "/dashboard" },
@@ -48,12 +52,37 @@ const TextEditor = () => {
   const handleElementSelect = (event: React.MouseEvent) => {
     if (event.target instanceof HTMLElement) {
       setSelectedElement(event.target);
+      // Mettre à jour les contrôles avec les valeurs actuelles de l'élément
+      const styles = window.getComputedStyle(event.target);
+      setFontSize(parseInt(styles.fontSize));
+      setLineHeight(parseInt(styles.lineHeight));
+      setLetterSpacing(parseFloat(styles.letterSpacing));
+      setMarginTop(parseInt(styles.marginTop));
+      setMarginRight(parseInt(styles.marginRight));
+      setMarginBottom(parseInt(styles.marginBottom));
+      setMarginLeft(parseInt(styles.marginLeft));
+      setFontFamily(styles.fontFamily);
+
       toast({
         title: "Élément sélectionné",
         description: `L'élément ${event.target.tagName.toLowerCase()} a été sélectionné pour édition.`,
       });
     }
   };
+
+  // Appliquer les styles à l'élément sélectionné
+  useEffect(() => {
+    if (selectedElement) {
+      selectedElement.style.fontSize = `${fontSize}px`;
+      selectedElement.style.lineHeight = `${lineHeight}px`;
+      selectedElement.style.letterSpacing = `${letterSpacing}px`;
+      selectedElement.style.marginTop = `${marginTop}px`;
+      selectedElement.style.marginRight = `${marginRight}px`;
+      selectedElement.style.marginBottom = `${marginBottom}px`;
+      selectedElement.style.marginLeft = `${marginLeft}px`;
+      selectedElement.style.fontFamily = fontFamily;
+    }
+  }, [fontSize, lineHeight, letterSpacing, marginTop, marginRight, marginBottom, marginLeft, fontFamily, selectedElement]);
 
   return (
     <div className="w-full">
@@ -100,12 +129,12 @@ const TextEditor = () => {
         {selectedPage ? (
           <div className="flex gap-4">
             <div 
-              className="flex-1" 
+              className="flex-1 border rounded-md overflow-hidden" 
               onClick={handleElementSelect}
             >
               <iframe 
                 src={selectedPage}
-                className="w-full h-full border-0"
+                className="w-full h-full min-h-[600px] border-0"
                 title="Page Editor"
               />
             </div>
