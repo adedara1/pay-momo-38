@@ -74,6 +74,24 @@ const EditeurPage = () => {
     }
   };
 
+  const loadPageContent = (path: string) => {
+    // Charger le contenu de la page sélectionnée dans l'éditeur
+    fetch(path)
+      .then(response => response.text())
+      .then(html => {
+        const editorContainer = document.getElementById('editor-container');
+        if (editorContainer) {
+          editorContainer.innerHTML = html;
+          // Ajouter les écouteurs d'événements pour la sélection
+          const elements = editorContainer.getElementsByTagName('*');
+          Array.from(elements).forEach(element => {
+            element.addEventListener('click', handleElementClick as any);
+          });
+        }
+      })
+      .catch(error => console.error('Error loading page:', error));
+  };
+
   return (
     <div className="flex gap-4">
       <div className="flex-1">
@@ -89,7 +107,10 @@ const EditeurPage = () => {
               {pages.map((page) => (
                 <DropdownMenuItem 
                   key={page.path}
-                  onClick={() => setSelectedPage(page.path)}
+                  onClick={() => {
+                    setSelectedPage(page.path);
+                    loadPageContent(page.path);
+                  }}
                 >
                   {page.name}
                 </DropdownMenuItem>
@@ -100,15 +121,9 @@ const EditeurPage = () => {
 
         {selectedPage && (
           <div 
-            className="w-full min-h-[600px] border rounded-lg overflow-auto bg-white" 
-            onClick={handleElementClick}
-          >
-            <iframe 
-              src={selectedPage}
-              className="w-full h-full border-0"
-              title="Page Editor"
-            />
-          </div>
+            id="editor-container"
+            className="w-full min-h-[600px] border rounded-lg overflow-auto bg-white p-4" 
+          />
         )}
       </div>
       
