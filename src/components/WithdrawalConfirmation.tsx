@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Edit2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface WithdrawalConfirmationProps {
   amount: string;
@@ -15,6 +16,7 @@ interface WithdrawalConfirmationProps {
 const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: WithdrawalConfirmationProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     try {
@@ -56,6 +58,11 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
     }
   };
 
+  const handleEdit = () => {
+    // Navigate to profile form with withdrawal info tab active
+    navigate("/profile?tab=withdrawal");
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-6">
@@ -95,7 +102,7 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
         </div>
 
         <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={onEdit}>
+          <Button variant="outline" onClick={handleEdit}>
             <Edit2 className="h-4 w-4 mr-2" />
             Modifier
           </Button>
