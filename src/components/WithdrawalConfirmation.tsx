@@ -31,9 +31,9 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
           user_id: user.id,
           amount: parseInt(amount),
           description: "Retrait de fonds",
-          customer_email: userProfile.withdrawal_email,
-          customer_first_name: userProfile.withdrawal_first_name,
-          customer_last_name: userProfile.withdrawal_last_name,
+          customer_email: userProfile.company_email,
+          customer_first_name: userProfile.first_name,
+          customer_last_name: userProfile.last_name,
           customer_phone: userProfile.momo_number,
           method: userProfile.momo_provider,
           currency: "XOF",
@@ -64,9 +64,21 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilisateur non connecté");
 
+      // Map the field names to match the database schema
+      const fieldMapping: { [key: string]: string } = {
+        withdrawalFirstName: "first_name",
+        withdrawalLastName: "last_name",
+        withdrawalEmail: "company_email",
+        momoProvider: "momo_provider",
+        momoNumber: "momo_number",
+        autoTransfer: "auto_transfer"
+      };
+
+      const dbField = fieldMapping[field] || field;
+
       const { error } = await supabase
         .from('profiles')
-        .update({ [field]: value })
+        .update({ [dbField]: value })
         .eq('id', user.id);
 
       if (error) throw error;
@@ -116,12 +128,12 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
 
           <div className="grid gap-2">
             <p className="text-sm text-gray-500">Nom complet</p>
-            <p className="font-medium">{userProfile.withdrawal_first_name} {userProfile.withdrawal_last_name}</p>
+            <p className="font-medium">{userProfile.first_name} {userProfile.last_name}</p>
           </div>
 
           <div className="grid gap-2">
             <p className="text-sm text-gray-500">Email</p>
-            <p className="font-medium">{userProfile.withdrawal_email}</p>
+            <p className="font-medium">{userProfile.company_email}</p>
           </div>
         </div>
 
@@ -145,9 +157,9 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
             momoProvider={userProfile.momo_provider}
             momoNumber={userProfile.momo_number}
             autoTransfer={userProfile.auto_transfer}
-            withdrawalFirstName={userProfile.withdrawal_first_name}
-            withdrawalLastName={userProfile.withdrawal_last_name}
-            withdrawalEmail={userProfile.withdrawal_email}
+            withdrawalFirstName={userProfile.first_name}
+            withdrawalLastName={userProfile.last_name}
+            withdrawalEmail={userProfile.company_email}
             onChange={handleEditSave}
           />
         </DialogContent>
