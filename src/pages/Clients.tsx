@@ -23,13 +23,12 @@ export default function Clients() {
     queryKey: ["clients"],
     queryFn: async () => {
       console.log("Fetching clients...");
-      // Modified query to directly get user data from auth.users through profiles
-      const { data: profiles, error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select(`
           id,
           created_at,
-          user:id (
+          auth_user:id (
             email
           )
         `)
@@ -41,9 +40,9 @@ export default function Clients() {
       }
 
       // Transform the data to match our Client interface
-      const transformedData: Client[] = profiles.map((profile: any) => ({
+      const transformedData: Client[] = data.map((profile: any) => ({
         id: profile.id,
-        email: profile.user?.email,
+        email: profile.auth_user?.email,
         created_at: profile.created_at,
       }));
 
