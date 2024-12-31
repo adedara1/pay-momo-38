@@ -1,11 +1,15 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { momoProviders } from "@/data/locationData";
+import { Label } from "@/components/ui/label";
 
 interface WithdrawalInfoStepProps {
   momoProvider: string;
   momoNumber: string;
   autoTransfer: boolean;
+  withdrawalFirstName: string;
+  withdrawalLastName: string;
+  withdrawalEmail: string;
   onChange: (field: string, value: string | boolean) => void;
   onBack?: () => void;
 }
@@ -14,9 +18,18 @@ export const WithdrawalInfoStep = ({
   momoProvider,
   momoNumber,
   autoTransfer,
+  withdrawalFirstName,
+  withdrawalLastName,
+  withdrawalEmail,
   onChange,
   onBack,
 }: WithdrawalInfoStepProps) => {
+  const handleMomoNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Supprimer le préfixe + et tous les caractères non numériques
+    const value = e.target.value.replace(/\+/g, '').replace(/\D/g, '');
+    onChange('momoNumber', value);
+  };
+
   return (
     <div className="space-y-4">
       {onBack && (
@@ -42,7 +55,7 @@ export const WithdrawalInfoStep = ({
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Fournisseur Mobile Money</label>
+        <Label>Fournisseur Mobile Money</Label>
         <Select value={momoProvider} onValueChange={(value) => onChange('momoProvider', value)}>
           <SelectTrigger>
             <SelectValue placeholder="Sélectionnez un fournisseur" />
@@ -58,12 +71,40 @@ export const WithdrawalInfoStep = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Numéro Mobile Money</label>
+        <Label>Numéro Mobile Money (sans préfixe international)</Label>
         <Input
           type="tel"
           value={momoNumber}
-          onChange={(e) => onChange('momoNumber', e.target.value)}
-          placeholder="+225 XX XXX XX XX"
+          onChange={handleMomoNumberChange}
+          placeholder="01234567"
+          required
+        />
+      </div>
+
+      <div>
+        <Label>Prénom du bénéficiaire</Label>
+        <Input
+          value={withdrawalFirstName}
+          onChange={(e) => onChange('withdrawalFirstName', e.target.value)}
+          required
+        />
+      </div>
+
+      <div>
+        <Label>Nom du bénéficiaire</Label>
+        <Input
+          value={withdrawalLastName}
+          onChange={(e) => onChange('withdrawalLastName', e.target.value)}
+          required
+        />
+      </div>
+
+      <div>
+        <Label>Email du bénéficiaire</Label>
+        <Input
+          type="email"
+          value={withdrawalEmail}
+          onChange={(e) => onChange('withdrawalEmail', e.target.value)}
           required
         />
       </div>
@@ -76,9 +117,9 @@ export const WithdrawalInfoStep = ({
           onChange={(e) => onChange('autoTransfer', e.target.checked)}
           className="rounded border-gray-300 text-primary focus:ring-primary"
         />
-        <label htmlFor="autoTransfer" className="text-sm text-gray-700">
+        <Label htmlFor="autoTransfer" className="text-sm text-gray-700">
           Activer le transfert automatique
-        </label>
+        </Label>
       </div>
     </div>
   );

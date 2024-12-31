@@ -9,6 +9,7 @@ import { PersonalInfoStep } from "@/components/profile/PersonalInfoStep";
 import { CompanyInfoStep } from "@/components/profile/CompanyInfoStep";
 import { WithdrawalInfoStep } from "@/components/profile/WithdrawalInfoStep";
 import { ArrowLeft } from "lucide-react";
+import { PersonalInfo, CompanyInfo, WithdrawalInfo } from "@/types/profile";
 
 const ProfileForm = () => {
   const navigate = useNavigate();
@@ -16,13 +17,13 @@ const ProfileForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
   
-  const [personalInfo, setPersonalInfo] = useState({
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
     firstName: "",
     lastName: "",
     phoneNumber: "",
   });
   
-  const [companyInfo, setCompanyInfo] = useState({
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     companyName: "",
     companyDescription: "",
     whatsappNumber: "",
@@ -33,10 +34,13 @@ const ProfileForm = () => {
     documentNumber: "",
   });
   
-  const [withdrawalInfo, setWithdrawalInfo] = useState({
+  const [withdrawalInfo, setWithdrawalInfo] = useState<WithdrawalInfo>({
     momoProvider: "",
     momoNumber: "",
     autoTransfer: false,
+    withdrawalFirstName: "",
+    withdrawalLastName: "",
+    withdrawalEmail: "",
   });
 
   const [companyLogo, setCompanyLogo] = useState<File | null>(null);
@@ -181,6 +185,9 @@ const ProfileForm = () => {
           document_url: documentUrl,
           momo_provider: withdrawalInfo.momoProvider,
           momo_number: withdrawalInfo.momoNumber,
+          withdrawal_first_name: withdrawalInfo.withdrawalFirstName,
+          withdrawal_last_name: withdrawalInfo.withdrawalLastName,
+          withdrawal_email: withdrawalInfo.withdrawalEmail,
           auto_transfer: withdrawalInfo.autoTransfer,
         });
 
