@@ -28,9 +28,9 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
           user_id: user.id,
           amount: parseInt(amount),
           description: "Retrait de fonds",
-          customer_email: userProfile.company_email,
-          customer_first_name: userProfile.first_name,
-          customer_last_name: userProfile.last_name,
+          customer_email: userProfile.withdrawal_email,
+          customer_first_name: userProfile.withdrawal_first_name,
+          customer_last_name: userProfile.withdrawal_last_name,
           customer_phone: userProfile.momo_number,
           method: userProfile.momo_provider,
           currency: "XOF",
@@ -85,12 +85,12 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
 
           <div className="grid gap-2">
             <p className="text-sm text-gray-500">Nom complet</p>
-            <p className="font-medium">{userProfile.first_name} {userProfile.last_name}</p>
+            <p className="font-medium">{userProfile.withdrawal_first_name} {userProfile.withdrawal_last_name}</p>
           </div>
 
           <div className="grid gap-2">
             <p className="text-sm text-gray-500">Email</p>
-            <p className="font-medium">{userProfile.company_email}</p>
+            <p className="font-medium">{userProfile.withdrawal_email}</p>
           </div>
         </div>
 
