@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Edit2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { WithdrawalInfoStep } from "./profile/WithdrawalInfoStep";
 
 interface WithdrawalConfirmationProps {
   amount: string;
@@ -14,6 +16,7 @@ interface WithdrawalConfirmationProps {
 
 const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: WithdrawalConfirmationProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async () => {
@@ -56,6 +59,34 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
     }
   };
 
+  const handleEditSave = async (field: string, value: string | boolean) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Utilisateur non connecté");
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ [field]: value })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Modifications enregistrées",
+        description: "Vos informations ont été mises à jour avec succès",
+      });
+
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-6">
@@ -95,7 +126,7 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
         </div>
 
         <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={onEdit}>
+          <Button variant="outline" onClick={() => setIsEditModalOpen(true)}>
             <Edit2 className="h-4 w-4 mr-2" />
             Modifier
           </Button>
@@ -104,6 +135,23 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
           </Button>
         </div>
       </div>
+
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Modifier les informations de retrait</DialogTitle>
+          </DialogHeader>
+          <WithdrawalInfoStep
+            momoProvider={userProfile.momo_provider}
+            momoNumber={userProfile.momo_number}
+            autoTransfer={userProfile.auto_transfer}
+            withdrawalFirstName={userProfile.withdrawal_first_name}
+            withdrawalLastName={userProfile.withdrawal_last_name}
+            withdrawalEmail={userProfile.withdrawal_email}
+            onChange={handleEditSave}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
