@@ -137,13 +137,13 @@ const ProfileForm = () => {
         const fileExt = companyLogo.name.split('.').pop();
         const fileName = `company-logo-${Math.random()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
-          .from('product-images')  // Changed from 'company-logos' to 'product-images'
+          .from('product-images')
           .upload(fileName, companyLogo);
 
         if (uploadError) throw uploadError;
         
         const { data: { publicUrl } } = supabase.storage
-          .from('product-images')  // Changed from 'company-logos' to 'product-images'
+          .from('product-images')
           .getPublicUrl(fileName);
           
         companyLogoUrl = publicUrl;
@@ -154,13 +154,13 @@ const ProfileForm = () => {
         const fileExt = document.name.split('.').pop();
         const fileName = `document-${Math.random()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
-          .from('product-images')  // Changed from 'documents' to 'product-images'
+          .from('product-images')
           .upload(fileName, document);
 
         if (uploadError) throw uploadError;
         
         const { data: { publicUrl } } = supabase.storage
-          .from('product-images')  // Changed from 'documents' to 'product-images'
+          .from('product-images')
           .getPublicUrl(fileName);
           
         documentUrl = publicUrl;
@@ -185,10 +185,7 @@ const ProfileForm = () => {
           document_url: documentUrl,
           momo_provider: withdrawalInfo.momoProvider,
           momo_number: withdrawalInfo.momoNumber,
-          withdrawal_first_name: withdrawalInfo.withdrawalFirstName,
-          withdrawal_last_name: withdrawalInfo.withdrawalLastName,
-          withdrawal_email: withdrawalInfo.withdrawalEmail,
-          auto_transfer: withdrawalInfo.autoTransfer,
+          auto_transfer: withdrawalInfo.autoTransfer
         });
 
       if (upsertError) throw upsertError;
