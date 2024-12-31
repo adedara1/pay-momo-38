@@ -4,11 +4,22 @@ import WithdrawalStats from "./WithdrawalStats";
 import WithdrawalPieChart from "./WithdrawalPieChart";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Filter, Download } from "lucide-react";
+import { Filter, Download, Info } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 const WithdrawalsList = () => {
+  const { toast } = useToast();
+  
   // Fetch withdrawals for statistics
   const { data: withdrawals, isLoading } = useQuery({
     queryKey: ["withdrawals-stats"],
@@ -76,6 +87,32 @@ const WithdrawalsList = () => {
     }
   };
 
+  const handleDisableAutoTransfer = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Non authentifié");
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ auto_transfer: false })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Les retraits automatiques ont été désactivés",
+      });
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de désactiver les retraits automatiques",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-48">
@@ -86,7 +123,37 @@ const WithdrawalsList = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Mes Retraits</h2>
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Mes Retraits</h2>
+        
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h3 className="font-medium text-blue-800">Mode retrait automatique activé</h3>
+              <Dialog>
+                <DialogTrigger>
+                  <Info className="h-4 w-4 text-blue-500 cursor-pointer" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Retraits Automatiques</DialogTitle>
+                    <DialogDescription>
+                      Le mode retrait automatique permet de transférer automatiquement vos fonds vers votre compte Mobile Money dès qu'un paiement est reçu. Cela vous évite d'avoir à faire des demandes de retrait manuelles.
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <Button 
+              variant="outline" 
+              className="text-blue-600 border-blue-200 hover:bg-blue-50"
+              onClick={handleDisableAutoTransfer}
+            >
+              Désactiver les Retraits automatiques
+            </Button>
+          </div>
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <WithdrawalStats stats={stats} />
