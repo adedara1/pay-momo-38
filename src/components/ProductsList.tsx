@@ -16,8 +16,6 @@ import ProductPreviewDialog from "./ProductPreviewDialog";
 import { Product } from "@/types/product";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useStatsSync } from "@/hooks/use-stats-sync";
-import { Copy, ExternalLink } from "lucide-react";
-import { Button } from "./ui/button";
 
 const ProductsList = () => {
   const { toast } = useToast();
@@ -75,22 +73,12 @@ const ProductsList = () => {
       console.log("Products fetched:", data);
       return data as Product[];
     },
-    enabled: true,
+    enabled: true, // La requête est toujours activée, même pour les visiteurs
   });
 
   const handlePreview = (product: Product) => {
     setSelectedProduct(product);
     setPreviewOpen(true);
-  };
-
-  const handleCopyPaymentUrl = (product: Product) => {
-    const baseUrl = window.location.origin;
-    const paymentUrl = `${baseUrl}/payment/${product.id}`;
-    navigator.clipboard.writeText(paymentUrl);
-    toast({
-      title: "URL copiée",
-      description: "L'URL de paiement a été copiée dans le presse-papier",
-    });
   };
 
   const LoadingSkeleton = () => (
@@ -115,95 +103,47 @@ const ProductsList = () => {
       ) : !products || products.length === 0 ? (
         <p className="text-center text-gray-500 py-8">Aucun produit</p>
       ) : (
-        <>
-          <div className="overflow-x-auto mb-8">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead className="font-semibold">Date</TableHead>
-                  <TableHead className="font-semibold">Nom</TableHead>
-                  <TableHead className="font-semibold">Description</TableHead>
-                  <TableHead className="font-semibold">Montant</TableHead>
-                  {userId && <TableHead className="font-semibold">Actions</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products?.map((product) => (
-                  <TableRow 
-                    key={product.id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <TableCell className="text-sm text-gray-600">
-                      {new Date(product.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell className="text-gray-600 max-w-xs truncate">
-                      {product.description}
-                    </TableCell>
-                    <TableCell className="font-semibold text-blue-600">
-                      {product.amount} FCFA
-                    </TableCell>
-                    {userId && (
-                      <TableCell>
-                        <ProductActions 
-                          productId={product.id} 
-                          hasPaymentLink={!!product.payment_links?.moneroo_token}
-                          onPreview={() => handlePreview(product)}
-                        />
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Nouvelle section de présentation des produits */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {products?.map((product) => (
-              <Card key={product.id} className="overflow-hidden">
-                {product.image_url && (
-                  <div className="aspect-video w-full overflow-hidden">
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="p-4 space-y-3">
-                  <h3 className="font-semibold text-lg">{product.name}</h3>
-                  <p className="text-xl font-bold text-blue-600">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50">
+                <TableHead className="font-semibold">Date</TableHead>
+                <TableHead className="font-semibold">Nom</TableHead>
+                <TableHead className="font-semibold">Description</TableHead>
+                <TableHead className="font-semibold">Montant</TableHead>
+                {userId && <TableHead className="font-semibold">Actions</TableHead>}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products?.map((product) => (
+                <TableRow 
+                  key={product.id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <TableCell className="text-sm text-gray-600">
+                    {new Date(product.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell className="text-gray-600 max-w-xs truncate">
+                    {product.description}
+                  </TableCell>
+                  <TableCell className="font-semibold text-blue-600">
                     {product.amount} FCFA
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCopyPaymentUrl(product)}
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copier l'URL
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(`/payment/${product.id}`, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Ouvrir
-                    </Button>
-                  </div>
-                  <div className="mt-2 p-2 bg-gray-50 rounded-md">
-                    <p className="text-sm text-gray-600 break-all">
-                      {`${window.location.origin}/payment/${product.id}`}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </>
+                  </TableCell>
+                  {userId && (
+                    <TableCell>
+                      <ProductActions 
+                        productId={product.id} 
+                        hasPaymentLink={!!product.payment_links?.moneroo_token}
+                        onPreview={() => handlePreview(product)}
+                      />
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
 
       <ProductPreviewDialog
