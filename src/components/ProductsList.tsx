@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -151,7 +150,7 @@ const ProductsList = () => {
         open={previewOpen}
         onOpenChange={setPreviewOpen}
       />
-    </Card>
+    </div>
   );
 };
 
