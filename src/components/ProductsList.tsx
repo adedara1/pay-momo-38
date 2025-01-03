@@ -93,7 +93,7 @@ const ProductsList = () => {
   );
 
   return (
-    <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow">
+    <div>
       <h2 className="text-xl font-semibold mb-4">
         {userId ? "Mes produits" : "Tous les produits"}
       </h2>
