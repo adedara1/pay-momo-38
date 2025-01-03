@@ -28,7 +28,6 @@ const StyleControls = ({ styles, onStyleChange, disabled = false }: StyleControl
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
-      <h3 className="font-medium mb-4">Styles</h3>
 
       <div className="space-y-4">
         <div className="space-y-2">
