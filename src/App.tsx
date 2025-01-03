@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
 import ProductPage from "@/pages/ProductPage";
 import Blog from "@/pages/Blog";
+import ProductsPage from "@/pages/ProductsPage";
 import Transaction from "@/pages/Transaction";
 import Clients from "@/pages/Clients";
 import Withdrawals from "@/pages/Withdrawals";
@@ -66,11 +67,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             throw profileError;
           }
           
-          // Vérifier si le profil est complet
           const isProfileComplete = !!profile?.first_name && !!profile?.last_name;
           setHasProfile(isProfileComplete);
 
-          // Si on est sur /profile mais que le profil est déjà complet, rediriger vers home
           if (location.pathname === '/profile' && isProfileComplete) {
             navigate('/home');
           }
@@ -113,12 +112,44 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Ne rediriger vers /profile que si le profil n'est pas complet et qu'on n'est pas déjà sur /profile
   if (isAuthenticated && !hasProfile && location.pathname !== '/profile') {
     return <Navigate to="/profile" replace />;
   }
 
   return <>{children}</>;
+};
+
+const AppContent = () => {
+  const location = useLocation();
+  const shouldShowSidebar = !noSidebarRoutes.some(route => location.pathname.startsWith(route));
+  const isSettingsPage = settingsRoutes.some(route => location.pathname.startsWith(route));
+
+  return (
+    <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden">
+      {shouldShowSidebar && !isSettingsPage && <MainSidebar />}
+      {isSettingsPage && <SettingsSidebar userProfile={null} />}
+      <main className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${shouldShowSidebar ? 'md:ml-64 max-w-7xl mx-auto' : 'md:w-full'}`}>
+        <Routes>
+          <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
+          <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
+          <Route path="/products-pages" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
+          <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+          <Route path="/transaction" element={<ProtectedRoute><Transaction /></ProtectedRoute>} />
+          <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
+          <Route path="/withdrawals" element={<ProtectedRoute><Withdrawals /></ProtectedRoute>} />
+          <Route path="/refunds" element={<ProtectedRoute><Refunds /></ProtectedRoute>} />
+          <Route path="/configuration" element={<ProtectedRoute><Configuration /></ProtectedRoute>} />
+          <Route path="/editeur" element={<ProtectedRoute><EditeurPage /></ProtectedRoute>} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+    </div>
+  );
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
@@ -154,38 +185,6 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <>{children}</>;
-};
-
-const AppContent = () => {
-  const location = useLocation();
-  const shouldShowSidebar = !noSidebarRoutes.some(route => location.pathname.startsWith(route));
-  const isSettingsPage = settingsRoutes.some(route => location.pathname.startsWith(route));
-
-  return (
-    <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden">
-      {shouldShowSidebar && !isSettingsPage && <MainSidebar />}
-      {isSettingsPage && <SettingsSidebar userProfile={null} />}
-      <main className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${shouldShowSidebar ? 'md:ml-64 max-w-7xl mx-auto' : 'md:w-full'}`}>
-        <Routes>
-          <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
-          <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
-          <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-          <Route path="/transaction" element={<ProtectedRoute><Transaction /></ProtectedRoute>} />
-          <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
-          <Route path="/withdrawals" element={<ProtectedRoute><Withdrawals /></ProtectedRoute>} />
-          <Route path="/refunds" element={<ProtectedRoute><Refunds /></ProtectedRoute>} />
-          <Route path="/configuration" element={<ProtectedRoute><Configuration /></ProtectedRoute>} />
-          <Route path="/editeur" element={<ProtectedRoute><EditeurPage /></ProtectedRoute>} />
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-    </div>
-  );
 };
 
 function App() {

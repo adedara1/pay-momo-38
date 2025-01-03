@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Menu,
   Cog,
+  Store,
 } from "lucide-react";
 
 export const menuItems = [
@@ -29,6 +30,7 @@ export const menuItems = [
     ]
   },
   { icon: Package, label: "Produit", path: "/blog" },
+  { icon: Store, label: "Produits", path: "/products-pages" },
   { icon: ShoppingCart, label: "Commandes", path: "/orders" },
   { icon: CreditCard, label: "Transaction", path: "/transaction" },
   { icon: Users, label: "Clients", path: "/clients" },
