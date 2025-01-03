@@ -117,7 +117,6 @@ const EditeurPage = () => {
 
   return (
     <div className="flex gap-4">
-      <div className="flex-1">
         <div className="mb-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -147,7 +146,6 @@ const EditeurPage = () => {
             {selectedPageContent}
           </div>
         )}
-      </div>
       
       <div className="w-80">
         <StyleControls 
