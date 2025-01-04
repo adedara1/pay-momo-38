@@ -183,7 +183,7 @@ const HomeContent = () => {
 
 const Home = () => {
   return (
-    <ProtectedRoute checkAdmin={true}>
+    <ProtectedRoute>
       <HomeContent />
     </ProtectedRoute>
   );
