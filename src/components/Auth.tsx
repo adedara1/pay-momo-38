@@ -10,34 +10,11 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Clear any existing session on mount
-    const clearSession = async () => {
-      try {
-        await supabase.auth.signOut();
-      } catch (error) {
-        console.error('Error clearing session:', error);
-      }
-    };
-
-    clearSession();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
       
       if (event === "SIGNED_IN" && session?.user?.id) {
         try {
-          // First verify the session is valid
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
-          
-          if (userError) {
-            console.error('User verification error:', userError);
-            throw userError;
-          }
-
-          if (!user) {
-            throw new Error('No user found after sign in');
-          }
-
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('first_name, last_name')
@@ -65,13 +42,11 @@ const Auth = () => {
           }
         } catch (error) {
           console.error('Error during sign in:', error);
-          await supabase.auth.signOut();
           toast({
             title: "Erreur",
             description: "Une erreur est survenue lors de la connexion",
             variant: "destructive",
           });
-          navigate("/auth");
         }
       } else if (event === "SIGNED_OUT") {
         navigate("/auth");
@@ -81,13 +56,8 @@ const Auth = () => {
     // Check for existing session on mount
     const checkExistingSession = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (sessionError) {
-          console.error('Session check error:', sessionError);
-          throw sessionError;
-        }
-
         if (session?.user) {
           const { data: profile } = await supabase
             .from('profiles')
@@ -103,7 +73,6 @@ const Auth = () => {
         }
       } catch (error) {
         console.error('Error checking existing session:', error);
-        await supabase.auth.signOut();
       }
     };
 
