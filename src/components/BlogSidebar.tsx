@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -23,6 +23,28 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const { toast } = useToast();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Menu Admin");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+
+        setIsAdmin(!!adminUser);
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const toggleSubmenu = (label: string) => {
     setOpenSubmenu(openSubmenu === label ? null : label);
@@ -157,16 +179,18 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
         </div>
       </div>
 
-      <div className="p-4 border-t">
-        <button
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
-        >
-          <logoutMenuItem.icon className="w-4 h-4" />
-          <span>{isLoggingOut ? "Déconnexion..." : "Déconnexion"}</span>
-        </button>
-      </div>
+      {isAdmin && (
+        <div className="p-4 border-t">
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+          >
+            <logoutMenuItem.icon className="w-4 h-4" />
+            <span>{isLoggingOut ? "Déconnexion..." : "Déconnexion"}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
