@@ -126,6 +126,8 @@ export const userDataService = {
   },
 
   async saveUserData(userData: UserData): Promise<void> {
+    console.log('Saving user data:', userData);
+
     // Update profile
     const { error: profileError } = await supabase
       .from('profiles')
@@ -135,9 +137,12 @@ export const userDataService = {
       })
       .eq('id', userData.id);
 
-    if (profileError) throw profileError;
+    if (profileError) {
+      console.error('Error updating profile:', profileError);
+      throw profileError;
+    }
 
-    // Update or insert stats
+    // Upsert stats using ON CONFLICT DO UPDATE
     const { error: statsError } = await supabase
       .from('user_stats')
       .upsert({
@@ -155,8 +160,15 @@ export const userDataService = {
         visible_products: userData.stats.visibleProducts,
         balance: userData.stats.balance,
         updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id',
       });
 
-    if (statsError) throw statsError;
+    if (statsError) {
+      console.error('Error upserting stats:', statsError);
+      throw statsError;
+    }
+
+    console.log('User data saved successfully');
   }
 };
