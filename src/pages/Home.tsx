@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import StatCard from "@/components/StatCard";
 import WalletStats from "@/components/WalletStats";
+import { useStatsSync } from "@/hooks/use-stats-sync";
+import { useQuery } from "@tanstack/react-query";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import SalesCharts from "@/components/SalesCharts";
@@ -9,27 +11,18 @@ import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
 const HomeContent = () => {
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
-  const [stats, setStats] = useState({
-    totalSales: 0,
-    dailySales: 0,
-    monthlySales: 0,
-    totalTransactions: 0,
-    dailyTransactions: 0,
-    monthlyTransactions: 0,
-    previousMonthSales: 0,
-    previousMonthTransactions: 0,
-    salesGrowth: 0,
-    totalProducts: 0,
-    visibleProducts: 0,
-    soldAmount: 0
-  });
-
+  const [userId, setUserId] = useState<string>();
   const [isOpen, setIsOpen] = useState(false);
 
+  // Enable stats sync
+  useStatsSync(userId);
+
+  // Fetch user profile and set userId
   useEffect(() => {
     const fetchUserProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        setUserId(user.id);
         const { data: profile } = await supabase
           .from('profiles')
           .select('first_name, last_name')
@@ -42,46 +35,38 @@ const HomeContent = () => {
       }
     };
 
-    const fetchStats = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data: transactions } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('user_id', user.id);
-
-        const { data: products } = await supabase
-          .from('products')
-          .select('*')
-          .eq('user_id', user.id);
-
-        if (transactions && products) {
-          console.log("Fetched data:", { transactions, products });
-          setStats({
-            totalSales: transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
-            dailySales: 0,
-            monthlySales: 0,
-            totalTransactions: transactions?.length || 0,
-            dailyTransactions: 0,
-            monthlyTransactions: 0,
-            previousMonthSales: 0,
-            previousMonthTransactions: 0,
-            salesGrowth: 0,
-            totalProducts: products?.length || 0,
-            visibleProducts: products?.filter(p => p.payment_link_id).length || 0,
-            soldAmount: 0
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-      }
-    };
-
     fetchUserProfile();
-    fetchStats();
   }, []);
+
+  // Use React Query for stats
+  const { data: stats = {
+    totalSales: 0,
+    dailySales: 0,
+    monthlySales: 0,
+    totalTransactions: 0,
+    dailyTransactions: 0,
+    monthlyTransactions: 0,
+    previousMonthSales: 0,
+    previousMonthTransactions: 0,
+    salesGrowth: 0,
+    totalProducts: 0,
+    visibleProducts: 0,
+    soldAmount: 0
+  } } = useQuery({
+    queryKey: ['home-stats', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from('user_stats')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) throw error;
+      return data || {};
+    },
+    enabled: !!userId
+  });
 
   return (
     <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">

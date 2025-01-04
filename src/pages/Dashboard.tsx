@@ -4,12 +4,20 @@ import StatCard from "@/components/StatCard";
 import WalletStats from "@/components/WalletStats";
 import { useToast } from "@/hooks/use-toast";
 import { useRealtimeUpdates } from "@/hooks/use-realtime-updates";
+import { useStatsSync } from "@/hooks/use-stats-sync";
+import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const { toast } = useToast();
   const [userId, setUserId] = useState<string>();
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
-  const [stats, setStats] = useState({
+
+  // Enable realtime updates
+  useRealtimeUpdates(userId);
+  useStatsSync(userId);
+
+  // Utiliser useQuery pour les stats
+  const { data: stats = {
     totalSales: 0,
     dailySales: 0,
     monthlySales: 0,
@@ -22,10 +30,21 @@ const Dashboard = () => {
     totalProducts: 0,
     visibleProducts: 0,
     soldAmount: 0
-  });
+  }, refetch: refetchStats } = useQuery({
+    queryKey: ['dashboard-stats', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from('user_stats')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
-  // Enable realtime updates
-  useRealtimeUpdates(userId);
+      if (error) throw error;
+      return data || {};
+    },
+    enabled: !!userId
+  });
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -65,84 +84,6 @@ const Dashboard = () => {
 
     fetchUserProfile();
   }, [toast]);
-
-  const fetchStats = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const now = new Date();
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
-      const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
-
-      const { data: transactions, error: transError } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (transError) throw transError;
-
-      const { data: products, error: prodError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (prodError) throw prodError;
-
-      if (transactions && products) {
-        const dailyTrans = transactions.filter(t => 
-          new Date(t.created_at) >= new Date(startOfDay)
-        );
-
-        const monthlyTrans = transactions.filter(t => 
-          new Date(t.created_at) >= new Date(startOfMonth)
-        );
-
-        const prevMonthTrans = transactions.filter(t => 
-          new Date(t.created_at) >= new Date(startOfPrevMonth) &&
-          new Date(t.created_at) <= new Date(endOfPrevMonth)
-        );
-
-        const totalSales = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-        const dailySales = dailyTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
-        const monthlySales = monthlyTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
-        const prevMonthSales = prevMonthTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
-
-        const salesGrowth = prevMonthSales ? 
-          ((monthlySales - prevMonthSales) / prevMonthSales) * 100 : 0;
-
-        setStats({
-          totalSales,
-          dailySales,
-          monthlySales,
-          totalTransactions: transactions.length,
-          dailyTransactions: dailyTrans.length,
-          monthlyTransactions: monthlyTrans.length,
-          previousMonthSales: prevMonthSales,
-          previousMonthTransactions: prevMonthTrans.length,
-          salesGrowth,
-          totalProducts: products.length,
-          visibleProducts: products.filter(p => p.payment_link_id).length,
-          soldAmount: transactions
-            .filter(t => t.status === 'completed')
-            .reduce((sum, t) => sum + (t.amount || 0), 0)
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger vos statistiques",
-        variant: "destructive",
-      });
-    }
-  };
-
-  useEffect(() => {
-    fetchStats();
-  }, [userId]);
 
   return (
     <div className="container mx-auto px-4 py-8">
