@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useWalletSync } from "@/hooks/use-wallet-sync";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface WalletInfoProps {
   wallet: {
@@ -19,6 +20,7 @@ export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [userId, setUserId] = useState<string>();
+  const queryClient = useQueryClient();
 
   // Enable wallet sync
   useWalletSync(userId);
@@ -43,6 +45,7 @@ export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
 
       setUserId(user.id);
 
+      // Mise à jour du portefeuille
       const { error: walletError } = await supabase
         .from('wallets')
         .upsert({
@@ -57,6 +60,7 @@ export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
 
       if (walletError) throw walletError;
 
+      // Mise à jour des statistiques
       const { error: statsError } = await supabase
         .from('user_stats')
         .update({ 
@@ -66,6 +70,11 @@ export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
         .eq('user_id', user.id);
 
       if (statsError) throw statsError;
+
+      // Invalider les requêtes pour forcer le rafraîchissement
+      queryClient.invalidateQueries({ queryKey: ['wallet-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['home-stats'] });
 
       toast({
         title: "Succès",
