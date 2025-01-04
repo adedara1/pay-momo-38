@@ -1,5 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface WalletInfoProps {
   wallet: {
@@ -11,9 +15,65 @@ interface WalletInfoProps {
 }
 
 export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleChange = (field: string, value: string) => {
     const numValue = parseFloat(value) || 0;
     onUpdateWallet(field, numValue);
+  };
+
+  const handleSaveWallet = async () => {
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Erreur",
+          description: "Vous devez être connecté pour effectuer cette action",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('wallets')
+        .upsert({
+          user_id: user.id,
+          available: wallet.available,
+          pending: wallet.pending,
+          validated: wallet.validated,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Le portefeuille a été mis à jour avec succès",
+      });
+
+      // Trigger a refresh of the stats
+      await supabase
+        .from('user_stats')
+        .update({ 
+          balance: wallet.available,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+    } catch (error) {
+      console.error('Error saving wallet:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour du portefeuille",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -50,6 +110,15 @@ export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
             step="1"
           />
         </div>
+      </div>
+      <div className="mt-4 flex justify-end">
+        <Button 
+          onClick={handleSaveWallet}
+          disabled={isSaving}
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+        >
+          {isSaving ? "Enregistrement..." : "Enregistrer le portefeuille"}
+        </Button>
       </div>
     </Card>
   );
