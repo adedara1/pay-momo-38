@@ -386,6 +386,71 @@ export type Database = {
           },
         ]
       }
+      user_stats: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          daily_sales: number | null
+          daily_transactions: number | null
+          id: string
+          monthly_sales: number | null
+          monthly_transactions: number | null
+          previous_month_sales: number | null
+          previous_month_transactions: number | null
+          sales_growth: number | null
+          sales_total: number | null
+          total_products: number | null
+          total_transactions: number | null
+          updated_at: string | null
+          user_id: string | null
+          visible_products: number | null
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          daily_sales?: number | null
+          daily_transactions?: number | null
+          id?: string
+          monthly_sales?: number | null
+          monthly_transactions?: number | null
+          previous_month_sales?: number | null
+          previous_month_transactions?: number | null
+          sales_growth?: number | null
+          sales_total?: number | null
+          total_products?: number | null
+          total_transactions?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          visible_products?: number | null
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          daily_sales?: number | null
+          daily_transactions?: number | null
+          id?: string
+          monthly_sales?: number | null
+          monthly_transactions?: number | null
+          previous_month_sales?: number | null
+          previous_month_transactions?: number | null
+          sales_growth?: number | null
+          sales_total?: number | null
+          total_products?: number | null
+          total_transactions?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          visible_products?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

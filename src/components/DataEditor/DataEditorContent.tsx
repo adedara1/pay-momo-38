@@ -82,33 +82,43 @@ export function DataEditorContent() {
         return;
       }
 
-      // Get transactions for statistics
+      // Get user stats
+      const { data: statsData, error: statsError } = await supabase
+        .from('user_stats')
+        .select('*')
+        .eq('user_id', profileData.id)
+        .maybeSingle();
+
+      if (statsError) throw statsError;
+
+      // Get transactions for wallet calculation
       const { data: transactions } = await supabase
         .from('transactions')
         .select('*')
         .eq('user_id', profileData.id);
 
-      // Get products count
-      const { data: products } = await supabase
-        .from('products')
-        .select('*')
-        .eq('user_id', profileData.id);
-
-      // Calculate statistics
-      const now = new Date();
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
-      const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
-
       const completedTransactions = transactions?.filter(t => t.status === 'completed') || [];
-      const currentMonthSales = completedTransactions.filter(t => t.created_at >= startOfMonth).reduce((sum, t) => sum + (t.amount || 0), 0);
-      const previousMonthSales = completedTransactions.filter(t => t.created_at >= startOfPrevMonth && t.created_at <= endOfPrevMonth).reduce((sum, t) => sum + (t.amount || 0), 0);
-
+      
       const wallet = {
         available: completedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
         pending: transactions?.filter(t => t.status === 'pending').reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
         validated: completedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
+      };
+
+      // If no stats exist, create default stats
+      const stats = statsData || {
+        sales_total: 0,
+        daily_sales: 0,
+        monthly_sales: 0,
+        total_transactions: 0,
+        daily_transactions: 0,
+        monthly_transactions: 0,
+        previous_month_sales: 0,
+        previous_month_transactions: 0,
+        sales_growth: 0,
+        total_products: 0,
+        visible_products: 0,
+        balance: wallet.available,
       };
 
       setUserData({
@@ -117,18 +127,18 @@ export function DataEditorContent() {
         last_name: profileData.last_name,
         wallet,
         stats: {
-          salesTotal: completedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
-          dailySales: completedTransactions.filter(t => t.created_at >= startOfDay).reduce((sum, t) => sum + (t.amount || 0), 0),
-          monthlySales: currentMonthSales,
-          totalTransactions: transactions?.length || 0,
-          dailyTransactions: transactions?.filter(t => t.created_at >= startOfDay).length || 0,
-          monthlyTransactions: transactions?.filter(t => t.created_at >= startOfMonth).length || 0,
-          previousMonthSales,
-          previousMonthTransactions: transactions?.filter(t => t.created_at >= startOfPrevMonth && t.created_at <= endOfPrevMonth).length || 0,
-          salesGrowth: previousMonthSales ? ((currentMonthSales - previousMonthSales) / previousMonthSales) * 100 : 0,
-          totalProducts: products?.length || 0,
-          visibleProducts: products?.filter(p => p.status !== 'hidden').length || 0,
-          balance: wallet.available,
+          salesTotal: stats.sales_total,
+          dailySales: stats.daily_sales,
+          monthlySales: stats.monthly_sales,
+          totalTransactions: stats.total_transactions,
+          dailyTransactions: stats.daily_transactions,
+          monthlyTransactions: stats.monthly_transactions,
+          previousMonthSales: stats.previous_month_sales,
+          previousMonthTransactions: stats.previous_month_transactions,
+          salesGrowth: stats.sales_growth,
+          totalProducts: stats.total_products,
+          visibleProducts: stats.visible_products,
+          balance: stats.balance,
         }
       });
     } catch (error) {
@@ -148,11 +158,23 @@ export function DataEditorContent() {
     setUserData({ ...userData, [field]: value });
   };
 
+  const handleUpdateStats = (field: string, value: number) => {
+    if (!userData) return;
+    setUserData({
+      ...userData,
+      stats: {
+        ...userData.stats,
+        [field]: value,
+      },
+    });
+  };
+
   const handleSave = async () => {
     if (!userData) return;
 
     try {
-      const { error } = await supabase
+      // Update profile
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           first_name: userData.first_name,
@@ -160,7 +182,31 @@ export function DataEditorContent() {
         })
         .eq('id', userData.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Update or insert stats
+      const { error: statsError } = await supabase
+        .from('user_stats')
+        .upsert({
+          user_id: userData.id,
+          sales_total: userData.stats.salesTotal,
+          daily_sales: userData.stats.dailySales,
+          monthly_sales: userData.stats.monthlySales,
+          total_transactions: userData.stats.totalTransactions,
+          daily_transactions: userData.stats.dailyTransactions,
+          monthly_transactions: userData.stats.monthlyTransactions,
+          previous_month_sales: userData.stats.previousMonthSales,
+          previous_month_transactions: userData.stats.previousMonthTransactions,
+          sales_growth: userData.stats.salesGrowth,
+          total_products: userData.stats.totalProducts,
+          visible_products: userData.stats.visibleProducts,
+          balance: userData.stats.balance,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (statsError) throw statsError;
 
       toast({
         title: "Succès",
@@ -188,6 +234,7 @@ export function DataEditorContent() {
         userData={userData}
         onSave={handleSave}
         onUpdateUserData={handleUpdateUserData}
+        onUpdateStats={handleUpdateStats}
       />
     </div>
   );
