@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import StatCard from "@/components/StatCard";
-import { UserStats } from "@/services/user-data.service";
+import { UserStats } from "@/services/stats.service";
 
 interface StatsEditorProps {
   stats: UserStats;
@@ -211,3 +211,4 @@ export const StatsEditor = ({ stats, isEditingStats, onToggleEditStats, onUpdate
     </Card>
   );
 };
+
