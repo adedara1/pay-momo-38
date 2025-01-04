@@ -60,7 +60,7 @@ export const UserDataDisplay = ({ userData, onSave, onUpdateUserData }: UserData
       </Card>
 
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Wallet</h3>
+        <h3 className="text-lg font-semibold mb-4">Portefeuille</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Disponible</label>
@@ -84,55 +84,67 @@ export const UserDataDisplay = ({ userData, onSave, onUpdateUserData }: UserData
             title="Ventes Cumulées"
             value={userData.stats.salesTotal}
             suffix="FCFA"
+            className="bg-blue-500 text-white"
           />
           <StatCard
             title="Ventes du jours"
             value={userData.stats.dailySales}
             suffix="FCFA"
+            className="bg-green-500 text-white"
           />
           <StatCard
             title="Ventes Du Mois"
             value={userData.stats.monthlySales}
             suffix="FCFA"
+            className="bg-indigo-500 text-white"
           />
           <StatCard
             title="Total des Transactions"
             value={userData.stats.totalTransactions}
+            className="bg-gray-100"
           />
           <StatCard
             title="Transactions du Jour"
             value={userData.stats.dailyTransactions}
+            className="bg-gray-100"
           />
           <StatCard
             title="Transactions du Mois"
             value={userData.stats.monthlyTransactions}
+            className="bg-gray-100"
           />
           <StatCard
             title="Ventes du Mois Précédent"
             value={userData.stats.previousMonthSales}
             suffix="FCFA"
+            className="bg-purple-500 text-white"
           />
           <StatCard
             title="Transactions du Mois Précédent"
             value={userData.stats.previousMonthTransactions}
+            className="bg-gray-100"
           />
           <StatCard
             title="Croissance Des Ventes"
-            value={userData.stats.salesGrowth}
+            value={userData.stats.salesGrowth.toFixed(2)}
             suffix="%"
+            className="bg-yellow-500 text-white"
           />
           <StatCard
             title="Total Produits"
             value={userData.stats.totalProducts}
+            className="bg-gray-100"
           />
           <StatCard
             title="Produits Visibles"
             value={userData.stats.visibleProducts}
+            className="bg-gray-100"
           />
           <StatCard
             title="Solde(s)"
             value={userData.stats.balance}
             suffix="FCFA"
+            className="bg-green-500 text-white"
           />
         </div>
       </Card>
