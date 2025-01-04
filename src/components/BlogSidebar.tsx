@@ -23,7 +23,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const { toast } = useToast();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Menu Admin");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
 
   useEffect(() => {
@@ -36,10 +35,8 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           .from('admin_users')
           .select('id')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        setIsAdmin(!!adminUser);
-        
         // Filter menu items based on admin status
         const filtered = menuItems.filter(item => 
           item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)

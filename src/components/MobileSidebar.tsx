@@ -35,7 +35,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
           .from('admin_users')
           .select('id')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         // Filter menu items based on admin status
         const filtered = menuItems.filter(item => 
