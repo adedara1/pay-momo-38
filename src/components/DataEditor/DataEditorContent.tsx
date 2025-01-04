@@ -33,17 +33,29 @@ export function DataEditorContent() {
   const handleSearch = async () => {
     setIsLoading(true);
     try {
-      // Try to find by name first
-      const { data: nameSearchData, error: nameSearchError } = await supabase
+      // Try to find by email first
+      const { data: emailSearchData, error: emailSearchError } = await supabase
         .from('profiles')
         .select('*')
-        .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
+        .ilike('company_email', `%${searchQuery}%`)
         .maybeSingle();
 
-      if (nameSearchError) throw nameSearchError;
+      if (emailSearchError) throw emailSearchError;
 
-      // If no result and the query looks like a UUID, try searching by ID
-      let profileData = nameSearchData;
+      // If no result by email, try name search
+      let profileData = emailSearchData;
+      if (!profileData) {
+        const { data: nameSearchData, error: nameSearchError } = await supabase
+          .from('profiles')
+          .select('*')
+          .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
+          .maybeSingle();
+
+        if (nameSearchError) throw nameSearchError;
+        profileData = nameSearchData;
+      }
+
+      // If still no result and the query looks like a UUID, try searching by ID
       if (!profileData && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(searchQuery)) {
         const { data: idSearchData, error: idSearchError } = await supabase
           .from('profiles')
@@ -58,7 +70,7 @@ export function DataEditorContent() {
       if (!profileData) {
         toast({
           title: "Utilisateur non trouvé",
-          description: "Aucun utilisateur trouvé avec cet ID ou nom",
+          description: "Aucun utilisateur trouvé avec cet ID, email ou nom",
           variant: "destructive",
         });
         setIsLoading(false);

@@ -14,7 +14,7 @@ export const UserSearch = ({ searchQuery, setSearchQuery, onSearch, isLoading }:
     <div className="flex justify-end">
       <div className="flex gap-2 w-full max-w-sm">
         <Input
-          placeholder="Rechercher par ID ou nom complet"
+          placeholder="Rechercher par ID, email ou nom complet"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
