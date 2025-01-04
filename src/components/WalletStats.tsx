@@ -4,58 +4,93 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRealtimeUpdates } from "@/hooks/use-realtime-updates";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const WalletStats = () => {
   const [userId, setUserId] = useState<string>();
-  const [stats, setStats] = useState({
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Enable realtime updates
+  useRealtimeUpdates(userId);
+
+  // Fetch user ID on component mount
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    fetchUserId();
+  }, []);
+
+  // Use React Query to fetch and cache wallet stats
+  const { data: stats = {
     available: 0,
     pending: 0,
     validated: 0,
     pendingCount: 0,
     validatedCount: 0
+  }} = useQuery({
+    queryKey: ['wallet-stats', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const { data: transactions, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      const { data: wallet, error: walletError } = await supabase
+        .from('wallets')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (walletError) throw walletError;
+
+      const pendingTransactions = transactions?.filter(t => t.status === 'pending') || [];
+      const validatedTransactions = transactions?.filter(t => t.status === 'completed') || [];
+
+      return {
+        available: wallet?.available || 0,
+        pending: wallet?.pending || 0,
+        validated: wallet?.validated || 0,
+        pendingCount: pendingTransactions.length,
+        validatedCount: validatedTransactions.length
+      };
+    },
+    enabled: !!userId
   });
-  const { toast } = useToast();
 
-  // Enable realtime updates
-  useRealtimeUpdates(userId);
-
+  // Set up realtime subscription for wallet updates
   useEffect(() => {
-    const fetchWalletStats = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+    if (!userId) return;
 
-        setUserId(user.id);
+    const channel = supabase
+      .channel('wallet-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wallets',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          // Invalidate and refetch queries when wallet is updated
+          queryClient.invalidateQueries({ queryKey: ['wallet-stats'] });
+        }
+      )
+      .subscribe();
 
-        const { data: transactions, error } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-
-        const pendingTransactions = transactions?.filter(t => t.status === 'pending') || [];
-        const validatedTransactions = transactions?.filter(t => t.status === 'completed') || [];
-
-        setStats({
-          available: validatedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
-          pending: pendingTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
-          validated: validatedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
-          pendingCount: pendingTransactions.length,
-          validatedCount: validatedTransactions.length
-        });
-      } catch (error) {
-        console.error('Error fetching wallet stats:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les statistiques du portefeuille",
-          variant: "destructive",
-        });
-      }
+    return () => {
+      supabase.removeChannel(channel);
     };
-
-    fetchWalletStats();
-  }, [toast]);
+  }, [userId, queryClient]);
 
   return (
     <div className="grid grid-cols-3 gap-2 md:gap-[2vw]">
