@@ -3,6 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSearch } from "./UserSearch";
 import { UserDataDisplay } from "./UserDataDisplay";
+import { useNavigate } from "react-router-dom";
 
 interface UserData {
   id: string;
@@ -34,8 +35,25 @@ export function DataEditorContent() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const checkSession = async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) {
+      toast({
+        title: "Session expirée",
+        description: "Veuillez vous reconnecter",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return false;
+    }
+    return true;
+  };
 
   const handleSearch = async () => {
+    if (!await checkSession()) return;
+    
     setIsLoading(true);
     try {
       // Try to find by email first
@@ -170,7 +188,7 @@ export function DataEditorContent() {
   };
 
   const handleSave = async () => {
-    if (!userData) return;
+    if (!userData || !await checkSession()) return;
 
     try {
       // Update profile
@@ -202,8 +220,6 @@ export function DataEditorContent() {
           visible_products: userData.stats.visibleProducts,
           balance: userData.stats.balance,
           updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'user_id'
         });
 
       if (statsError) throw statsError;
