@@ -9,6 +9,7 @@ interface UserProfile {
   first_name: string;
   last_name: string;
   company_name: string | null;
+  company_logo_url: string | null;
 }
 
 const MainSidebar = () => {
@@ -24,7 +25,7 @@ const MainSidebar = () => {
 
         const { data, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name, company_name')
+          .select('first_name, last_name, company_name, company_logo_url')
           .eq('id', user.user.id)
           .single();
 

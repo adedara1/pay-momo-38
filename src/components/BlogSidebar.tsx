@@ -10,6 +10,7 @@ interface UserProfile {
   first_name: string;
   last_name: string;
   company_name: string | null;
+  company_logo_url: string | null;
 }
 
 interface BlogSidebarProps {
@@ -72,7 +73,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
         {/* Company name section */}
         {userProfile?.company_name && (
           <div className="px-4 py-3 border-b">
-            <h2 className="text-sm font-medium text-gray-600">Entreprise</h2>
+            <h2 className="sr-only">Entreprise</h2>
             <p className="text-base font-semibold">{userProfile.company_name}</p>
           </div>
         )}
@@ -82,9 +83,9 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           <div className="px-4 py-6 text-center border-b">
             <div className="mb-4">
               <img
-                src="/placeholder.svg"
+                src={userProfile.company_logo_url || "/placeholder.svg"}
                 alt="Profile"
-                className="w-20 h-20 mx-auto rounded-full"
+                className="w-20 h-20 mx-auto rounded-full object-cover"
               />
             </div>
             <p className="text-sm text-muted-foreground">
