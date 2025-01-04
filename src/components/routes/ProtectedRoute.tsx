@@ -32,7 +32,7 @@ const ProtectedRoute = ({ children, checkAdmin = false }: ProtectedRouteProps) =
           // Check if user is admin
           const { data: adminData } = await supabase
             .from('admin_users')
-            .select('id')
+            .select('*')
             .eq('id', session.user.id)
             .single();
 

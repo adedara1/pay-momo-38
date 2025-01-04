@@ -26,9 +26,9 @@ const AdminAuth = () => {
 
         // If user is logged in, check if they're an admin
         if (user) {
-          const { data: adminData } = await supabase
+          const { data: adminData, error: adminError } = await supabase
             .from('admin_users')
-            .select('id')
+            .select('*')
             .eq('id', user.id)
             .single();
 
@@ -54,7 +54,7 @@ const AdminAuth = () => {
       if (event === "SIGNED_IN" && session?.user?.id) {
         const { data: adminData } = await supabase
           .from('admin_users')
-          .select('id')
+          .select('*')
           .eq('id', session.user.id)
           .single();
 

@@ -6,9 +6,24 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          id: string
+          created_at: string | null
+        }
+        Insert: {
+          id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string | null
