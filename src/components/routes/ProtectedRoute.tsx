@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children, checkAdmin = false }: ProtectedRouteProps) =
             .from('admin_users')
             .select('*')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
 
           setIsAdmin(!!adminData);
 

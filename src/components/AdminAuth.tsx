@@ -30,7 +30,7 @@ const AdminAuth = () => {
             .from('admin_users')
             .select('*')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
 
           if (adminData) {
             navigate("/home");
@@ -56,7 +56,7 @@ const AdminAuth = () => {
           .from('admin_users')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (adminData) {
           navigate("/home");

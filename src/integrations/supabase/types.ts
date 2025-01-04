@@ -6,21 +6,21 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       admin_users: {
         Row: {
-          id: string
           created_at: string | null
+          id: string
         }
         Insert: {
-          id: string
           created_at?: string | null
+          id: string
         }
         Update: {
-          id?: string
           created_at?: string | null
+          id?: string
         }
         Relationships: []
       }
