@@ -3,17 +3,7 @@ import { cn } from "@/lib/utils";
 import { Menu, X, Edit2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Label } from "./ui/label";
-import { Slider } from "./ui/slider";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import TextEditor from "./TextEditor";
-import MarginControls from "./MarginControls";
+import { DataEditorContent } from "./DataEditor/DataEditorContent";
 
 interface UserProfile {
   first_name: string;
@@ -26,26 +16,15 @@ interface SettingsSidebarProps {
 
 const settingsMenuItems = [
   { label: "Réglage actuel", path: "/configuration" },
+  { label: "Editeur de Donné", path: "/editeur-donnees" },
   { label: "Editeur de page", path: "/editeur" },
 ];
 
 const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isEditSidebarOpen, setIsEditSidebarOpen] = useState(false);
+  const [currentView, setCurrentView] = useState("configuration");
   const [isMobile, setIsMobile] = useState(false);
-
-  // États pour l'éditeur de texte
-  const [fontSize, setFontSize] = useState(20);
-  const [lineHeight, setLineHeight] = useState(26);
-  const [letterSpacing, setLetterSpacing] = useState(0);
-  const [fontFamily, setFontFamily] = useState("Même police que la page Palanquin");
-
-  // États pour les marges
-  const [marginTop, setMarginTop] = useState(44);
-  const [marginRight, setMarginRight] = useState(0);
-  const [marginBottom, setMarginBottom] = useState(0);
-  const [marginLeft, setMarginLeft] = useState(0);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -60,21 +39,24 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
 
   const toggleMainSidebar = () => {
     setIsCollapsed(!isCollapsed);
-    if (!isCollapsed) {
-      setIsEditSidebarOpen(false);
-    }
   };
 
-  const toggleEditSidebar = () => {
-    setIsEditSidebarOpen(!isEditSidebarOpen);
-    if (!isEditSidebarOpen) {
-      setIsCollapsed(true);
+  const renderContent = () => {
+    switch (currentView) {
+      case "editeur-donnees":
+        return <DataEditorContent />;
+      case "configuration":
+        return null; // Add your existing configuration content here
+      case "editeur":
+        return null; // Add your existing page editor content here
+      default:
+        return null;
     }
   };
 
   return (
     <>
-      <div className="fixed top-4 left-4 z-50 flex gap-2">
+      <div className="fixed top-4 left-4 z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -86,17 +68,8 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
         >
           {isCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleEditSidebar}
-          className="bg-background shadow-md hover:bg-accent"
-        >
-          <Edit2 className="h-5 w-5" />
-        </Button>
       </div>
 
-      {/* Main Settings Sidebar */}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-40 bg-background transition-transform duration-300 ease-in-out",
@@ -136,120 +109,26 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
           <div className="px-4 py-2">
             <nav className="space-y-1">
               {settingsMenuItems.map((item) => (
-                <Link
+                <button
                   key={item.path}
-                  to={item.path}
+                  onClick={() => setCurrentView(item.path.replace('/', ''))}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-2 text-sm rounded-lg transition-colors",
-                    location.pathname === item.path
+                    "flex w-full items-center gap-3 px-4 py-2 text-sm rounded-lg transition-colors",
+                    currentView === item.path.replace('/', '')
                       ? "bg-accent text-accent-foreground"
                       : "hover:bg-accent hover:text-accent-foreground"
                   )}
                 >
                   <span>{item.label}</span>
-                </Link>
+                </button>
               ))}
             </nav>
           </div>
         </div>
       </div>
 
-      {/* Edit Settings Sidebar */}
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 bg-background transition-transform duration-300 ease-in-out",
-          isMobile ? (
-            !isEditSidebarOpen ? "-translate-x-full" : "translate-x-0 w-full md:w-64"
-          ) : (
-            !isEditSidebarOpen ? "-translate-x-full" : "translate-x-0 w-64"
-          ),
-          "border-r"
-        )}
-      >
-        <div className="flex flex-col h-full">
-          <div className="flex items-center gap-2 px-4 py-6 border-b">
-            <img
-              src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
-              alt="Logo"
-              className="w-8 h-8"
-            />
-            <span className="font-semibold text-blue-600">Police de texte</span>
-          </div>
-
-          <div className="px-4 py-6 space-y-6 overflow-y-auto">
-            <TextEditor />
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Taille</Label>
-                <div className="flex items-center gap-4">
-                  <Slider
-                    value={[fontSize]}
-                    onValueChange={(value) => setFontSize(value[0])}
-                    max={100}
-                    step={1}
-                    className="flex-1"
-                  />
-                  <span className="w-12 text-right">{fontSize}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Hauteur de la ligne</Label>
-                <div className="flex items-center gap-4">
-                  <Slider
-                    value={[lineHeight]}
-                    onValueChange={(value) => setLineHeight(value[0])}
-                    max={100}
-                    step={1}
-                    className="flex-1"
-                  />
-                  <span className="w-12 text-right">{lineHeight}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Type de police</Label>
-                <Select value={fontFamily} onValueChange={setFontFamily}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionnez une police" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Même police que la page Palanquin">
-                      Même police que la page Palanquin
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Espacement des lettres</Label>
-                <div className="flex items-center gap-4">
-                  <Slider
-                    value={[letterSpacing]}
-                    onValueChange={(value) => setLetterSpacing(value[0])}
-                    min={-10}
-                    max={10}
-                    step={1}
-                    className="flex-1"
-                  />
-                  <span className="w-12 text-right">{letterSpacing}</span>
-                </div>
-              </div>
-
-              <MarginControls
-                marginTop={marginTop}
-                marginRight={marginRight}
-                marginBottom={marginBottom}
-                marginLeft={marginLeft}
-                setMarginTop={setMarginTop}
-                setMarginRight={setMarginRight}
-                setMarginBottom={setMarginBottom}
-                setMarginLeft={setMarginLeft}
-              />
-            </div>
-          </div>
-        </div>
+      <div className="ml-64 p-6">
+        {renderContent()}
       </div>
     </>
   );
