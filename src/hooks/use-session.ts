@@ -9,27 +9,43 @@ export const useSession = () => {
   const checkSession = async () => {
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
+      
       if (error || !session) {
-        toast({
-          title: "Session expirée",
-          description: "Veuillez vous reconnecter",
-          variant: "destructive",
-        });
-        await supabase.auth.signOut();
-        navigate("/auth");
+        console.log('Session check failed:', error);
+        await handleInvalidSession();
         return false;
       }
+      
+      // Vérifier si la session est toujours valide
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.log('User check failed:', userError);
+        await handleInvalidSession();
+        return false;
+      }
+
       return true;
     } catch (error) {
       console.error('Session check error:', error);
-      toast({
-        title: "Erreur de session",
-        description: "Une erreur est survenue lors de la vérification de la session",
-        variant: "destructive",
-      });
-      navigate("/auth");
+      await handleInvalidSession();
       return false;
     }
+  };
+
+  const handleInvalidSession = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+    
+    toast({
+      title: "Session expirée",
+      description: "Veuillez vous reconnecter",
+      variant: "destructive",
+    });
+    
+    navigate("/auth");
   };
 
   return { checkSession };

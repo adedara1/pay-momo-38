@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSession } from "@/hooks/use-session";
 import MobileSidebar from "./MobileSidebar";
 import BlogSidebar from "./BlogSidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,17 +17,20 @@ const MainSidebar = () => {
   const isMobile = useIsMobile();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { toast } = useToast();
+  const { checkSession } = useSession();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      if (!await checkSession()) return;
+
       try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user) return;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
         const { data, error } = await supabase
           .from('profiles')
           .select('first_name, last_name, company_name, company_logo_url')
-          .eq('id', user.user.id)
+          .eq('id', user.id)
           .single();
 
         if (error) {
@@ -53,7 +57,7 @@ const MainSidebar = () => {
     };
 
     fetchUserProfile();
-  }, [toast]);
+  }, [toast, checkSession]);
 
   return (
     <>

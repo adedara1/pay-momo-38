@@ -10,26 +10,14 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if there's an invalid session and clear it
-    const checkAndClearSession = async () => {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        
-        if (error?.message?.includes('User from sub claim in JWT does not exist')) {
-          console.log('Invalid session detected, clearing...');
-          await supabase.auth.signOut();
-          toast({
-            title: "Session expirée",
-            description: "Veuillez vous reconnecter",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
+    // Vérifier la session au chargement
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session?.user?.id) {
+        navigate("/home");
       }
     };
-
-    checkAndClearSession();
+    checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
@@ -44,7 +32,6 @@ const Auth = () => {
 
           if (profileError) throw profileError;
 
-          // Si le profil n'a pas de nom/prénom, c'est une première inscription
           if (!profile?.first_name || !profile?.last_name) {
             navigate("/profile");
           } else {
@@ -52,16 +39,19 @@ const Auth = () => {
           }
         } catch (error) {
           console.error('Profile fetch error:', error);
-          if (error.message?.includes('User from sub claim in JWT does not exist')) {
+          // Si l'erreur est liée à une session invalide, déconnectez l'utilisateur
+          if (error.message?.includes('JWT')) {
             await supabase.auth.signOut();
             toast({
-              title: "Erreur d'authentification",
+              title: "Session expirée",
               description: "Veuillez vous reconnecter",
               variant: "destructive",
             });
           }
         }
-      } else if (event === "SIGNED_OUT") {
+      } else if (event === "SIGNED_OUT" || event === "USER_DELETED") {
+        // Nettoyer la session locale
+        await supabase.auth.signOut();
         navigate("/auth");
       }
     });
