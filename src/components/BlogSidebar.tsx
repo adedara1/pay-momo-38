@@ -85,7 +85,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
               <img
                 src={userProfile.company_logo_url || "/placeholder.svg"}
                 alt="Profile"
-                className="w-20 h-20 mx-auto rounded-full object-cover"
+                className="w-20 h-20 mx-auto rounded-full object-cover border-4 border-blue-500"
               />
             </div>
             <p className="text-sm text-muted-foreground">
