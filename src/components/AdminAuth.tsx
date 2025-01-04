@@ -69,22 +69,24 @@ const AdminAuth = () => {
           await supabase.auth.signOut();
         }
       }
+    });
 
-      // Handle user already exists error
-      if (event === "USER_SIGNUP_ERROR") {
-        const error = session?.error;
-        if (error?.message?.includes('User already registered')) {
-          toast({
-            title: "Erreur d'inscription",
-            description: "Cet email est déjà utilisé. Veuillez vous connecter.",
-            variant: "destructive",
-          });
-        }
+    // Handle signup errors through the error listener
+    const {
+      data: { subscription: errorSubscription },
+    } = supabase.auth.onError((error) => {
+      if (error.message.includes('User already registered')) {
+        toast({
+          title: "Erreur d'inscription",
+          description: "Cet email est déjà utilisé. Veuillez vous connecter.",
+          variant: "destructive",
+        });
       }
     });
 
     return () => {
       subscription.unsubscribe();
+      errorSubscription.unsubscribe();
     };
   }, [navigate, toast]);
 
