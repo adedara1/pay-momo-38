@@ -6,9 +6,11 @@ import { Product } from "@/types/product";
 
 interface ProductCardProps {
   product: Product;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, isSelected, onSelect }: ProductCardProps) => {
   const { toast } = useToast();
   const baseUrl = window.location.origin;
   const paymentUrl = `${baseUrl}/product/${product.id}`;
@@ -31,7 +33,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card 
+      className={`overflow-hidden cursor-pointer transition-all ${
+        isSelected ? "ring-2 ring-blue-500" : ""
+      }`}
+      onClick={onSelect}
+    >
       {product.image_url ? (
         <img
           src={product.image_url}

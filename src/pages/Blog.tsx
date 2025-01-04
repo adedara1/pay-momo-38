@@ -1,11 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProductForm from "@/components/ProductForm";
 import ProductCard from "@/components/product/ProductCard";
 import { Product } from "@/types/product";
+import { Button } from "@/components/ui/button";
+import { Trash2, Pencil } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Blog = () => {
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
@@ -23,6 +31,46 @@ const Blog = () => {
     },
   });
 
+  const handleProductSelect = (productId: string) => {
+    setSelectedProducts(prev => {
+      if (prev.includes(productId)) {
+        return prev.filter(id => id !== productId);
+      }
+      return [...prev, productId];
+    });
+  };
+
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .in("id", selectedProducts);
+
+      if (error) throw error;
+
+      toast({
+        title: "Produits supprimés",
+        description: `${selectedProducts.length} produit(s) supprimé(s) avec succès`,
+      });
+
+      setSelectedProducts([]);
+    } catch (error) {
+      console.error("Error deleting products:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = () => {
+    if (selectedProducts.length === 1) {
+      navigate(`/product/${selectedProducts[0]}`);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
@@ -39,10 +87,42 @@ const Blog = () => {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">Vos produits</h2>
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl font-semibold">Vos produits</h2>
+          {selectedProducts.length > 0 && (
+            <div className="flex gap-2">
+              {selectedProducts.length === 1 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEdit}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Modifier
+                </Button>
+              )}
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {selectedProducts.length > 1 ? "Supprimer la sélection" : "Supprimer"}
+              </Button>
+            </div>
+          )}
+        </div>
+        <p className="text-sm text-gray-500 mb-4">
+          Cliquer sur un produit pour le modifier ou le supprimer
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products?.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard 
+              key={product.id} 
+              product={product}
+              isSelected={selectedProducts.includes(product.id)}
+              onSelect={() => handleProductSelect(product.id)}
+            />
           ))}
         </div>
       </div>
