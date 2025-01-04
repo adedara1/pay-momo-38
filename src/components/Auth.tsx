@@ -10,24 +10,16 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkSession = async () => {
+    // Clear any existing session on mount
+    const clearSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        if (session?.user?.id) {
-          navigate("/home");
-        }
+        await supabase.auth.signOut();
       } catch (error) {
-        console.error('Session check error:', error);
-        toast({
-          title: "Error",
-          description: "Failed to check authentication status",
-          variant: "destructive",
-        });
+        console.error('Error clearing session:', error);
       }
     };
 
-    checkSession();
+    clearSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
@@ -40,7 +32,19 @@ const Auth = () => {
             .eq('id', session.user.id)
             .single();
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('Profile fetch error:', profileError);
+            if (profileError.message?.includes('JWT')) {
+              await supabase.auth.signOut();
+              toast({
+                title: "Session expirée",
+                description: "Veuillez vous reconnecter",
+                variant: "destructive",
+              });
+              return;
+            }
+            throw profileError;
+          }
 
           if (!profile?.first_name || !profile?.last_name) {
             navigate("/profile");
@@ -48,16 +52,12 @@ const Auth = () => {
             navigate("/home");
           }
         } catch (error) {
-          console.error('Profile fetch error:', error);
-          if (error.message?.includes('JWT')) {
-            await supabase.auth.signOut();
-            toast({
-              title: "Session expirée",
-              description: "Veuillez vous reconnecter",
-              variant: "destructive",
-            });
-            navigate("/auth");
-          }
+          console.error('Error during sign in:', error);
+          toast({
+            title: "Error",
+            description: "Une erreur est survenue lors de la connexion",
+            variant: "destructive",
+          });
         }
       } else if (event === "SIGNED_OUT") {
         navigate("/auth");
