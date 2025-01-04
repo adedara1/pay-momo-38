@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { UserSearch } from "./UserSearch";
+import { UserDataDisplay } from "./UserDataDisplay";
 
 interface UserData {
   id: string;
@@ -35,23 +33,26 @@ export function DataEditorContent() {
   const handleSearch = async () => {
     setIsLoading(true);
     try {
-      // First try to find by exact ID match
-      let { data: profileData, error: profileError } = await supabase
+      // Try to find by name first
+      const { data: nameSearchData, error: nameSearchError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', searchQuery)
+        .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
         .maybeSingle();
 
-      // If no result, try to find by name
-      if (!profileData) {
-        const { data: nameSearchData, error: nameSearchError } = await supabase
+      if (nameSearchError) throw nameSearchError;
+
+      // If no result and the query looks like a UUID, try searching by ID
+      let profileData = nameSearchData;
+      if (!profileData && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(searchQuery)) {
+        const { data: idSearchData, error: idSearchError } = await supabase
           .from('profiles')
           .select('*')
-          .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
+          .eq('id', searchQuery)
           .maybeSingle();
 
-        if (nameSearchError) throw nameSearchError;
-        profileData = nameSearchData;
+        if (idSearchError) throw idSearchError;
+        profileData = idSearchData;
       }
 
       if (!profileData) {
@@ -82,7 +83,7 @@ export function DataEditorContent() {
         last_name: profileData.last_name,
         wallet,
         stats: {
-          salesTotal: 0, // Add real data calculation here
+          salesTotal: 0,
           dailySales: 0,
           monthlySales: 0,
           previousMonthSales: 0,
@@ -101,6 +102,11 @@ export function DataEditorContent() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleUpdateUserData = (field: string, value: string) => {
+    if (!userData) return;
+    setUserData({ ...userData, [field]: value });
   };
 
   const handleSave = async () => {
@@ -133,78 +139,17 @@ export function DataEditorContent() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-end">
-        <div className="flex gap-2 w-full max-w-sm">
-          <Input
-            placeholder="Rechercher par ID ou nom complet"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button onClick={handleSearch} disabled={isLoading}>
-            <Search className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {userData && (
-        <div className="space-y-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Informations utilisateur</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Prénom</label>
-                <Input
-                  value={userData.first_name}
-                  onChange={(e) => setUserData({...userData, first_name: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Nom</label>
-                <Input
-                  value={userData.last_name}
-                  onChange={(e) => setUserData({...userData, last_name: e.target.value})}
-                />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Wallet</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Disponible</label>
-                <Input value={userData.wallet.available} readOnly />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">En attente</label>
-                <Input value={userData.wallet.pending} readOnly />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Validé</label>
-                <Input value={userData.wallet.validated} readOnly />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Statistiques</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(userData.stats).map(([key, value]) => (
-                <div key={key}>
-                  <label className="block text-sm font-medium mb-1">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </label>
-                  <Input value={value} readOnly />
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <div className="flex justify-end">
-            <Button onClick={handleSave}>Enregistrer les modifications</Button>
-          </div>
-        </div>
-      )}
+      <UserSearch
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onSearch={handleSearch}
+        isLoading={isLoading}
+      />
+      <UserDataDisplay
+        userData={userData}
+        onSave={handleSave}
+        onUpdateUserData={handleUpdateUserData}
+      />
     </div>
   );
 }
