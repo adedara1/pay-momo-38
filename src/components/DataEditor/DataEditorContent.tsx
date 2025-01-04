@@ -35,20 +35,32 @@ export function DataEditorContent() {
   const handleSearch = async () => {
     setIsLoading(true);
     try {
-      // Search by ID or full name
-      const { data: profileData, error: profileError } = await supabase
+      // First try to find by exact ID match
+      let { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .or(`id.eq.${searchQuery},and(first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
+        .eq('id', searchQuery)
         .maybeSingle();
 
-      if (profileError) throw profileError;
+      // If no result, try to find by name
+      if (!profileData) {
+        const { data: nameSearchData, error: nameSearchError } = await supabase
+          .from('profiles')
+          .select('*')
+          .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
+          .maybeSingle();
+
+        if (nameSearchError) throw nameSearchError;
+        profileData = nameSearchData;
+      }
+
       if (!profileData) {
         toast({
           title: "Utilisateur non trouvé",
           description: "Aucun utilisateur trouvé avec cet ID ou nom",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
