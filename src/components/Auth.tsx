@@ -26,6 +26,18 @@ const Auth = () => {
       
       if (event === "SIGNED_IN" && session?.user?.id) {
         try {
+          // First verify the session is valid
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (userError) {
+            console.error('User verification error:', userError);
+            throw userError;
+          }
+
+          if (!user) {
+            throw new Error('No user found after sign in');
+          }
+
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('first_name, last_name')
@@ -53,16 +65,49 @@ const Auth = () => {
           }
         } catch (error) {
           console.error('Error during sign in:', error);
+          await supabase.auth.signOut();
           toast({
-            title: "Error",
+            title: "Erreur",
             description: "Une erreur est survenue lors de la connexion",
             variant: "destructive",
           });
+          navigate("/auth");
         }
       } else if (event === "SIGNED_OUT") {
         navigate("/auth");
       }
     });
+
+    // Check for existing session on mount
+    const checkExistingSession = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session check error:', sessionError);
+          throw sessionError;
+        }
+
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', session.user.id)
+            .single();
+
+          if (!profile?.first_name || !profile?.last_name) {
+            navigate("/profile");
+          } else {
+            navigate("/home");
+          }
+        }
+      } catch (error) {
+        console.error('Error checking existing session:', error);
+        await supabase.auth.signOut();
+      }
+    };
+
+    checkExistingSession();
 
     return () => {
       subscription.unsubscribe();

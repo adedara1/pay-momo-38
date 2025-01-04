@@ -8,15 +8,17 @@ export const useSession = () => {
 
   const checkSession = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // First check if we have a valid session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (error) {
-        console.error('Session check error:', error);
+      if (sessionError) {
+        console.error('Session check error:', sessionError);
         await handleInvalidSession();
         return false;
       }
       
       if (!session) {
+        console.error('No session found');
         await handleInvalidSession();
         return false;
       }
@@ -25,6 +27,19 @@ export const useSession = () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         console.error('User check error:', userError);
+        await handleInvalidSession();
+        return false;
+      }
+
+      // Verify if the user has a valid profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        console.error('Profile check error:', profileError);
         await handleInvalidSession();
         return false;
       }
