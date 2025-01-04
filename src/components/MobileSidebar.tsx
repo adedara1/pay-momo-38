@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface UserProfile {
   first_name: string;
   last_name: string;
+  company_name: string | null;
 }
 
 interface MobileSidebarProps {
@@ -56,6 +57,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
         )}
       >
         <div className="flex h-full flex-col">
+          {/* Logo section - common for all users */}
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
               <img
@@ -74,6 +76,14 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
               <ChevronLeft className="h-4 w-4" />
             </Button>
           </div>
+
+          {/* Company name section */}
+          {userProfile?.company_name && (
+            <div className="px-4 py-3 border-b">
+              <h2 className="text-sm font-medium text-gray-600">Entreprise</h2>
+              <p className="text-base font-semibold">{userProfile.company_name}</p>
+            </div>
+          )}
 
           {userProfile && (
             <div className="p-4 text-center border-b">
