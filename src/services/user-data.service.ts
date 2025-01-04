@@ -74,19 +74,17 @@ export const userDataService = {
 
     if (statsError) throw statsError;
 
-    // Get transactions for wallet
-    const { data: transactions } = await supabase
-      .from('transactions')
+    // Get wallet data
+    const { data: walletData, error: walletError } = await supabase
+      .from('wallets')
       .select('*')
-      .eq('user_id', profileData.id);
+      .eq('user_id', profileData.id)
+      .maybeSingle();
 
-    const completedTransactions = transactions?.filter(t => t.status === 'completed') || [];
-    
-    const wallet = {
-      available: completedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
-      pending: transactions?.filter(t => t.status === 'pending').reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
-      validated: completedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
-    };
+    if (walletError) throw walletError;
+
+    // If no wallet exists, create one
+    const wallet = walletData || await this.createWallet(profileData.id);
 
     const stats = statsData || {
       sales_total: 0,
@@ -107,7 +105,11 @@ export const userDataService = {
       id: profileData.id,
       first_name: profileData.first_name,
       last_name: profileData.last_name,
-      wallet,
+      wallet: {
+        available: wallet.available,
+        pending: wallet.pending,
+        validated: wallet.validated,
+      },
       stats: {
         salesTotal: stats.sales_total,
         dailySales: stats.daily_sales,
@@ -142,7 +144,25 @@ export const userDataService = {
       throw profileError;
     }
 
-    // Upsert stats using ON CONFLICT DO UPDATE
+    // Update wallet
+    const { error: walletError } = await supabase
+      .from('wallets')
+      .upsert({
+        user_id: userData.id,
+        available: userData.wallet.available,
+        pending: userData.wallet.pending,
+        validated: userData.wallet.validated,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id',
+      });
+
+    if (walletError) {
+      console.error('Error updating wallet:', walletError);
+      throw walletError;
+    }
+
+    // Update stats
     const { error: statsError } = await supabase
       .from('user_stats')
       .upsert({
@@ -170,5 +190,21 @@ export const userDataService = {
     }
 
     console.log('User data saved successfully');
+  },
+
+  private async createWallet(userId: string) {
+    const { data, error } = await supabase
+      .from('wallets')
+      .insert({
+        user_id: userId,
+        available: 0,
+        pending: 0,
+        validated: 0,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 };

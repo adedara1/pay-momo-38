@@ -22,7 +22,6 @@ export const useStatsSync = (userId: string | undefined) => {
         },
         (payload) => {
           console.log('User stats change received:', payload);
-          // Invalider toutes les requêtes qui dépendent des stats
           queryClient.invalidateQueries({ queryKey: ['user-stats'] });
           queryClient.invalidateQueries({ queryKey: ['wallet-stats'] });
           queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
@@ -34,14 +33,15 @@ export const useStatsSync = (userId: string | undefined) => {
         {
           event: '*',
           schema: 'public',
-          table: 'transactions',
+          table: 'wallets',
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('Transactions change received:', payload);
-          queryClient.invalidateQueries({ queryKey: ['transactions'] });
+          console.log('Wallet change received:', payload);
           queryClient.invalidateQueries({ queryKey: ['wallet-stats'] });
           queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+          queryClient.invalidateQueries({ queryKey: ['home-stats'] });
         }
       )
       .subscribe();
