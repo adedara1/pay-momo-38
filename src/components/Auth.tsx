@@ -10,13 +10,23 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Vérifier la session au chargement
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (session?.user?.id) {
-        navigate("/home");
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (session?.user?.id) {
+          navigate("/home");
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to check authentication status",
+          variant: "destructive",
+        });
       }
     };
+
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -39,7 +49,6 @@ const Auth = () => {
           }
         } catch (error) {
           console.error('Profile fetch error:', error);
-          // Si l'erreur est liée à une session invalide, déconnectez l'utilisateur
           if (error.message?.includes('JWT')) {
             await supabase.auth.signOut();
             toast({
@@ -47,11 +56,10 @@ const Auth = () => {
               description: "Veuillez vous reconnecter",
               variant: "destructive",
             });
+            navigate("/auth");
           }
         }
-      } else if (event === "SIGNED_OUT" || event === "USER_DELETED") {
-        // Nettoyer la session locale
-        await supabase.auth.signOut();
+      } else if (event === "SIGNED_OUT") {
         navigate("/auth");
       }
     });

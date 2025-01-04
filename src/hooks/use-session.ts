@@ -10,16 +10,21 @@ export const useSession = () => {
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
       
-      if (error || !session) {
-        console.log('Session check failed:', error);
+      if (error) {
+        console.error('Session check error:', error);
         await handleInvalidSession();
         return false;
       }
       
-      // Vérifier si la session est toujours valide
+      if (!session) {
+        await handleInvalidSession();
+        return false;
+      }
+
+      // Verify if the user is still valid
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
-        console.log('User check failed:', userError);
+        console.error('User check error:', userError);
         await handleInvalidSession();
         return false;
       }
