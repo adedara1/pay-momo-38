@@ -17,9 +17,14 @@ interface UserData {
     salesTotal: number;
     dailySales: number;
     monthlySales: number;
+    totalTransactions: number;
+    dailyTransactions: number;
+    monthlyTransactions: number;
     previousMonthSales: number;
     previousMonthTransactions: number;
     salesGrowth: number;
+    totalProducts: number;
+    visibleProducts: number;
     balance: number;
   };
 }
@@ -77,16 +82,33 @@ export function DataEditorContent() {
         return;
       }
 
-      // Get wallet data
+      // Get transactions for statistics
       const { data: transactions } = await supabase
         .from('transactions')
         .select('*')
         .eq('user_id', profileData.id);
 
+      // Get products count
+      const { data: products } = await supabase
+        .from('products')
+        .select('*')
+        .eq('user_id', profileData.id);
+
+      // Calculate statistics
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+      const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
+
+      const completedTransactions = transactions?.filter(t => t.status === 'completed') || [];
+      const currentMonthSales = completedTransactions.filter(t => t.created_at >= startOfMonth).reduce((sum, t) => sum + (t.amount || 0), 0);
+      const previousMonthSales = completedTransactions.filter(t => t.created_at >= startOfPrevMonth && t.created_at <= endOfPrevMonth).reduce((sum, t) => sum + (t.amount || 0), 0);
+
       const wallet = {
-        available: transactions?.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
+        available: completedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
         pending: transactions?.filter(t => t.status === 'pending').reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
-        validated: transactions?.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
+        validated: completedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
       };
 
       setUserData({
@@ -95,12 +117,17 @@ export function DataEditorContent() {
         last_name: profileData.last_name,
         wallet,
         stats: {
-          salesTotal: 0,
-          dailySales: 0,
-          monthlySales: 0,
-          previousMonthSales: 0,
-          previousMonthTransactions: 0,
-          salesGrowth: 0,
+          salesTotal: completedTransactions.reduce((sum, t) => sum + (t.amount || 0), 0),
+          dailySales: completedTransactions.filter(t => t.created_at >= startOfDay).reduce((sum, t) => sum + (t.amount || 0), 0),
+          monthlySales: currentMonthSales,
+          totalTransactions: transactions?.length || 0,
+          dailyTransactions: transactions?.filter(t => t.created_at >= startOfDay).length || 0,
+          monthlyTransactions: transactions?.filter(t => t.created_at >= startOfMonth).length || 0,
+          previousMonthSales,
+          previousMonthTransactions: transactions?.filter(t => t.created_at >= startOfPrevMonth && t.created_at <= endOfPrevMonth).length || 0,
+          salesGrowth: previousMonthSales ? ((currentMonthSales - previousMonthSales) / previousMonthSales) * 100 : 0,
+          totalProducts: products?.length || 0,
+          visibleProducts: products?.filter(p => p.status !== 'hidden').length || 0,
           balance: wallet.available,
         }
       });

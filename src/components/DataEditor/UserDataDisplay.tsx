@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import StatCard from "@/components/StatCard";
 
 interface UserData {
   id: string;
@@ -15,9 +16,14 @@ interface UserData {
     salesTotal: number;
     dailySales: number;
     monthlySales: number;
+    totalTransactions: number;
+    dailyTransactions: number;
+    monthlyTransactions: number;
     previousMonthSales: number;
     previousMonthTransactions: number;
     salesGrowth: number;
+    totalProducts: number;
+    visibleProducts: number;
     balance: number;
   };
 }
@@ -74,14 +80,60 @@ export const UserDataDisplay = ({ userData, onSave, onUpdateUserData }: UserData
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Statistiques</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(userData.stats).map(([key, value]) => (
-            <div key={key}>
-              <label className="block text-sm font-medium mb-1">
-                {key.replace(/([A-Z])/g, ' $1').trim()}
-              </label>
-              <Input value={value} readOnly />
-            </div>
-          ))}
+          <StatCard
+            title="Ventes Cumulées"
+            value={userData.stats.salesTotal}
+            suffix="FCFA"
+          />
+          <StatCard
+            title="Ventes du jours"
+            value={userData.stats.dailySales}
+            suffix="FCFA"
+          />
+          <StatCard
+            title="Ventes Du Mois"
+            value={userData.stats.monthlySales}
+            suffix="FCFA"
+          />
+          <StatCard
+            title="Total des Transactions"
+            value={userData.stats.totalTransactions}
+          />
+          <StatCard
+            title="Transactions du Jour"
+            value={userData.stats.dailyTransactions}
+          />
+          <StatCard
+            title="Transactions du Mois"
+            value={userData.stats.monthlyTransactions}
+          />
+          <StatCard
+            title="Ventes du Mois Précédent"
+            value={userData.stats.previousMonthSales}
+            suffix="FCFA"
+          />
+          <StatCard
+            title="Transactions du Mois Précédent"
+            value={userData.stats.previousMonthTransactions}
+          />
+          <StatCard
+            title="Croissance Des Ventes"
+            value={userData.stats.salesGrowth}
+            suffix="%"
+          />
+          <StatCard
+            title="Total Produits"
+            value={userData.stats.totalProducts}
+          />
+          <StatCard
+            title="Produits Visibles"
+            value={userData.stats.visibleProducts}
+          />
+          <StatCard
+            title="Solde(s)"
+            value={userData.stats.balance}
+            suffix="FCFA"
+          />
         </div>
       </Card>
 
