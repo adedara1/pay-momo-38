@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -23,6 +23,35 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const { toast } = useToast();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Menu Admin");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+
+        setIsAdmin(!!adminUser);
+        
+        // Filter menu items based on admin status
+        const filtered = menuItems.filter(item => 
+          item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)
+        );
+        setFilteredMenuItems(filtered);
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const toggleSubmenu = (label: string) => {
     setOpenSubmenu(openSubmenu === label ? null : label);
@@ -96,7 +125,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
 
         <div className="px-4 py-2">
           <nav className="space-y-1">
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <div key={item.label}>
                 {item.submenu ? (
                   <div>

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -23,6 +23,32 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+
+        // Filter menu items based on admin status
+        const filtered = menuItems.filter(item => 
+          item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)
+        );
+        setFilteredMenuItems(filtered);
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -103,7 +129,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
 
           <div className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
-              {menuItems.map((item) => (
+              {filteredMenuItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
