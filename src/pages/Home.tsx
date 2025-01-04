@@ -5,8 +5,9 @@ import WalletStats from "@/components/WalletStats";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import SalesCharts from "@/components/SalesCharts";
+import ProtectedRoute from "@/components/routes/ProtectedRoute";
 
-const Home = () => {
+const HomeContent = () => {
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [stats, setStats] = useState({
     totalSales: 0,
@@ -58,12 +59,10 @@ const Home = () => {
 
         if (transactions && products) {
           console.log("Fetched data:", { transactions, products });
-          // Calculate user-specific stats here
-          // This is just an example, you should implement the actual calculations
           setStats({
             totalSales: transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0,
-            dailySales: 0, // Calculate based on today's transactions
-            monthlySales: 0, // Calculate based on this month's transactions
+            dailySales: 0,
+            monthlySales: 0,
             totalTransactions: transactions?.length || 0,
             dailyTransactions: 0,
             monthlyTransactions: 0,
@@ -179,6 +178,14 @@ const Home = () => {
 
       <SalesCharts />
     </div>
+  );
+};
+
+const Home = () => {
+  return (
+    <ProtectedRoute checkAdmin={true}>
+      <HomeContent />
+    </ProtectedRoute>
   );
 };
 
