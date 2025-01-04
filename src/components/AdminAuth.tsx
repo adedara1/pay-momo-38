@@ -51,7 +51,7 @@ const AdminAuth = () => {
     checkAndClearSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session?.user?.id) {
+      if (event === 'SIGNED_IN' && session?.user?.id) {
         const { data: adminData } = await supabase
           .from('admin_users')
           .select('*')
@@ -67,16 +67,6 @@ const AdminAuth = () => {
             variant: "destructive",
           });
           await supabase.auth.signOut();
-        }
-      } else if (event === "SIGNED_UP") {
-        // Handle user already registered error
-        const error = session?.error;
-        if (error?.message?.includes('User already registered')) {
-          toast({
-            title: "Erreur d'inscription",
-            description: "Cet email est déjà utilisé. Veuillez vous connecter.",
-            variant: "destructive",
-          });
         }
       }
     });
