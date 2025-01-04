@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface UserProfile {
   first_name: string;
   last_name: string;
+  company_name: string | null;
 }
 
 interface BlogSidebarProps {
@@ -27,7 +28,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   };
 
   const handleLogout = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent any default behavior
+    e.preventDefault();
     
     try {
       setIsLoggingOut(true);
@@ -42,7 +43,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
         description: "Vous avez été déconnecté avec succès",
       });
       
-      // Force navigation to auth page
       window.location.href = "/auth";
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
@@ -59,6 +59,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
       <div className="flex flex-col flex-grow pt-5 overflow-y-auto">
+        {/* Logo section - common for all users */}
         <div className="flex items-center gap-2 px-4 pb-4 border-b">
           <img
             src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
@@ -68,6 +69,15 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           <span className="font-semibold text-blue-600">Digit-Sarl</span>
         </div>
 
+        {/* Company name section */}
+        {userProfile?.company_name && (
+          <div className="px-4 py-3 border-b">
+            <h2 className="text-sm font-medium text-gray-600">Entreprise</h2>
+            <p className="text-base font-semibold">{userProfile.company_name}</p>
+          </div>
+        )}
+
+        {/* User profile section */}
         {userProfile && (
           <div className="px-4 py-6 text-center border-b">
             <div className="mb-4">

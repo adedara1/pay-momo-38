@@ -8,6 +8,7 @@ import { useToast } from "./ui/use-toast";
 interface UserProfile {
   first_name: string;
   last_name: string;
+  company_name: string | null;
 }
 
 const MainSidebar = () => {
@@ -23,7 +24,7 @@ const MainSidebar = () => {
 
         const { data, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name')
+          .select('first_name, last_name, company_name')
           .eq('id', user.user.id)
           .single();
 
