@@ -22,7 +22,6 @@ export const UserDataDisplay = ({
 }: UserDataDisplayProps) => {
   const [isEditingStats, setIsEditingStats] = useState(false);
 
-  // Enable realtime updates for user data
   useRealtimeUpdates(userData?.id);
   useStatsSync(userData?.id);
 
@@ -35,6 +34,12 @@ export const UserDataDisplay = ({
     }
   };
 
+  const handleUpdateWallet = (field: string, value: number) => {
+    if (!userData.wallet) return;
+    const updatedWallet = { ...userData.wallet, [field]: value };
+    onUpdateUserData('wallet', JSON.stringify(updatedWallet));
+  };
+
   return (
     <div className="space-y-6">
       <UserInfo
@@ -43,7 +48,10 @@ export const UserDataDisplay = ({
         onUpdateUserData={onUpdateUserData}
       />
       
-      <WalletInfo wallet={userData.wallet} />
+      <WalletInfo 
+        wallet={userData.wallet} 
+        onUpdateWallet={handleUpdateWallet}
+      />
       
       <StatsEditor
         stats={userData.stats}
