@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRealtimeUpdates } from "@/hooks/use-realtime-updates";
 import { useStatsSync } from "@/hooks/use-stats-sync";
 import { useQuery } from "@tanstack/react-query";
+import { UserStats } from "@/types/stats";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -30,7 +31,7 @@ const Dashboard = () => {
     totalProducts: 0,
     visibleProducts: 0,
     soldAmount: 0
-  }, refetch: refetchStats } = useQuery({
+  } as UserStats, refetch: refetchStats } = useQuery({
     queryKey: ['dashboard-stats', userId],
     queryFn: async () => {
       if (!userId) return null;
@@ -41,7 +42,22 @@ const Dashboard = () => {
         .single();
 
       if (error) throw error;
-      return data || {};
+
+      // Map database fields to our interface
+      return {
+        totalSales: data?.sales_total || 0,
+        dailySales: data?.daily_sales || 0,
+        monthlySales: data?.monthly_sales || 0,
+        totalTransactions: data?.total_transactions || 0,
+        dailyTransactions: data?.daily_transactions || 0,
+        monthlyTransactions: data?.monthly_transactions || 0,
+        previousMonthSales: data?.previous_month_sales || 0,
+        previousMonthTransactions: data?.previous_month_transactions || 0,
+        salesGrowth: data?.sales_growth || 0,
+        totalProducts: data?.total_products || 0,
+        visibleProducts: data?.visible_products || 0,
+        soldAmount: data?.balance || 0
+      } as UserStats;
     },
     enabled: !!userId
   });
