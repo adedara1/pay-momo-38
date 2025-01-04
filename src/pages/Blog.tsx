@@ -5,12 +5,13 @@ import ProductForm from "@/components/ProductForm";
 import ProductCard from "@/components/product/ProductCard";
 import { Product } from "@/types/product";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const Blog = () => {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [showForm, setShowForm] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -82,8 +83,17 @@ const Blog = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold mb-4">Créer un nouveau produit</h1>
-        <ProductForm />
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Créer un nouveau produit</h1>
+          <Button 
+            onClick={() => setShowForm(!showForm)}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {showForm ? "Fermer" : "Créer un produit"}
+          </Button>
+        </div>
+        {showForm && <ProductForm />}
       </div>
 
       <div>
