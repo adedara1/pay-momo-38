@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { useWalletSync } from "@/hooks/use-wallet-sync";
 
 interface WalletInfoProps {
   wallet: {
@@ -17,6 +18,10 @@ interface WalletInfoProps {
 export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [userId, setUserId] = useState<string>();
+
+  // Enable wallet sync
+  useWalletSync(userId);
 
   const handleChange = (field: string, value: string) => {
     const numValue = parseFloat(value) || 0;
@@ -36,7 +41,9 @@ export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
         return;
       }
 
-      const { error } = await supabase
+      setUserId(user.id);
+
+      const { error: walletError } = await supabase
         .from('wallets')
         .upsert({
           user_id: user.id,
@@ -48,21 +55,22 @@ export const WalletInfo = ({ wallet, onUpdateWallet }: WalletInfoProps) => {
           onConflict: 'user_id'
         });
 
-      if (error) throw error;
+      if (walletError) throw walletError;
 
-      toast({
-        title: "Succès",
-        description: "Le portefeuille a été mis à jour avec succès",
-      });
-
-      // Trigger a refresh of the stats
-      await supabase
+      const { error: statsError } = await supabase
         .from('user_stats')
         .update({ 
           balance: wallet.available,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
+
+      if (statsError) throw statsError;
+
+      toast({
+        title: "Succès",
+        description: "Le portefeuille a été mis à jour avec succès",
+      });
 
     } catch (error) {
       console.error('Error saving wallet:', error);
