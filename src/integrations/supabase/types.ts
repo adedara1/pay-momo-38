@@ -451,6 +451,44 @@ export type Database = {
           },
         ]
       }
+      wallets: {
+        Row: {
+          available: number | null
+          created_at: string | null
+          id: string
+          pending: number | null
+          updated_at: string | null
+          user_id: string
+          validated: number | null
+        }
+        Insert: {
+          available?: number | null
+          created_at?: string | null
+          id?: string
+          pending?: number | null
+          updated_at?: string | null
+          user_id: string
+          validated?: number | null
+        }
+        Update: {
+          available?: number | null
+          created_at?: string | null
+          id?: string
+          pending?: number | null
+          updated_at?: string | null
+          user_id?: string
+          validated?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

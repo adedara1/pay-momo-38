@@ -15,16 +15,34 @@ export interface UserStats {
   balance: number;
 }
 
+export interface UserWallet {
+  available: number;
+  pending: number;
+  validated: number;
+}
+
 export interface UserData {
   id: string;
   first_name: string;
   last_name: string;
-  wallet: {
-    available: number;
-    pending: number;
-    validated: number;
-  };
+  wallet: UserWallet;
   stats: UserStats;
+}
+
+async function createWallet(userId: string) {
+  const { data, error } = await supabase
+    .from('wallets')
+    .insert({
+      user_id: userId,
+      available: 0,
+      pending: 0,
+      validated: 0,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 export const userDataService = {
@@ -84,7 +102,7 @@ export const userDataService = {
     if (walletError) throw walletError;
 
     // If no wallet exists, create one
-    const wallet = walletData || await this.createWallet(profileData.id);
+    const wallet = walletData || await createWallet(profileData.id);
 
     const stats = statsData || {
       sales_total: 0,
@@ -190,21 +208,5 @@ export const userDataService = {
     }
 
     console.log('User data saved successfully');
-  },
-
-  private async createWallet(userId: string) {
-    const { data, error } = await supabase
-      .from('wallets')
-      .insert({
-        user_id: userId,
-        available: 0,
-        pending: 0,
-        validated: 0,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
   }
 };
