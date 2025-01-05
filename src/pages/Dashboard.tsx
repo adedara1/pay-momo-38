@@ -7,6 +7,7 @@ import { useStatsSync } from "@/hooks/use-stats-sync";
 import { useQuery } from "@tanstack/react-query";
 import { UserStats } from "@/types/stats";
 import { DashboardStats } from "@/components/DashboardStats";
+import StatCard from "@/components/StatCard";
 
 const Dashboard = () => {
   const { toast } = useToast();
