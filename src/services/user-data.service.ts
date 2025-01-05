@@ -54,7 +54,7 @@ export const userDataService = {
       wallet = await walletService.createWallet(profileData.id);
     }
 
-    // Get stats data
+    // Get stats data with all fields
     const stats = await statsService.getStats(profileData.id) || {
       salesTotal: 0,
       dailySales: 0,
@@ -102,7 +102,7 @@ export const userDataService = {
     // Update wallet
     await walletService.updateWallet(userData.id, userData.wallet);
 
-    // Update stats
+    // Update stats with all fields
     await statsService.updateStats(userData.id, userData.stats);
 
     console.log('User data saved successfully');
