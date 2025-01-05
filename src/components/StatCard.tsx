@@ -15,7 +15,10 @@ const StatCard = ({ title, value, suffix = "", className = "" }: StatCardProps) 
     "Ventes du Mois Précédent",
     "Transactions du Mois Précédent",
     "Croissance Des Ventes",
-    "Solde(s)"
+    "Solde(s)",
+    "Solde Disponible",
+    "Demandes en attente",
+    "Demandes validées"
   ];
 
   const titleColor = whiteTitles.includes(title) ? "text-white" : "text-gray-600";
