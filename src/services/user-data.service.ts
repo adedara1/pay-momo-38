@@ -68,6 +68,9 @@ export const userDataService = {
       totalProducts: 0,
       visibleProducts: 0,
       balance: wallet.available,
+      availableBalance: 0,
+      pendingRequests: 0,
+      validatedRequests: 0
     };
 
     return {
