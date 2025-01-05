@@ -37,20 +37,22 @@ const WalletStats = () => {
     queryFn: async () => {
       if (!userId) return null;
 
-      const { data: transactions, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
+      // Fetch wallet data
       const { data: wallet, error: walletError } = await supabase
         .from('wallets')
-        .select('*')
+        .select('available, pending, validated')
         .eq('user_id', userId)
         .single();
 
       if (walletError) throw walletError;
+
+      // Fetch transactions to count pending and validated requests
+      const { data: transactions, error: transError } = await supabase
+        .from('transactions')
+        .select('status')
+        .eq('user_id', userId);
+
+      if (transError) throw transError;
 
       const pendingTransactions = transactions?.filter(t => t.status === 'pending') || [];
       const validatedTransactions = transactions?.filter(t => t.status === 'completed') || [];
@@ -66,7 +68,7 @@ const WalletStats = () => {
     enabled: !!userId
   });
 
-  // Set up realtime subscription for wallet updates
+  // Set up realtime subscription for wallet and transaction updates
   useEffect(() => {
     if (!userId) return;
 
@@ -81,7 +83,18 @@ const WalletStats = () => {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          // Invalidate and refetch queries when wallet is updated
+          queryClient.invalidateQueries({ queryKey: ['wallet-stats'] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
           queryClient.invalidateQueries({ queryKey: ['wallet-stats'] });
         }
       )
