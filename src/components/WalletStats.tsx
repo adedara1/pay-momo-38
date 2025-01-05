@@ -109,11 +109,14 @@ const WalletStats = () => {
     <div className="grid grid-cols-3 gap-2 md:gap-[2vw]">
       <Card className="p-2 md:p-[2vw] flex items-center justify-between">
         <div className="space-y-12">
-          <div className="flex items-center gap-1 md:gap-[1vw] py-4">
-            <Wallet className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-blue-500" />
-            <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-blue-500 py-2">
-              {stats.available.toLocaleString()} CFA
-            </span>
+          <div className="flex flex-col gap-1">
+            <h2 className="text-sm md:text-lg font-semibold text-gray-700">Solde</h2>
+            <div className="flex items-center gap-1 md:gap-[1vw] py-4">
+              <Wallet className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-blue-500" />
+              <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-blue-500 py-2">
+                {stats.available.toLocaleString()} CFA
+              </span>
+            </div>
           </div>
           <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
             Disponible(s)
