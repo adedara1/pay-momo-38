@@ -17,6 +17,7 @@ import AdminAuth from "@/components/AdminAuth";
 import ProfileForm from "@/pages/ProfileForm";
 import Configuration from "@/pages/Configuration";
 import EditeurPage from "@/pages/EditeurPage";
+import DonneesPage from "@/pages/DonneesPage";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import PublicRoute from "@/components/routes/PublicRoute";
 
@@ -24,7 +25,7 @@ import PublicRoute from "@/components/routes/PublicRoute";
 const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile'];
 
 // Routes that should display the settings sidebar
-const settingsRoutes = ['/configuration', '/editeur'];
+const settingsRoutes = ['/configuration', '/editeur', '/donnees'];
 
 const AppContent = () => {
   const location = useLocation();
@@ -52,6 +53,7 @@ const AppContent = () => {
           <Route path="/refunds" element={<ProtectedRoute><Refunds /></ProtectedRoute>} />
           <Route path="/configuration" element={<ProtectedRoute><Configuration /></ProtectedRoute>} />
           <Route path="/editeur" element={<ProtectedRoute><EditeurPage /></ProtectedRoute>} />
+          <Route path="/donnees" element={<ProtectedRoute><DonneesPage /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

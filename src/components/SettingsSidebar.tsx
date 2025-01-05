@@ -16,8 +16,8 @@ interface SettingsSidebarProps {
 
 const settingsMenuItems = [
   { label: "Réglage actuel", path: "/configuration" },
-  { label: "Editeur de Donné", path: "/editeur-donnees" },
   { label: "Editeur de page", path: "/editeur" },
+  { label: "Données", path: "/donnees" },
 ];
 
 const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
@@ -39,19 +39,6 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
 
   const toggleMainSidebar = () => {
     setIsCollapsed(!isCollapsed);
-  };
-
-  const renderContent = () => {
-    switch (currentView) {
-      case "editeur-donnees":
-        return <DataEditorContent />;
-      case "configuration":
-        return null; // Add your existing configuration content here
-      case "editeur":
-        return null; // Add your existing page editor content here
-      default:
-        return null;
-    }
   };
 
   return (
@@ -109,26 +96,22 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
           <div className="px-4 py-2">
             <nav className="space-y-1">
               {settingsMenuItems.map((item) => (
-                <button
+                <Link
                   key={item.path}
-                  onClick={() => setCurrentView(item.path.replace('/', ''))}
+                  to={item.path}
                   className={cn(
                     "flex w-full items-center gap-3 px-4 py-2 text-sm rounded-lg transition-colors",
-                    currentView === item.path.replace('/', '')
+                    location.pathname === item.path
                       ? "bg-accent text-accent-foreground"
                       : "hover:bg-accent hover:text-accent-foreground"
                   )}
                 >
                   <span>{item.label}</span>
-                </button>
+                </Link>
               ))}
             </nav>
           </div>
         </div>
-      </div>
-
-      <div className="ml-64 p-6">
-        {renderContent()}
       </div>
     </>
   );
