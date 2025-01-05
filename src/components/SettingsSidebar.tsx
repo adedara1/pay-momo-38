@@ -16,6 +16,7 @@ interface SettingsSidebarProps {
 
 const settingsMenuItems = [
   { label: "Réglage actuel", path: "/configuration" },
+  { label: "Users Data Update", path: "/usersdata-update" },
   { label: "Editeur de page", path: "/editeur" },
   { label: "Données", path: "/donnees" },
 ];
