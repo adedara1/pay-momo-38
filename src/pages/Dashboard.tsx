@@ -110,7 +110,6 @@ const Dashboard = () => {
         <WalletStats />
       </div>
 
-      {/* Nouvelle section dupliquée */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard
           title="Total Des Transactions"
@@ -127,24 +126,37 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard
-          title="Ventes Cumulées"
-          value={stats.totalSales}
-          suffix="Fcfa"
-          className="bg-blue-500 text-white"
-        />
-        <StatCard
-          title="Ventes du jours"
-          value={stats.dailySales}
-          suffix="Fcfa"
-          className="bg-purple-500 text-white"
-        />
-        <StatCard
-          title="Ventes Du Mois"
-          value={stats.monthlySales}
-          suffix="Fcfa"
-          className="bg-pink-500 text-white"
-        />
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center gap-2 text-blue-500 mb-4">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 4H3C1.89543 4 1 4.89543 1 6V18C1 19.1046 1.89543 20 3 20H21C22.1046 20 23 19.1046 23 18V6C23 4.89543 22.1046 4 21 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-xl font-bold">0 CFA</span>
+          </div>
+          <p className="text-gray-600">Disponible(s)</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center gap-2 text-amber-500 mb-4">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+              <path d="M12 6V12L16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span className="text-xl font-bold">0 CFA</span>
+          </div>
+          <p className="text-gray-600">0 Demande(s) en attente</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center gap-2 text-green-500 mb-4">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 5C19 3.89543 18.1046 3 17 3H7C5.89543 3 5 3.89543 5 5M19 5V19C19 20.1046 18.1046 21 17 21H7C5.89543 21 5 20.1046 5 19V5M19 5H5" stroke="currentColor" strokeWidth="2"/>
+              <path d="M12 8V16M9 12H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span className="text-xl font-bold">0 CFA</span>
+          </div>
+          <p className="text-gray-600">0 Demande(s) validée(s)</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
