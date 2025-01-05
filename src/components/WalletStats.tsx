@@ -99,7 +99,7 @@ const WalletStats = () => {
           <div className="flex items-center gap-1 md:gap-[1vw] py-4">
             <Wallet className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-blue-500" />
             <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-blue-500 py-2">
-              {stats.available} CFA
+              {stats.available.toLocaleString()} CFA
             </span>
           </div>
           <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
@@ -113,7 +113,7 @@ const WalletStats = () => {
           <div className="flex items-center gap-1 md:gap-[1vw] py-4">
             <Timer className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-amber-500" />
             <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-amber-500 py-2">
-              {stats.pending} CFA
+              {stats.pending.toLocaleString()} CFA
             </span>
           </div>
           <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
@@ -128,7 +128,7 @@ const WalletStats = () => {
             <div className="flex items-center gap-1 md:gap-[1vw] py-4">
               <PiggyBank className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-green-500" />
               <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-green-500 py-2">
-                {stats.validated} CFA
+                {stats.validated.toLocaleString()} CFA
               </span>
             </div>
             <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
