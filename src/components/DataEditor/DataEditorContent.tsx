@@ -13,7 +13,14 @@ export function DataEditorContent() {
   const { checkSession } = useSession();
 
   const handleSearch = async () => {
-    if (!await checkSession()) return;
+    if (!await checkSession()) {
+      toast({
+        title: "Session expirée",
+        description: "Veuillez vous reconnecter",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsLoading(true);
     try {
