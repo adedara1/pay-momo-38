@@ -37,25 +37,6 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard
-          title="Solde Disponible"
-          value={userStats.available}
-          suffix="Fcfa"
-          className="bg-blue-500 text-white"
-        />
-        <StatCard
-          title="Demandes en attente"
-          value={String(userStats.pending).padStart(2, '0')}
-          className="bg-amber-500 text-white"
-        />
-        <StatCard
-          title="Demandes validées"
-          value={String(userStats.validated).padStart(2, '0')}
-          className="bg-green-500 text-white"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard
           title="Ventes Cumulées"
           value={stats.totalSales}
           suffix="Fcfa"
