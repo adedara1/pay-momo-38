@@ -109,8 +109,7 @@ const Dashboard = () => {
         <WalletStats />
       </div>
 
-      {/* Section masquée comme demandé */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard
           title="Total Des Transactions"
           value={String(stats.totalTransactions).padStart(3, '0')}
@@ -123,7 +122,7 @@ const Dashboard = () => {
           title="Transactions Du Mois"
           value={String(stats.monthlyTransactions).padStart(2, '0')}
         />
-      </div> */}
+      </div>
 
       <DashboardStats stats={stats} />
     </div>
