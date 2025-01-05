@@ -28,7 +28,19 @@ export function DataEditorContent() {
         return;
       }
 
-      setUserData(data);
+      // Mise à jour pour inclure les nouvelles statistiques
+      const updatedData = {
+        ...data,
+        stats: {
+          ...data.stats,
+          availableBalance: data.stats.availableBalance || 0,
+          pendingRequests: data.stats.pendingRequests || 0,
+          validatedRequests: data.stats.validatedRequests || 0
+        }
+      };
+
+      setUserData(updatedData);
+      console.log('Updated user data:', updatedData);
     } catch (error) {
       console.error('Error fetching user data:', error);
       toast({
