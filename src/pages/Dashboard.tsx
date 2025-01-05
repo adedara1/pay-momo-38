@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import StatCard from "@/components/StatCard";
 import WalletStats from "@/components/WalletStats";
 import { useToast } from "@/hooks/use-toast";
 import { useRealtimeUpdates } from "@/hooks/use-realtime-updates";
 import { useStatsSync } from "@/hooks/use-stats-sync";
 import { useQuery } from "@tanstack/react-query";
 import { UserStats } from "@/types/stats";
+import { DashboardStats } from "@/components/DashboardStats";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -31,7 +31,7 @@ const Dashboard = () => {
     totalProducts: 0,
     visibleProducts: 0,
     soldAmount: 0
-  } as UserStats, refetch: refetchStats } = useQuery({
+  } as UserStats } = useQuery({
     queryKey: ['dashboard-stats', userId],
     queryFn: async () => {
       if (!userId) return null;
@@ -43,7 +43,6 @@ const Dashboard = () => {
 
       if (error) throw error;
 
-      // Map database fields to our interface
       return {
         totalSales: data?.sales_total || 0,
         dailySales: data?.daily_sales || 0,
@@ -110,8 +109,8 @@ const Dashboard = () => {
         <WalletStats />
       </div>
 
-      {/* Nouvelle section dupliquée */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* Section masquée comme demandé */}
+      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard
           title="Total Des Transactions"
           value={String(stats.totalTransactions).padStart(3, '0')}
@@ -124,80 +123,9 @@ const Dashboard = () => {
           title="Transactions Du Mois"
           value={String(stats.monthlyTransactions).padStart(2, '0')}
         />
-      </div>
+      </div> */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard
-          title="Ventes Cumulées"
-          value={stats.totalSales}
-          suffix="Fcfa"
-          className="bg-blue-500 text-white"
-        />
-        <StatCard
-          title="Ventes du jours"
-          value={stats.dailySales}
-          suffix="Fcfa"
-          className="bg-purple-500 text-white"
-        />
-        <StatCard
-          title="Ventes Du Mois"
-          value={stats.monthlySales}
-          suffix="Fcfa"
-          className="bg-pink-500 text-white"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard
-          title="Total Des Transactions"
-          value={String(stats.totalTransactions).padStart(3, '0')}
-        />
-        <StatCard
-          title="Transactions Du Jour"
-          value={String(stats.dailyTransactions).padStart(2, '0')}
-        />
-        <StatCard
-          title="Transactions Du Mois"
-          value={String(stats.monthlyTransactions).padStart(2, '0')}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <StatCard
-          title="Ventes du Mois Précédent"
-          value={stats.previousMonthSales}
-          suffix="Fcfa"
-          className="bg-blue-800 text-white"
-        />
-        <StatCard
-          title="Transactions du Mois Précédent"
-          value={String(stats.previousMonthTransactions).padStart(2, '0')}
-          className="bg-purple-800 text-white"
-        />
-        <StatCard
-          title="Croissance Des Ventes"
-          value={stats.salesGrowth.toFixed(1)}
-          suffix="%"
-          className="bg-purple-900 text-white"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard
-          title="Totals Produits"
-          value={String(stats.totalProducts).padStart(3, '0')}
-        />
-        <StatCard
-          title="Totals Produits Visible"
-          value={String(stats.visibleProducts).padStart(2, '0')}
-        />
-        <StatCard
-          title="Solde(s)"
-          value={stats.soldAmount}
-          suffix="Fcfa"
-          className="bg-gray-900 text-white"
-        />
-      </div>
+      <DashboardStats stats={stats} />
     </div>
   );
 };
