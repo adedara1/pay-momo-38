@@ -94,40 +94,48 @@ const WalletStats = () => {
 
   return (
     <div className="grid grid-cols-3 gap-2 md:gap-[2vw]">
-      <Card className="p-4 bg-white rounded-lg shadow">
-        <div className="flex items-center gap-2 mb-2">
-          <Wallet className="w-6 h-6 text-blue-500" />
-          <span className="text-xl font-bold text-blue-500">
-            {stats.available.toLocaleString()} CFA
-          </span>
+      <Card className="p-2 md:p-[2vw] flex items-center justify-between">
+        <div className="space-y-12">
+          <div className="flex items-center gap-1 md:gap-[1vw] py-4">
+            <Wallet className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-blue-500" />
+            <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-blue-500 py-2">
+              {stats.available.toLocaleString()} CFA
+            </span>
+          </div>
+          <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
+            Disponible(s)
+          </p>
         </div>
-        <p className="text-sm text-gray-600">
-          Disponible(s)
-        </p>
       </Card>
 
-      <Card className="p-4 bg-white rounded-lg shadow">
-        <div className="flex items-center gap-2 mb-2">
-          <Timer className="w-6 h-6 text-amber-500" />
-          <span className="text-xl font-bold text-amber-500">
-            {stats.pending.toLocaleString()} CFA
-          </span>
+      <Card className="p-2 md:p-[2vw] flex items-center justify-between">
+        <div className="space-y-12">
+          <div className="flex items-center gap-1 md:gap-[1vw] py-4">
+            <Timer className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-amber-500" />
+            <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-amber-500 py-2">
+              {stats.pending.toLocaleString()} CFA
+            </span>
+          </div>
+          <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
+            {stats.pendingCount} Demande(s) en attente
+          </p>
         </div>
-        <p className="text-sm text-gray-600">
-          {stats.pendingCount} Demande(s) en attente
-        </p>
       </Card>
 
-      <Card className="p-4 bg-white rounded-lg shadow">
-        <div className="flex items-center gap-2 mb-2">
-          <PiggyBank className="w-6 h-6 text-green-500" />
-          <span className="text-xl font-bold text-green-500">
-            {stats.validated.toLocaleString()} CFA
-          </span>
+      <Card className="p-2 md:p-[2vw] flex items-center justify-between">
+        <div className="space-y-12">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-1 md:gap-[1vw] py-4">
+              <PiggyBank className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-green-500" />
+              <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-green-500 py-2">
+                {stats.validated.toLocaleString()} CFA
+              </span>
+            </div>
+            <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
+              {stats.validatedCount} Demande(s) validée(s)
+            </p>
+          </div>
         </div>
-        <p className="text-sm text-gray-600">
-          {stats.validatedCount} Demande(s) validée(s)
-        </p>
       </Card>
     </div>
   );
