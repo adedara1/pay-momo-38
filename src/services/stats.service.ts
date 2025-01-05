@@ -13,6 +13,9 @@ export interface UserStats {
   totalProducts: number;
   visibleProducts: number;
   balance: number;
+  availableBalance: number;
+  pendingRequests: number;
+  validatedRequests: number;
 }
 
 export const statsService = {
@@ -33,6 +36,9 @@ export const statsService = {
         total_products: stats.totalProducts,
         visible_products: stats.visibleProducts,
         balance: stats.balance,
+        available_balance: stats.availableBalance,
+        pending_requests: stats.pendingRequests,
+        validated_requests: stats.validatedRequests,
         updated_at: new Date().toISOString(),
       }, {
         onConflict: 'user_id'
@@ -69,6 +75,9 @@ export const statsService = {
       totalProducts: data.total_products,
       visibleProducts: data.visible_products,
       balance: data.balance,
+      availableBalance: data.available_balance,
+      pendingRequests: data.pending_requests,
+      validatedRequests: data.validated_requests,
     } : null;
   }
 };

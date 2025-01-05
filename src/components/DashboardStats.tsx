@@ -1,6 +1,7 @@
 import StatCard from "@/components/StatCard";
 import { UserStats } from "@/types/stats";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardStatsProps {
@@ -8,72 +9,47 @@ interface DashboardStatsProps {
 }
 
 export const DashboardStats = ({ stats }: DashboardStatsProps) => {
-  const [walletStats, setWalletStats] = useState({
+  const { data: userStats = {
     available: 0,
     pending: 0,
     validated: 0
-  });
-
-  useEffect(() => {
-    const fetchWalletStats = async () => {
+  }} = useQuery({
+    queryKey: ['user-stats'],
+    queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) return null;
 
-      const { data: wallet } = await supabase
-        .from('wallets')
-        .select('*')
+      const { data } = await supabase
+        .from('user_stats')
+        .select('available_balance, pending_requests, validated_requests')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (wallet) {
-        setWalletStats({
-          available: wallet.available || 0,
-          pending: wallet.pending || 0,
-          validated: wallet.validated || 0
-        });
-      }
-    };
-
-    fetchWalletStats();
-
-    // Set up realtime subscription
-    const channel = supabase
-      .channel('wallet-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'wallets'
-        },
-        () => {
-          fetchWalletStats();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+      return {
+        available: data?.available_balance || 0,
+        pending: data?.pending_requests || 0,
+        validated: data?.validated_requests || 0
+      };
+    }
+  });
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard
           title="Solde Disponible"
-          value={walletStats.available}
+          value={userStats.available}
           suffix="Fcfa"
           className="bg-blue-500 text-white"
         />
         <StatCard
           title="Demandes en attente"
-          value={String(walletStats.pending).padStart(2, '0')}
+          value={String(userStats.pending).padStart(2, '0')}
           className="bg-amber-500 text-white"
         />
         <StatCard
           title="Demandes validées"
-          value={String(walletStats.validated).padStart(2, '0')}
+          value={String(userStats.validated).padStart(2, '0')}
           className="bg-green-500 text-white"
         />
       </div>

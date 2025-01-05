@@ -11,4 +11,7 @@ export interface UserStats {
   totalProducts: number;
   visibleProducts: number;
   soldAmount: number;
+  availableBalance?: number;
+  pendingRequests?: number;
+  validatedRequests?: number;
 }

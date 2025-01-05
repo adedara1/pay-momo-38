@@ -388,6 +388,7 @@ export type Database = {
       }
       user_stats: {
         Row: {
+          available_balance: number | null
           balance: number | null
           created_at: string | null
           daily_sales: number | null
@@ -395,6 +396,7 @@ export type Database = {
           id: string
           monthly_sales: number | null
           monthly_transactions: number | null
+          pending_requests: number | null
           previous_month_sales: number | null
           previous_month_transactions: number | null
           sales_growth: number | null
@@ -403,9 +405,11 @@ export type Database = {
           total_transactions: number | null
           updated_at: string | null
           user_id: string | null
+          validated_requests: number | null
           visible_products: number | null
         }
         Insert: {
+          available_balance?: number | null
           balance?: number | null
           created_at?: string | null
           daily_sales?: number | null
@@ -413,6 +417,7 @@ export type Database = {
           id?: string
           monthly_sales?: number | null
           monthly_transactions?: number | null
+          pending_requests?: number | null
           previous_month_sales?: number | null
           previous_month_transactions?: number | null
           sales_growth?: number | null
@@ -421,9 +426,11 @@ export type Database = {
           total_transactions?: number | null
           updated_at?: string | null
           user_id?: string | null
+          validated_requests?: number | null
           visible_products?: number | null
         }
         Update: {
+          available_balance?: number | null
           balance?: number | null
           created_at?: string | null
           daily_sales?: number | null
@@ -431,6 +438,7 @@ export type Database = {
           id?: string
           monthly_sales?: number | null
           monthly_transactions?: number | null
+          pending_requests?: number | null
           previous_month_sales?: number | null
           previous_month_transactions?: number | null
           sales_growth?: number | null
@@ -439,6 +447,7 @@ export type Database = {
           total_transactions?: number | null
           updated_at?: string | null
           user_id?: string | null
+          validated_requests?: number | null
           visible_products?: number | null
         }
         Relationships: [
