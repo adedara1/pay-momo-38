@@ -29,6 +29,7 @@ const ProductPage = () => {
           .from("products")
           .select(`
             *,
+            long_description,
             payment_links (
               id,
               moneroo_token,
@@ -50,7 +51,6 @@ const ProductPage = () => {
         }
 
         console.log("Product fetched:", data);
-        // Assurez-vous que long_description est défini, même si null
         setProduct({
           ...data,
           long_description: data.long_description || null

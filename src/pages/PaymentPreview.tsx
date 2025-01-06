@@ -24,16 +24,18 @@ const PaymentPreview = () => {
     }
 
     try {
+      console.log("Searching for product with payment link ID:", paymentLinkId);
+      
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, long_description") // Added long_description to the query
         .eq("payment_link_id", paymentLinkId)
         .single();
 
       if (error) throw error;
 
       if (data) {
-        // Assurez-vous que long_description est défini, même si null
+        console.log("Product found:", data);
         setProduct({
           ...data,
           long_description: data.long_description || null
