@@ -30,7 +30,7 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
                 <ProductDetails
                   name={product.name}
                   description={product.description}
-                  long_description={product.long_description || null}
+                  long_description={product.long_description}
                   amount={product.amount}
                   imageUrl={product.image_url}
                 />
