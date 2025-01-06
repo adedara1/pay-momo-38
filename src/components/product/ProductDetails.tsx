@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface ProductDetailsProps {
   name: string;
@@ -51,10 +52,13 @@ const ProductDetails = ({ name, description, long_description, amount, imageUrl 
       )}
 
       {long_description && isDetailsVisible && (
-        <div id="long-description" className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Détails du produit</h2>
-          <p className="text-gray-600 whitespace-pre-wrap">{long_description}</p>
-        </div>
+        <>
+          <Separator className="my-4 bg-blue-200 rounded-full h-0.5" />
+          <div id="long-description" className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Détails du produit</h2>
+            <p className="text-gray-600 whitespace-pre-wrap">{long_description}</p>
+          </div>
+        </>
       )}
     </div>
   );
