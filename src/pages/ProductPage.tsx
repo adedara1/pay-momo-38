@@ -118,6 +118,7 @@ const ProductPage = () => {
             <div>
               <ProductPaymentForm
                 amount={product.amount}
+                description={product.description || product.name}
                 onSubmit={handlePayment}
               />
             </div>
