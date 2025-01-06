@@ -18,8 +18,8 @@ const ProductDetails = ({ name, description, amount, imageUrl }: ProductDetailsP
         </div>
       )}
       <h1 className="text-2xl font-bold">{name}</h1>
-      <p className="text-gray-600">{description}</p>
-      <p className="text-xl font-semibold">{amount} XOF</p>
+      <p className="text-xl">{amount} XOF</p>
+      {description && <p className="text-gray-600">{description}</p>}
     </div>
   );
 };

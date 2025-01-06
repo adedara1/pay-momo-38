@@ -116,19 +116,9 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
           />
         </div>
 
-        <div className="flex gap-4">
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="w-full" 
-            onClick={onClose}
-          >
-            Annuler
-          </Button>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Traitement..." : "Continuer"}
-          </Button>
-        </div>
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Traitement..." : "Payer Maintenant"}
+        </Button>
       </form>
     </Card>
   );
