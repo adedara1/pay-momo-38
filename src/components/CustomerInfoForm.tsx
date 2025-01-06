@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, long_de
   const [customerPhone, setCustomerPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+  const detailsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,6 +69,13 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, long_de
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleToggleDetails = () => {
+    setIsDetailsVisible(!isDetailsVisible);
+    if (!isDetailsVisible && detailsRef.current) {
+      detailsRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -125,13 +133,24 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, long_de
         </form>
       </Card>
 
-      {isDetailsVisible && long_description && (
-        <Card className="p-6">
-          <div id="long-description">
-            <h2 className="text-xl font-semibold mb-4">Détails du produit</h2>
-            <p className="text-gray-600 whitespace-pre-wrap">{long_description}</p>
-          </div>
-        </Card>
+      {long_description && (
+        <div>
+          <button
+            onClick={handleToggleDetails}
+            className="text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Voir plus de détails
+          </button>
+          
+          {isDetailsVisible && (
+            <Card className="p-6 mt-4" ref={detailsRef}>
+              <div id="long-description">
+                <h2 className="text-xl font-semibold mb-4">Détails du produit</h2>
+                <p className="text-gray-600 whitespace-pre-wrap">{long_description}</p>
+              </div>
+            </Card>
+          )}
+        </div>
       )}
     </div>
   );
