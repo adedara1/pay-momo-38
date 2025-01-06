@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { Product } from "@/types/product";
 import { SimplePage } from "@/types/simple-page";
 import CustomerInfoForm from "./CustomerInfoForm";
@@ -14,6 +15,7 @@ interface SimplePaymentButtonProps {
 const SimplePaymentButton = ({ product }: SimplePaymentButtonProps) => {
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handlePayNow = () => {
     if (product.amount < 200) {
@@ -46,7 +48,6 @@ const SimplePaymentButton = ({ product }: SimplePaymentButtonProps) => {
             description={product.description || product.name}
             paymentLinkId={product.payment_link_id || ""}
             onClose={() => setShowCustomerForm(false)}
-            long_description={product.long_description || null}
           />
         </DialogContent>
       </Dialog>

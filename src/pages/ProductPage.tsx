@@ -12,7 +12,6 @@ const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -52,7 +51,10 @@ const ProductPage = () => {
         }
 
         console.log("Product fetched:", data);
-        setProduct(data as Product);
+        setProduct({
+          ...data,
+          long_description: data.long_description || null
+        } as Product);
       } catch (err) {
         console.error("Error fetching product:", err);
         setError("Impossible de charger le produit");
@@ -100,8 +102,6 @@ const ProductPage = () => {
               long_description={product.long_description}
               amount={product.amount}
               imageUrl={product.image_url}
-              isDetailsVisible={isDetailsVisible}
-              onToggleDetails={() => setIsDetailsVisible(!isDetailsVisible)}
             />
           </div>
           <div>
@@ -110,7 +110,6 @@ const ProductPage = () => {
               description={product.description || product.name}
               paymentLinkId={product.payment_link_id || ""}
               onClose={() => {}}
-              long_description={product.long_description}
             />
           </div>
         </div>

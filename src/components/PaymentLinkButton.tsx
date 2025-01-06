@@ -3,6 +3,7 @@ import { ShoppingCart, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { v4 as uuidv4 } from 'uuid';
 import { Product } from "@/types/product";
 import { SimplePage } from "@/types/simple-page";
 import CustomerInfoForm from "./CustomerInfoForm";
@@ -88,7 +89,6 @@ const PaymentLinkButton = ({ product }: PaymentLinkButtonProps) => {
             description={product.description || product.name}
             paymentLinkId={product.payment_link_id || ""}
             onClose={() => setShowCustomerForm(false)}
-            long_description={product.long_description || null}
           />
         </DialogContent>
       </Dialog>
