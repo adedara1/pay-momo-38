@@ -20,28 +20,30 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full min-h-[auto] sm:max-w-4xl mx-auto p-0 sm:p-6 border-0 sm:border">
+      <DialogContent className="w-full min-h-screen sm:max-w-none mx-auto p-0">
         <DialogTitle className="sr-only">Détails du produit</DialogTitle>
         <div className="flex flex-col">
-          <div className="grid md:grid-cols-2 gap-8 p-6">
-            {/* Left side - Product details */}
-            <div>
-              <ProductDetails
-                name={product.name}
-                description={product.description}
-                amount={product.amount}
-                imageUrl={product.image_url}
-              />
-            </div>
+          <div className="container mx-auto max-w-4xl">
+            <div className="grid md:grid-cols-2 gap-8 p-6">
+              {/* Left side - Product details */}
+              <div>
+                <ProductDetails
+                  name={product.name}
+                  description={product.description}
+                  amount={product.amount}
+                  imageUrl={product.image_url}
+                />
+              </div>
 
-            {/* Right side - Payment form */}
-            <div className="bg-white rounded-lg">
-              <CustomerInfoForm
-                amount={product.amount}
-                description={product.description || product.name}
-                paymentLinkId={product.payment_link_id || ""}
-                onClose={() => onOpenChange(false)}
-              />
+              {/* Right side - Payment form */}
+              <div>
+                <CustomerInfoForm
+                  amount={product.amount}
+                  description={product.description || product.name}
+                  paymentLinkId={product.payment_link_id || ""}
+                  onClose={() => onOpenChange(false)}
+                />
+              </div>
             </div>
           </div>
         </div>
