@@ -19,6 +19,7 @@ const settingsMenuItems = [
   { label: "Users Data Update", path: "/usersdata-update" },
   { label: "Editeur de page", path: "/editeur" },
   { label: "Données", path: "/donnees" },
+  { label: "Aperçu de page", path: "/page-apercu" },
 ];
 
 const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
