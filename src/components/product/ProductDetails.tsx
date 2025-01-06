@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 interface ProductDetailsProps {
@@ -9,10 +10,18 @@ interface ProductDetailsProps {
 }
 
 const ProductDetails = ({ name, description, long_description, amount, imageUrl }: ProductDetailsProps) => {
-  const scrollToDescription = () => {
-    const element = document.getElementById('long-description');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+
+  const toggleDetails = () => {
+    setIsDetailsVisible(!isDetailsVisible);
+    if (!isDetailsVisible) {
+      // Only scroll when opening
+      setTimeout(() => {
+        const element = document.getElementById('long-description');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
@@ -34,14 +43,14 @@ const ProductDetails = ({ name, description, long_description, amount, imageUrl 
       {long_description && (
         <div 
           className="flex items-center gap-2 text-blue-600 hover:text-blue-800 cursor-pointer"
-          onClick={scrollToDescription}
+          onClick={toggleDetails}
         >
           <h2 className="text-lg">Voir plus de détails</h2>
-          <ChevronDown className="w-5 h-5" />
+          <ChevronDown className={`w-5 h-5 transform transition-transform duration-200 ${isDetailsVisible ? 'rotate-180' : ''}`} />
         </div>
       )}
 
-      {long_description && (
+      {long_description && isDetailsVisible && (
         <div id="long-description" className="mt-8">
           <h2 className="text-xl font-semibold mb-4">Détails du produit</h2>
           <p className="text-gray-600 whitespace-pre-wrap">{long_description}</p>

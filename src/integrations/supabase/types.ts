@@ -161,6 +161,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          long_description: string | null
           name: string
           payment_link_id: string | null
           updated_at: string | null
@@ -172,6 +173,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          long_description?: string | null
           name: string
           payment_link_id?: string | null
           updated_at?: string | null
@@ -183,6 +185,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          long_description?: string | null
           name?: string
           payment_link_id?: string | null
           updated_at?: string | null
