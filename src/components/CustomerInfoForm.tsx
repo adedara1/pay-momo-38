@@ -10,14 +10,16 @@ interface CustomerInfoFormProps {
   description: string;
   paymentLinkId: string;
   onClose: () => void;
+  long_description: string | null;
 }
 
-const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: CustomerInfoFormProps) => {
+const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, long_description }: CustomerInfoFormProps) => {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerFirstName, setCustomerFirstName] = useState("");
   const [customerLastName, setCustomerLastName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,57 +72,68 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
   };
 
   return (
-    <Card className="p-6">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <Input
-            type="email"
-            value={customerEmail}
-            onChange={(e) => setCustomerEmail(e.target.value)}
-            placeholder="email@exemple.com"
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-6">
+      <Card className="p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Prénom</label>
+            <label className="block text-sm font-medium mb-1">Email</label>
             <Input
-              value={customerFirstName}
-              onChange={(e) => setCustomerFirstName(e.target.value)}
-              placeholder="Prénom"
+              type="email"
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              placeholder="email@exemple.com"
               required
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Prénom</label>
+              <Input
+                value={customerFirstName}
+                onChange={(e) => setCustomerFirstName(e.target.value)}
+                placeholder="Prénom"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Nom</label>
+              <Input
+                value={customerLastName}
+                onChange={(e) => setCustomerLastName(e.target.value)}
+                placeholder="Nom"
+                required
+              />
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium mb-1">Nom</label>
+            <label className="block text-sm font-medium mb-1">Téléphone</label>
             <Input
-              value={customerLastName}
-              onChange={(e) => setCustomerLastName(e.target.value)}
-              placeholder="Nom"
+              type="tel"
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="+221 XX XXX XX XX"
               required
             />
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Téléphone</label>
-          <Input
-            type="tel"
-            value={customerPhone}
-            onChange={(e) => setCustomerPhone(e.target.value)}
-            placeholder="+221 XX XXX XX XX"
-            required
-          />
-        </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Traitement..." : "Payer Maintenant"}
+          </Button>
+        </form>
+      </Card>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Traitement..." : "Payer Maintenant"}
-        </Button>
-      </form>
-    </Card>
+      {isDetailsVisible && long_description && (
+        <Card className="p-6">
+          <div id="long-description">
+            <h2 className="text-xl font-semibold mb-4">Détails du produit</h2>
+            <p className="text-gray-600 whitespace-pre-wrap">{long_description}</p>
+          </div>
+        </Card>
+      )}
+    </div>
   );
 };
 

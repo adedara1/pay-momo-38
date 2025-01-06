@@ -7,6 +7,7 @@ import { Product } from "@/types/product";
 import { SimplePage } from "@/types/simple-page";
 import ProductDetails from "@/components/product/ProductDetails";
 import CustomerInfoForm from "@/components/CustomerInfoForm";
+import { useState } from "react";
 
 interface ProductPreviewDialogProps {
   product: Product | SimplePage | null;
@@ -16,6 +17,8 @@ interface ProductPreviewDialogProps {
 }
 
 const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = false }: ProductPreviewDialogProps) => {
+  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+
   if (!product) return null;
 
   return (
@@ -33,6 +36,8 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
                   long_description={product.long_description}
                   amount={product.amount}
                   imageUrl={product.image_url}
+                  isDetailsVisible={isDetailsVisible}
+                  onToggleDetails={() => setIsDetailsVisible(!isDetailsVisible)}
                 />
               </div>
 
@@ -43,6 +48,7 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
                   description={product.description || product.name}
                   paymentLinkId={product.payment_link_id || ""}
                   onClose={() => onOpenChange(false)}
+                  long_description={product.long_description}
                 />
               </div>
             </div>
