@@ -50,7 +50,11 @@ const ProductPage = () => {
         }
 
         console.log("Product fetched:", data);
-        setProduct(data as Product);
+        // Assurez-vous que long_description est défini, même si null
+        setProduct({
+          ...data,
+          long_description: data.long_description || null
+        } as Product);
       } catch (err) {
         console.error("Error fetching product:", err);
         setError("Impossible de charger le produit");
@@ -95,6 +99,7 @@ const ProductPage = () => {
             <ProductDetails
               name={product.name}
               description={product.description}
+              long_description={product.long_description}
               amount={product.amount}
               imageUrl={product.image_url}
             />

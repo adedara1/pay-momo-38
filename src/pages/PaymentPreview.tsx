@@ -33,7 +33,11 @@ const PaymentPreview = () => {
       if (error) throw error;
 
       if (data) {
-        setProduct(data);
+        // Assurez-vous que long_description est défini, même si null
+        setProduct({
+          ...data,
+          long_description: data.long_description || null
+        });
         setIsPreviewOpen(true);
       } else {
         toast({
