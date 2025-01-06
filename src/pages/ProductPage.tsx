@@ -5,7 +5,7 @@ import { Product } from "@/types/product";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import ProductDetails from "@/components/product/ProductDetails";
-import ProductPaymentForm from "@/components/product/ProductPaymentForm";
+import CustomerInfoForm from "@/components/CustomerInfoForm";
 import { useToast } from "@/hooks/use-toast";
 
 const ProductPage = () => {
@@ -63,18 +63,6 @@ const ProductPage = () => {
     fetchProduct();
   }, [id]);
 
-  const handlePayment = (formData: {
-    customerName: string;
-    customerEmail: string;
-    phoneNumber: string;
-    operator: string;
-  }) => {
-    console.log("Payment initiated with:", {
-      ...formData,
-      amount: product?.amount
-    });
-  };
-
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -116,10 +104,11 @@ const ProductPage = () => {
               />
             </div>
             <div>
-              <ProductPaymentForm
+              <CustomerInfoForm
                 amount={product.amount}
                 description={product.description || product.name}
-                onSubmit={handlePayment}
+                paymentLinkId={product.payment_link_id || ""}
+                onClose={() => {}}
               />
             </div>
           </div>

@@ -1,11 +1,12 @@
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Product } from "@/types/product";
 import { SimplePage } from "@/types/simple-page";
 import ProductDetails from "@/components/product/ProductDetails";
-import ProductPaymentForm from "@/components/product/ProductPaymentForm";
+import CustomerInfoForm from "@/components/CustomerInfoForm";
 
 interface ProductPreviewDialogProps {
   product: Product | SimplePage | null;
@@ -20,8 +21,8 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full min-h-[auto] sm:max-w-4xl mx-auto p-0 sm:p-6 border-0 sm:border">
+        <DialogTitle className="sr-only">Détails du produit</DialogTitle>
         <div className="flex flex-col">
-          {/* Product details and payment form */}
           <div className="grid md:grid-cols-2 gap-8 p-6">
             {/* Left side - Product details */}
             <div>
@@ -35,9 +36,11 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
 
             {/* Right side - Payment form */}
             <div className="bg-white rounded-lg">
-              <ProductPaymentForm
+              <CustomerInfoForm
                 amount={product.amount}
                 description={product.description || product.name}
+                paymentLinkId={product.payment_link_id || ""}
+                onClose={() => onOpenChange(false)}
               />
             </div>
           </div>
