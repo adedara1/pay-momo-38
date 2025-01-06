@@ -15,6 +15,7 @@ const ProductForm = () => {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [longDescription, setLongDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("XOF");
   const [image, setImage] = useState<File | null>(null);
@@ -116,6 +117,7 @@ const ProductForm = () => {
         .insert({
           name,
           description,
+          long_description: longDescription || null,
           amount: Math.round(finalAmount),
           image_url: imageUrl,
           user_id: user.id,
@@ -137,6 +139,7 @@ const ProductForm = () => {
       // Reset form
       setName("");
       setDescription("");
+      setLongDescription("");
       setAmount("");
       setImage(null);
       setRedirectUrl("");
@@ -162,6 +165,16 @@ const ProductForm = () => {
           setDescription={setDescription}
         />
         
+        <div>
+          <label className="block text-sm font-medium mb-1">Longue description (optionnel)</label>
+          <textarea
+            value={longDescription}
+            onChange={(e) => setLongDescription(e.target.value)}
+            placeholder="Description détaillée du produit"
+            className="w-full min-h-[100px] p-2 border rounded-md"
+          />
+        </div>
+
         <PriceInput
           currency={currency}
           setCurrency={setCurrency}
