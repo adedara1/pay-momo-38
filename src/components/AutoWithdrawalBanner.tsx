@@ -74,8 +74,8 @@ const AutoWithdrawalBanner = () => {
           onClick={handleToggleAutoTransfer}
         >
           {isAutoTransferEnabled 
-            ? "Désactiver les Retraits automatiques"
-            : "Activer les Retraits automatiques"}
+            ? "Cliquer pour Désactiver"
+            : "Cliquer pour Activer"}
         </Button>
       </div>
     </div>
