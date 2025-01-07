@@ -159,10 +159,10 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
       </Card>
 
       {!isFormVisible && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50 flex justify-center">
           <Button 
             onClick={scrollToForm} 
-            className="w-full bg-green-600 hover:bg-green-700 text-base"
+            className="w-full md:w-[500px] bg-green-600 hover:bg-green-700 text-base"
           >
             <CreditCard className="mr-2 h-5 w-5" />
             Payer {formatAmount(amount)} FCFA
