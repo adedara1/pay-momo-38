@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,34 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
   const [customerLastName, setCustomerLastName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isFormVisible, setIsFormVisible] = useState(true);
+  const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFormVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1, // Form is considered visible when 10% is in view
+      }
+    );
+
+    if (formRef.current) {
+      observer.observe(formRef.current);
+    }
+
+    return () => {
+      if (formRef.current) {
+        observer.unobserve(formRef.current);
+      }
+    };
+  }, []);
+
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,57 +97,68 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
   };
 
   return (
-    <Card className="p-6">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <Input
-            type="email"
-            value={customerEmail}
-            onChange={(e) => setCustomerEmail(e.target.value)}
-            placeholder="email@exemple.com"
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+    <>
+      <Card className="p-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Prénom</label>
+            <label className="block text-sm font-medium mb-1">Email</label>
             <Input
-              value={customerFirstName}
-              onChange={(e) => setCustomerFirstName(e.target.value)}
-              placeholder="Prénom"
+              type="email"
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              placeholder="email@exemple.com"
               required
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Prénom</label>
+              <Input
+                value={customerFirstName}
+                onChange={(e) => setCustomerFirstName(e.target.value)}
+                placeholder="Prénom"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Nom</label>
+              <Input
+                value={customerLastName}
+                onChange={(e) => setCustomerLastName(e.target.value)}
+                placeholder="Nom"
+                required
+              />
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium mb-1">Nom</label>
+            <label className="block text-sm font-medium mb-1">Téléphone</label>
             <Input
-              value={customerLastName}
-              onChange={(e) => setCustomerLastName(e.target.value)}
-              placeholder="Nom"
+              type="tel"
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="+221 XX XXX XX XX"
               required
             />
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Téléphone</label>
-          <Input
-            type="tel"
-            value={customerPhone}
-            onChange={(e) => setCustomerPhone(e.target.value)}
-            placeholder="+221 XX XXX XX XX"
-            required
-          />
-        </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Traitement..." : "Payer Maintenant"}
+          </Button>
+        </form>
+      </Card>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Traitement..." : "Payer Maintenant"}
-        </Button>
-      </form>
-    </Card>
+      {/* Fixed payment button that appears when form is not visible */}
+      {!isFormVisible && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50">
+          <Button onClick={scrollToForm} className="w-full">
+            Payer
+          </Button>
+        </div>
+      )}
+    </>
   );
 };
 
