@@ -28,7 +28,8 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
         setIsFormVisible(entry.isIntersecting);
       },
       {
-        threshold: 0.1, // Form is considered visible when 10% is in view
+        threshold: 0.1,
+        rootMargin: "-50px",
       }
     );
 
@@ -44,7 +45,10 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
   }, []);
 
   const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
+    formRef.current?.scrollIntoView({ 
+      behavior: "smooth",
+      block: "start"
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,7 +86,6 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
 
       console.log("Payment initiated successfully:", paymentData);
 
-      // Redirect to Moneroo payment page
       window.location.href = paymentData.payment_url;
     } catch (error) {
       console.error("Error initiating payment:", error);
@@ -150,10 +153,12 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
         </form>
       </Card>
 
-      {/* Fixed payment button that appears when form is not visible */}
       {!isFormVisible && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50">
-          <Button onClick={scrollToForm} className="w-full">
+          <Button 
+            onClick={scrollToForm} 
+            className="w-full bg-green-600 hover:bg-green-700"
+          >
             Payer
           </Button>
         </div>
