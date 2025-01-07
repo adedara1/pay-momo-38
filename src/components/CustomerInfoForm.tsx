@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { CreditCard } from "lucide-react";
 
 interface CustomerInfoFormProps {
   amount: number;
@@ -99,6 +100,10 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
     }
   };
 
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat('fr-FR').format(amount);
+  };
+
   return (
     <>
       <Card className="p-6">
@@ -157,9 +162,10 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50">
           <Button 
             onClick={scrollToForm} 
-            className="w-full bg-green-600 hover:bg-green-700"
+            className="w-full bg-green-600 hover:bg-green-700 text-base"
           >
-            Payer
+            <CreditCard className="mr-2 h-5 w-5" />
+            Payer {formatAmount(amount)} FCFA
           </Button>
         </div>
       )}
