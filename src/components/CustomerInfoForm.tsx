@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import FloatingPaymentButton from "./FloatingPaymentButton";
 
 interface CustomerInfoFormProps {
   amount: number;
@@ -18,34 +19,8 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
   const [customerLastName, setCustomerLastName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isFormVisible, setIsFormVisible] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsFormVisible(entry.isIntersecting);
-      },
-      {
-        threshold: 0.1, // Form is considered visible when 10% is in view
-      }
-    );
-
-    if (formRef.current) {
-      observer.observe(formRef.current);
-    }
-
-    return () => {
-      if (formRef.current) {
-        observer.unobserve(formRef.current);
-      }
-    };
-  }, []);
-
-  const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,14 +125,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
         </form>
       </Card>
 
-      {/* Fixed payment button that appears when form is not visible */}
-      {!isFormVisible && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50">
-          <Button onClick={scrollToForm} className="w-full">
-            Payer
-          </Button>
-        </div>
-      )}
+      <FloatingPaymentButton formRef={formRef} />
     </>
   );
 };
