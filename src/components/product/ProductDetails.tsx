@@ -53,7 +53,16 @@ const ProductDetails = ({ name, description, long_description, amount, imageUrl 
 
       {long_description && isDetailsVisible && (
         <>
-          <Separator className="my-4 bg-blue-200 rounded-full h-0.5" />
+          <div className="relative py-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-blue-200" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-background px-4">
+                <div className="w-2 h-2 rounded-full bg-blue-200" />
+              </span>
+            </div>
+          </div>
           <div id="long-description" className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Détails du produit</h2>
             <p className="text-gray-600 whitespace-pre-wrap">{long_description}</p>
