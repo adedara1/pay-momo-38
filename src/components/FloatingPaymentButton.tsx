@@ -14,7 +14,9 @@ const FloatingPaymentButton = ({ formRef }: FloatingPaymentButtonProps) => {
         setIsFormVisible(entry.isIntersecting);
       },
       {
-        threshold: 0.1, // Form is considered visible when 10% is in view
+        threshold: 0.1,
+        root: null,
+        rootMargin: "0px"
       }
     );
 
@@ -30,7 +32,12 @@ const FloatingPaymentButton = ({ formRef }: FloatingPaymentButtonProps) => {
   }, [formRef]);
 
   const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ 
+        behavior: "smooth",
+        block: "start"
+      });
+    }
   };
 
   if (isFormVisible) {

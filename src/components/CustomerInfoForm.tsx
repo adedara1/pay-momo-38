@@ -56,8 +56,6 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
       if (paymentError) throw paymentError;
 
       console.log("Payment initiated successfully:", paymentData);
-
-      // Redirect to Moneroo payment page
       window.location.href = paymentData.payment_url;
     } catch (error) {
       console.error("Error initiating payment:", error);
