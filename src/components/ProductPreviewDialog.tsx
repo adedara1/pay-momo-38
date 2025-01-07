@@ -25,6 +25,7 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
         <div className="flex flex-col">
           <div className="container mx-auto max-w-4xl">
             <div className="grid md:grid-cols-2 gap-8 p-6">
+              {/* Left side - Product details */}
               <div>
                 <ProductDetails
                   name={product.name}
@@ -35,6 +36,7 @@ const ProductPreviewDialog = ({ product, open, onOpenChange, isSimplePayment = f
                 />
               </div>
 
+              {/* Right side - Payment form */}
               <div>
                 <CustomerInfoForm
                   amount={product.amount}
