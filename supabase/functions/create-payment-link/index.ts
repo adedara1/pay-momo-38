@@ -20,6 +20,7 @@ interface PaymentRequest {
   currency?: string;
   redirect_url?: string | null;
   customer?: CustomerInfo;
+  allow_custom_amount?: boolean;
 }
 
 serve(async (req) => {
@@ -35,7 +36,8 @@ serve(async (req) => {
       payment_type, 
       currency = "XOF",
       redirect_url,
-      customer = {}
+      customer = {},
+      allow_custom_amount = false
     } = await req.json() as PaymentRequest
     
     console.log('Request payload:', { 
@@ -44,11 +46,19 @@ serve(async (req) => {
       payment_type, 
       currency,
       redirect_url,
-      customer 
+      customer,
+      allow_custom_amount 
     })
 
     // Validate amount only if it's not a custom amount product
-    if (amount < 200 && amount !== 0) {
+    if (!allow_custom_amount && amount < 200) {
+      console.error('Invalid amount for fixed price product:', amount)
+      throw new Error('Le montant minimum est de 200 FCFA')
+    }
+
+    // For custom amount products, validate the amount if provided
+    if (allow_custom_amount && amount !== 0 && amount < 200) {
+      console.error('Invalid custom amount:', amount)
       throw new Error('Le montant minimum est de 200 FCFA')
     }
 
@@ -72,6 +82,7 @@ serve(async (req) => {
       return_url: redirect_url || `${Deno.env.get('SUPABASE_URL')}/products`,
       metadata: {
         payment_type: payment_type,
+        allow_custom_amount: allow_custom_amount
       }
     }
 
