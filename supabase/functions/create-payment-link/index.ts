@@ -47,6 +47,11 @@ serve(async (req) => {
       customer 
     })
 
+    // Validate amount only if it's not a custom amount product
+    if (amount < 200 && amount !== 0) {
+      throw new Error('Le montant minimum est de 200 FCFA')
+    }
+
     // Create Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -55,7 +60,7 @@ serve(async (req) => {
 
     // Initialize payment with Moneroo
     const monerooPayload = {
-      amount: amount,
+      amount: amount || 0, // Use 0 for custom amount products
       currency: currency,
       description: description,
       customer: {
@@ -117,7 +122,7 @@ serve(async (req) => {
     const { data: paymentLink, error: dbError } = await supabaseClient
       .from('payment_links')
       .insert({
-        amount: amount,
+        amount: amount || 0, // Use 0 for custom amount products
         description: description,
         payment_type: payment_type,
         moneroo_token: monerooData.data.id,
