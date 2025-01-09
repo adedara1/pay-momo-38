@@ -5,13 +5,14 @@ import ProductForm from "@/components/ProductForm";
 import ProductCard from "@/components/product/ProductCard";
 import { Product } from "@/types/product";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil, Plus } from "lucide-react";
+import { Trash2, Pencil, Plus, LayoutGrid, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const Blog = () => {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -125,16 +126,75 @@ const Blog = () => {
         <p className="text-sm text-gray-500 mb-4">
           Cliquer sur un produit pour le modifier ou le supprimer
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products?.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product}
-              isSelected={selectedProducts.includes(product.id)}
-              onSelect={() => handleProductSelect(product.id)}
-            />
-          ))}
+        
+        <div className="flex gap-2 mb-4">
+          <Button
+            variant={viewMode === 'grid' ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode('grid')}
+            className="gap-2"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            Vue en Cartes
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="gap-2"
+          >
+            <List className="h-4 w-4" />
+            Vue en Liste
+          </Button>
         </div>
+
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products?.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                product={product}
+                isSelected={selectedProducts.includes(product.id)}
+                onSelect={() => handleProductSelect(product.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Nom</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Description</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Montant</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products?.map((product) => (
+                  <tr 
+                    key={product.id}
+                    onClick={() => handleProductSelect(product.id)}
+                    className={`border-b cursor-pointer hover:bg-gray-50 transition-colors ${
+                      selectedProducts.includes(product.id) ? "bg-blue-50" : ""
+                    }`}
+                  >
+                    <td className="px-6 py-4 text-sm font-medium">{product.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                      {product.description}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-blue-600">
+                      {product.amount} FCFA
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {new Date(product.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
