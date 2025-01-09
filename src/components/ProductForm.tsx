@@ -9,6 +9,8 @@ import { PriceCalculator } from "./PriceCalculator";
 import { ProductImageInput } from "./product/ProductImageInput";
 import { ProductBasicInfo } from "./product/ProductBasicInfo";
 import { RedirectUrlInput } from "./product/RedirectUrlInput";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
 
 const ProductForm = () => {
   const { toast } = useToast();
@@ -22,6 +24,7 @@ const ProductForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [feePercentage, setFeePercentage] = useState(0);
   const [redirectUrl, setRedirectUrl] = useState("");
+  const [allowCustomAmount, setAllowCustomAmount] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -60,7 +63,7 @@ const ProductForm = () => {
   const createProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (parseInt(amount) < 200) {
+    if (!allowCustomAmount && parseInt(amount) < 200) {
       toast({
         title: "Montant invalide",
         description: "Le montant minimum est de 200 FCFA",
@@ -95,7 +98,7 @@ const ProductForm = () => {
         imageUrl = publicUrl;
       }
 
-      const finalAmount = amount ? parseFloat(amount) + (parseFloat(amount) * feePercentage / 100) : 0;
+      const finalAmount = allowCustomAmount ? 0 : (amount ? parseFloat(amount) + (parseFloat(amount) * feePercentage / 100) : 0);
 
       const { data: paymentLinkData, error: paymentLinkError } = await supabase.functions.invoke(
         "create-payment-link",
@@ -121,7 +124,8 @@ const ProductForm = () => {
           amount: Math.round(finalAmount),
           image_url: imageUrl,
           user_id: user.id,
-          payment_link_id: paymentLinkData.payment_link_id
+          payment_link_id: paymentLinkData.payment_link_id,
+          allow_custom_amount: allowCustomAmount
         })
         .select()
         .single();
@@ -143,6 +147,7 @@ const ProductForm = () => {
       setAmount("");
       setImage(null);
       setRedirectUrl("");
+      setAllowCustomAmount(false);
     } catch (error) {
       console.error("Error creating product:", error);
       toast({
@@ -175,19 +180,34 @@ const ProductForm = () => {
           />
         </div>
 
-        <PriceInput
-          currency={currency}
-          setCurrency={setCurrency}
-          amount={amount}
-          setAmount={setAmount}
-        />
-
-        {amount && (
-          <PriceCalculator
-            amount={amount}
-            feePercentage={feePercentage}
-            currency={currency}
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="allowCustomAmount"
+            checked={allowCustomAmount}
+            onCheckedChange={(checked) => setAllowCustomAmount(checked as boolean)}
           />
+          <Label htmlFor="allowCustomAmount">
+            Permettez à votre client d'entrer le montant qu'il souhaite payer
+          </Label>
+        </div>
+
+        {!allowCustomAmount && (
+          <>
+            <PriceInput
+              currency={currency}
+              setCurrency={setCurrency}
+              amount={amount}
+              setAmount={setAmount}
+            />
+
+            {amount && (
+              <PriceCalculator
+                amount={amount}
+                feePercentage={feePercentage}
+                currency={currency}
+              />
+            )}
+          </>
         )}
 
         <RedirectUrlInput

@@ -156,6 +156,7 @@ export type Database = {
       }
       products: {
         Row: {
+          allow_custom_amount: boolean
           amount: number
           created_at: string | null
           description: string | null
@@ -168,6 +169,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          allow_custom_amount?: boolean
           amount: number
           created_at?: string | null
           description?: string | null
@@ -180,6 +182,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          allow_custom_amount?: boolean
           amount?: number
           created_at?: string | null
           description?: string | null
