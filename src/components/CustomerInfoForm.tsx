@@ -67,6 +67,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, allowCu
           description: "Le montant minimum est de 200 FCFA",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
@@ -96,9 +97,16 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, allowCu
         }
       );
 
-      if (paymentError) throw paymentError;
+      if (paymentError) {
+        console.error("Payment error:", paymentError);
+        throw paymentError;
+      }
 
       console.log("Payment initiated successfully:", paymentData);
+
+      if (!paymentData.payment_url) {
+        throw new Error("URL de paiement manquante dans la réponse");
+      }
 
       window.location.href = paymentData.payment_url;
     } catch (error) {
