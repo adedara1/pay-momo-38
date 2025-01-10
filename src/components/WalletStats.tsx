@@ -37,14 +37,57 @@ const WalletStats = () => {
     queryFn: async () => {
       if (!userId) return null;
 
-      // Fetch wallet data
+      // First check if wallet exists, if not create it
       const { data: wallet, error: walletError } = await supabase
         .from('wallets')
         .select('available, pending, validated')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-      if (walletError) throw walletError;
+      if (!wallet) {
+        // Create default wallet
+        const { data: newWallet, error: createError } = await supabase
+          .from('wallets')
+          .insert({
+            user_id: userId,
+            available: 0,
+            pending: 0,
+            validated: 0
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        console.log('Created new wallet:', newWallet);
+      }
+
+      if (walletError && walletError.code !== 'PGRST116') throw walletError;
+
+      // Check if stats exist, if not create them
+      const { data: userStats, error: statsError } = await supabase
+        .from('user_stats')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (!userStats) {
+        // Create default stats
+        const { data: newStats, error: createStatsError } = await supabase
+          .from('user_stats')
+          .insert({
+            user_id: userId,
+            available_balance: 0,
+            pending_requests: 0,
+            validated_requests: 0
+          })
+          .select()
+          .single();
+
+        if (createStatsError) throw createStatsError;
+        console.log('Created new user stats:', newStats);
+      }
+
+      if (statsError && statsError.code !== 'PGRST116') throw statsError;
 
       // Fetch transactions to count pending and validated requests
       const { data: transactions, error: transError } = await supabase
