@@ -37,76 +37,104 @@ const WalletStats = () => {
     queryFn: async () => {
       if (!userId) return null;
 
-      // First check if wallet exists, if not create it
-      const { data: wallet, error: walletError } = await supabase
-        .from('wallets')
-        .select('available, pending, validated')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (!wallet) {
-        // Create default wallet
-        const { data: newWallet, error: createError } = await supabase
+      try {
+        // First check if wallet exists, if not create it
+        const { data: wallet, error: walletError } = await supabase
           .from('wallets')
-          .insert({
-            user_id: userId,
-            available: 0,
-            pending: 0,
-            validated: 0
-          })
-          .select()
-          .single();
+          .select('available, pending, validated')
+          .eq('user_id', userId)
+          .maybeSingle();
 
-        if (createError) throw createError;
-        console.log('Created new wallet:', newWallet);
-      }
+        if (walletError && walletError.code !== 'PGRST116') {
+          console.error('Error fetching wallet:', walletError);
+          throw walletError;
+        }
 
-      if (walletError && walletError.code !== 'PGRST116') throw walletError;
+        if (!wallet) {
+          // Create default wallet
+          const { data: newWallet, error: createError } = await supabase
+            .from('wallets')
+            .insert({
+              user_id: userId,
+              available: 0,
+              pending: 0,
+              validated: 0
+            })
+            .select()
+            .single();
 
-      // Check if stats exist, if not create them
-      const { data: userStats, error: statsError } = await supabase
-        .from('user_stats')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
+          if (createError) {
+            console.error('Error creating wallet:', createError);
+            throw createError;
+          }
+          console.log('Created new wallet:', newWallet);
+        }
 
-      if (!userStats) {
-        // Create default stats
-        const { data: newStats, error: createStatsError } = await supabase
+        // Check if stats exist, if not create them
+        const { data: userStats, error: statsError } = await supabase
           .from('user_stats')
-          .insert({
-            user_id: userId,
-            available_balance: 0,
-            pending_requests: 0,
-            validated_requests: 0
-          })
-          .select()
-          .single();
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
 
-        if (createStatsError) throw createStatsError;
-        console.log('Created new user stats:', newStats);
+        if (statsError && statsError.code !== 'PGRST116') {
+          console.error('Error fetching stats:', statsError);
+          throw statsError;
+        }
+
+        if (!userStats) {
+          // Create default stats
+          const { data: newStats, error: createStatsError } = await supabase
+            .from('user_stats')
+            .insert({
+              user_id: userId,
+              available_balance: 0,
+              pending_requests: 0,
+              validated_requests: 0
+            })
+            .select()
+            .single();
+
+          if (createStatsError) {
+            console.error('Error creating stats:', createStatsError);
+            throw createStatsError;
+          }
+          console.log('Created new user stats:', newStats);
+        }
+
+        // Fetch transactions to count pending and validated requests
+        const { data: transactions, error: transError } = await supabase
+          .from('transactions')
+          .select('status')
+          .eq('user_id', userId);
+
+        if (transError) {
+          console.error('Error fetching transactions:', transError);
+          throw transError;
+        }
+
+        const pendingTransactions = transactions?.filter(t => t.status === 'pending') || [];
+        const validatedTransactions = transactions?.filter(t => t.status === 'completed') || [];
+
+        // Return the wallet data (either existing or newly created)
+        const currentWallet = wallet || { available: 0, pending: 0, validated: 0 };
+
+        return {
+          available: currentWallet.available,
+          pending: currentWallet.pending,
+          validated: currentWallet.validated,
+          pendingCount: pendingTransactions.length,
+          validatedCount: validatedTransactions.length
+        };
+      } catch (error) {
+        console.error('Error in wallet stats query:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load wallet stats. Please try again later.",
+          variant: "destructive",
+        });
+        throw error;
       }
-
-      if (statsError && statsError.code !== 'PGRST116') throw statsError;
-
-      // Fetch transactions to count pending and validated requests
-      const { data: transactions, error: transError } = await supabase
-        .from('transactions')
-        .select('status')
-        .eq('user_id', userId);
-
-      if (transError) throw transError;
-
-      const pendingTransactions = transactions?.filter(t => t.status === 'pending') || [];
-      const validatedTransactions = transactions?.filter(t => t.status === 'completed') || [];
-
-      return {
-        available: wallet?.available || 0,
-        pending: wallet?.pending || 0,
-        validated: wallet?.validated || 0,
-        pendingCount: pendingTransactions.length,
-        validatedCount: validatedTransactions.length
-      };
     },
     enabled: !!userId
   });
