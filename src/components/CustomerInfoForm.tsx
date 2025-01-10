@@ -11,15 +11,13 @@ interface CustomerInfoFormProps {
   description: string;
   paymentLinkId: string;
   onClose: () => void;
-  allowCustomAmount?: boolean;
 }
 
-const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, allowCustomAmount = false }: CustomerInfoFormProps) => {
+const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: CustomerInfoFormProps) => {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerFirstName, setCustomerFirstName] = useState("");
   const [customerLastName, setCustomerLastName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [customAmount, setCustomAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
@@ -59,9 +57,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, allowCu
     setIsLoading(true);
 
     try {
-      const finalAmount = allowCustomAmount ? parseInt(customAmount) : amount;
-
-      if (finalAmount < 200) {
+      if (amount < 200) {
         toast({
           title: "Montant invalide",
           description: "Le montant minimum est de 200 FCFA",
@@ -72,7 +68,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, allowCu
       }
 
       console.log("Initiating payment with customer info:", {
-        amount: finalAmount,
+        amount,
         description,
         customerEmail,
         customerFirstName,
@@ -84,7 +80,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, allowCu
         "create-payment-link",
         {
           body: {
-            amount: finalAmount,
+            amount,
             description,
             payment_type: "product",
             customer: {
@@ -173,20 +169,6 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, allowCu
             />
           </div>
 
-          {allowCustomAmount && (
-            <div>
-              <label className="block text-sm font-medium mb-1">Montant</label>
-              <Input
-                type="number"
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                placeholder="Minimum 200 FCFA"
-                min="200"
-                required
-              />
-            </div>
-          )}
-
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Traitement..." : "Payer Maintenant"}
           </Button>
@@ -200,7 +182,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, allowCu
             className="w-full md:w-[500px] bg-green-600 hover:bg-green-700 text-base"
           >
             <CreditCard className="mr-2 h-5 w-5" />
-            {allowCustomAmount ? "Payer" : `Payer ${formatAmount(amount)} FCFA`}
+            Payer {formatAmount(amount)} FCFA
           </Button>
         </div>
       )}
