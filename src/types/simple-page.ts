@@ -4,7 +4,7 @@ export interface SimplePage {
   id: string;
   name: string;
   description: string | null;
-  long_description: string | null;
+  long_description?: string | null; // Make it optional since it's not in DB
   amount: number;
   image_url: string | null;
   payment_link_id: string | null;

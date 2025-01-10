@@ -4,7 +4,7 @@ import { ShoppingCart, Bell, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Order {
@@ -13,7 +13,7 @@ interface Order {
   customer_name: string | null;
   customer_contact: string | null;
   processed: boolean;
-  product: {
+  product?: {
     name: string;
     image_url: string | null;
   } | null;
@@ -21,7 +21,6 @@ interface Order {
 
 const Orders = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: orders, isLoading } = useQuery({
@@ -36,7 +35,7 @@ const Orders = () => {
           customer_name,
           customer_contact,
           processed,
-          product:product_id (
+          products:product_id (
             name,
             image_url
           )
@@ -68,8 +67,6 @@ const Orders = () => {
         title: "Succès",
         description: "La commande a été marquée comme traitée",
       });
-
-      queryClient.invalidateQueries({ queryKey: ['unprocessed-orders'] });
     } catch (error) {
       console.error('Error marking order as processed:', error);
       toast({
