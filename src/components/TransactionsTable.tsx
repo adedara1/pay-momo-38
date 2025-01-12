@@ -15,7 +15,7 @@ const TransactionsTable = () => {
         .from("transactions")
         .select(`
           *,
-          profile:user_id (
+          profiles (
             first_name,
             last_name
           )
@@ -117,11 +117,11 @@ const TransactionsTable = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  {transaction.profile?.first_name} {transaction.profile?.last_name}
+                  {transaction.profiles?.first_name} {transaction.profiles?.last_name}
                 </TableCell>
                 <TableCell>
-                  <span className={getStatusClass(transaction.status || '')}>
-                    {getStatusText(transaction.status || '')}
+                  <span className={getStatusClass(transaction.status)}>
+                    {getStatusText(transaction.status)}
                   </span>
                 </TableCell>
                 <TableCell>

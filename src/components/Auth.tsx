@@ -19,7 +19,7 @@ const Auth = () => {
             .from('profiles')
             .select('first_name, last_name')
             .eq('id', session.user.id)
-            .maybeSingle();
+            .single();
 
           if (profileError) {
             console.error('Profile fetch error:', profileError);
@@ -35,8 +35,7 @@ const Auth = () => {
             throw profileError;
           }
 
-          // If no profile exists or profile is incomplete
-          if (!profile || !profile.first_name || !profile.last_name) {
+          if (!profile?.first_name || !profile?.last_name) {
             navigate("/profile");
           } else {
             navigate("/home");
@@ -60,15 +59,13 @@ const Auth = () => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-          const { data: profile, error: profileError } = await supabase
+          const { data: profile } = await supabase
             .from('profiles')
             .select('first_name, last_name')
             .eq('id', session.user.id)
-            .maybeSingle();
+            .single();
 
-          if (profileError) throw profileError;
-
-          if (!profile || !profile.first_name || !profile.last_name) {
+          if (!profile?.first_name || !profile?.last_name) {
             navigate("/profile");
           } else {
             navigate("/home");
