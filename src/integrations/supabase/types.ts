@@ -9,7 +9,468 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      payment_links: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          moneroo_token: string | null
+          payment_type: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          moneroo_token?: string | null
+          payment_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          moneroo_token?: string | null
+          payment_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_links_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          customer_email: string | null
+          customer_first_name: string | null
+          customer_last_name: string | null
+          customer_phone: string | null
+          description: string | null
+          id: string
+          method: string | null
+          moneroo_payout_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          customer_email?: string | null
+          customer_first_name?: string | null
+          customer_last_name?: string | null
+          customer_phone?: string | null
+          description?: string | null
+          id?: string
+          method?: string | null
+          moneroo_payout_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          customer_email?: string | null
+          customer_first_name?: string | null
+          customer_last_name?: string | null
+          customer_phone?: string | null
+          description?: string | null
+          id?: string
+          method?: string | null
+          moneroo_payout_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          long_description: string | null
+          name: string
+          payment_link_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          long_description?: string | null
+          name: string
+          payment_link_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          long_description?: string | null
+          name?: string
+          payment_link_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_payment_link_id_fkey"
+            columns: ["payment_link_id"]
+            isOneToOne: false
+            referencedRelation: "payment_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          auto_transfer: boolean | null
+          business_sector: string | null
+          city: string | null
+          company_description: string | null
+          company_email: string | null
+          company_name: string | null
+          country: string | null
+          created_at: string | null
+          document_number: string | null
+          document_url: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          momo_number: string | null
+          momo_provider: string | null
+          phone_number: string | null
+          updated_at: string | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          auto_transfer?: boolean | null
+          business_sector?: string | null
+          city?: string | null
+          company_description?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string | null
+          document_number?: string | null
+          document_url?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          momo_number?: string | null
+          momo_provider?: string | null
+          phone_number?: string | null
+          updated_at?: string | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          auto_transfer?: boolean | null
+          business_sector?: string | null
+          city?: string | null
+          company_description?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string | null
+          document_number?: string | null
+          document_url?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          momo_number?: string | null
+          momo_provider?: string | null
+          phone_number?: string | null
+          updated_at?: string | null
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_fee_percentage: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_fee_percentage?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_fee_percentage?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simple_pages: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          payment_link_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          payment_link_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          payment_link_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "simple_pages_payment_link_id_fkey"
+            columns: ["payment_link_id"]
+            isOneToOne: false
+            referencedRelation: "payment_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "simple_pages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          customer_contact: string | null
+          customer_name: string | null
+          id: string
+          moneroo_reference: string | null
+          status: string | null
+          type: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          customer_contact?: string | null
+          customer_name?: string | null
+          id?: string
+          moneroo_reference?: string | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          customer_contact?: string | null
+          customer_name?: string | null
+          id?: string
+          moneroo_reference?: string | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_stats: {
+        Row: {
+          available_balance: number | null
+          balance: number | null
+          created_at: string | null
+          daily_sales: number | null
+          daily_transactions: number | null
+          id: string
+          monthly_sales: number | null
+          monthly_transactions: number | null
+          pending_requests: number | null
+          previous_month_sales: number | null
+          previous_month_transactions: number | null
+          sales_growth: number | null
+          sales_total: number | null
+          total_products: number | null
+          total_transactions: number | null
+          updated_at: string | null
+          user_id: string | null
+          validated_requests: number | null
+          visible_products: number | null
+        }
+        Insert: {
+          available_balance?: number | null
+          balance?: number | null
+          created_at?: string | null
+          daily_sales?: number | null
+          daily_transactions?: number | null
+          id?: string
+          monthly_sales?: number | null
+          monthly_transactions?: number | null
+          pending_requests?: number | null
+          previous_month_sales?: number | null
+          previous_month_transactions?: number | null
+          sales_growth?: number | null
+          sales_total?: number | null
+          total_products?: number | null
+          total_transactions?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          validated_requests?: number | null
+          visible_products?: number | null
+        }
+        Update: {
+          available_balance?: number | null
+          balance?: number | null
+          created_at?: string | null
+          daily_sales?: number | null
+          daily_transactions?: number | null
+          id?: string
+          monthly_sales?: number | null
+          monthly_transactions?: number | null
+          pending_requests?: number | null
+          previous_month_sales?: number | null
+          previous_month_transactions?: number | null
+          sales_growth?: number | null
+          sales_total?: number | null
+          total_products?: number | null
+          total_transactions?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          validated_requests?: number | null
+          visible_products?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          available: number | null
+          created_at: string | null
+          id: string
+          pending: number | null
+          updated_at: string | null
+          user_id: string | null
+          validated: number | null
+        }
+        Insert: {
+          available?: number | null
+          created_at?: string | null
+          id?: string
+          pending?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          validated?: number | null
+        }
+        Update: {
+          available?: number | null
+          created_at?: string | null
+          id?: string
+          pending?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          validated?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
