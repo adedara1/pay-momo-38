@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       payment_links: {
         Row: {
           amount: number
@@ -173,6 +191,7 @@ export type Database = {
           city: string | null
           company_description: string | null
           company_email: string | null
+          company_logo_url: string | null
           company_name: string | null
           country: string | null
           created_at: string | null
@@ -193,6 +212,7 @@ export type Database = {
           city?: string | null
           company_description?: string | null
           company_email?: string | null
+          company_logo_url?: string | null
           company_name?: string | null
           country?: string | null
           created_at?: string | null
@@ -213,6 +233,7 @@ export type Database = {
           city?: string | null
           company_description?: string | null
           company_email?: string | null
+          company_logo_url?: string | null
           company_name?: string | null
           country?: string | null
           created_at?: string | null
@@ -268,6 +289,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          long_description: string | null
           name: string
           payment_link_id: string | null
           updated_at: string | null
@@ -279,6 +301,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          long_description?: string | null
           name: string
           payment_link_id?: string | null
           updated_at?: string | null
@@ -290,6 +313,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          long_description?: string | null
           name?: string
           payment_link_id?: string | null
           updated_at?: string | null
@@ -320,6 +344,8 @@ export type Database = {
           customer_name: string | null
           id: string
           moneroo_reference: string | null
+          processed: boolean | null
+          product_id: string | null
           status: string | null
           type: string | null
           updated_at: string | null
@@ -332,6 +358,8 @@ export type Database = {
           customer_name?: string | null
           id?: string
           moneroo_reference?: string | null
+          processed?: boolean | null
+          product_id?: string | null
           status?: string | null
           type?: string | null
           updated_at?: string | null
@@ -344,12 +372,21 @@ export type Database = {
           customer_name?: string | null
           id?: string
           moneroo_reference?: string | null
+          processed?: boolean | null
+          product_id?: string | null
           status?: string | null
           type?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transactions_user_id_fkey"
             columns: ["user_id"]

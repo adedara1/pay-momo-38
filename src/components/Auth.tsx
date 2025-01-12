@@ -4,6 +4,7 @@ import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const Auth = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
+      console.log('Auth state changed:', event, session);
       
       if (event === "SIGNED_IN" && session?.user?.id) {
         try {
@@ -42,9 +43,24 @@ const Auth = () => {
           }
         } catch (error) {
           console.error('Error during sign in:', error);
+          let errorMessage = "Une erreur est survenue lors de la connexion";
+          
+          if (error instanceof AuthError) {
+            switch (error.message) {
+              case 'Failed to fetch':
+                errorMessage = "Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.";
+                break;
+              case 'Invalid login credentials':
+                errorMessage = "Identifiants invalides. Veuillez réessayer.";
+                break;
+              default:
+                errorMessage = error.message;
+            }
+          }
+          
           toast({
             title: "Erreur",
-            description: "Une erreur est survenue lors de la connexion",
+            description: errorMessage,
             variant: "destructive",
           });
         }
@@ -57,6 +73,7 @@ const Auth = () => {
     const checkExistingSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('Existing session:', session);
         
         if (session?.user) {
           const { data: profile } = await supabase
@@ -73,6 +90,13 @@ const Auth = () => {
         }
       } catch (error) {
         console.error('Error checking existing session:', error);
+        if (error instanceof AuthError && error.message === 'Failed to fetch') {
+          toast({
+            title: "Erreur de connexion",
+            description: "Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.",
+            variant: "destructive",
+          });
+        }
       }
     };
 
