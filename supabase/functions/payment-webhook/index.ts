@@ -6,24 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-console.log('Payment webhook function initialized')
-
 serve(async (req) => {
-  // Log every incoming request
-  console.log('Received webhook request:', {
-    method: req.method,
-    url: req.url,
-    headers: Object.fromEntries(req.headers.entries())
-  })
-
   if (req.method === 'OPTIONS') {
-    console.log('Handling OPTIONS request')
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
     const payload = await req.json()
-    console.log('Webhook payload received:', JSON.stringify(payload, null, 2))
+    console.log('Webhook payload:', payload)
 
     // Créer le client Supabase
     const supabaseClient = createClient(
@@ -55,8 +45,6 @@ serve(async (req) => {
       throw paymentLinkError
     }
 
-    console.log('Payment link found:', paymentLink)
-
     // Récupérer les informations de l'utilisateur
     const { data: userProfile, error: userError } = await supabaseClient
       .from('profiles')
@@ -69,8 +57,6 @@ serve(async (req) => {
       throw userError
     }
 
-    console.log('User profile found:', userProfile)
-
     // Récupérer les paramètres de frais
     const { data: settings, error: settingsError } = await supabaseClient
       .from('settings')
@@ -82,8 +68,6 @@ serve(async (req) => {
       console.error('Error fetching settings:', settingsError)
       throw settingsError
     }
-
-    console.log('Settings found:', settings)
 
     // Calculer le montant net après frais
     const feePercentage = settings?.product_fee_percentage || 0
