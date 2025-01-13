@@ -276,8 +276,16 @@ const ProfileForm = () => {
             <TabsContent value="withdrawal" className="space-y-4">
               <WithdrawalInfoStep
                 {...withdrawalInfo}
-                onChange={(field, value) =>
-                  setWithdrawalInfo(prev => ({ ...prev, [field]: typeof value === 'boolean' ? value : value }))
+                onSave={(data) =>
+                  setWithdrawalInfo(prev => ({
+                    ...prev,
+                    momoProvider: data.momo_provider,
+                    momoNumber: data.momo_number,
+                    autoTransfer: data.auto_transfer,
+                    withdrawalFirstName: data.first_name,
+                    withdrawalLastName: data.last_name,
+                    withdrawalEmail: data.company_email,
+                  }))
                 }
                 onBack={handleBack}
               />
