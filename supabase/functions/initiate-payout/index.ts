@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,8 +21,8 @@ serve(async (req) => {
       throw new Error('MONEROO_PAYOUT_KEY is not configured')
     }
 
-    // Appel à l'API Moneroo pour initier le paiement
-    const monerooResponse = await fetch('https://api.moneroo.io/v1/payouts', {
+    // Updated to use the correct Moneroo API endpoint
+    const monerooResponse = await fetch('https://api.moneroo.io/api/v1/payouts', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${monerooPayoutKey}`,
