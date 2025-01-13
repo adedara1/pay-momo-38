@@ -58,9 +58,6 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Clear any stored session data
-      await supabase.auth.clearSession();
-      
       navigate("/auth");
       setIsCollapsed(true);
     } catch (error) {
