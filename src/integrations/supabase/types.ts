@@ -211,7 +211,9 @@ export type Database = {
           company_logo_url: string | null
           company_name: string | null
           country: string | null
+          country_iso: string | null
           created_at: string | null
+          currency_iso: string | null
           document_number: string | null
           document_url: string | null
           first_name: string
@@ -231,7 +233,9 @@ export type Database = {
           company_logo_url?: string | null
           company_name?: string | null
           country?: string | null
+          country_iso?: string | null
           created_at?: string | null
+          currency_iso?: string | null
           document_number?: string | null
           document_url?: string | null
           first_name: string
@@ -251,7 +255,9 @@ export type Database = {
           company_logo_url?: string | null
           company_name?: string | null
           country?: string | null
+          country_iso?: string | null
           created_at?: string | null
+          currency_iso?: string | null
           document_number?: string | null
           document_url?: string | null
           first_name?: string
