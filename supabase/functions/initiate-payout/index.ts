@@ -21,26 +21,29 @@ serve(async (req) => {
       throw new Error('MONEROO_PAYOUT_KEY is not configured')
     }
 
-    // Updated to use the correct Moneroo API endpoint
-    const monerooResponse = await fetch('https://api.moneroo.io/api/v1/payouts', {
+    // Mise à jour pour utiliser le bon endpoint Moneroo et la structure de données correcte
+    const monerooResponse = await fetch('https://api.moneroo.io/v1/payouts/initialize', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${monerooPayoutKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify({
         amount,
         currency,
         description,
-        recipient: {
-          firstName: recipient.firstName,
-          lastName: recipient.lastName,
+        customer: {
           email: recipient.email,
-          phone: recipient.phone,
-          provider: recipient.provider
+          first_name: recipient.firstName,
+          last_name: recipient.lastName
         },
         metadata: {
-          payoutId
+          payout_id: payoutId
+        },
+        method: recipient.provider,
+        recipient: {
+          msisdn: recipient.phone
         }
       })
     })
@@ -55,7 +58,7 @@ serve(async (req) => {
     console.log('Moneroo payout initiated:', data)
 
     return new Response(
-      JSON.stringify({ payoutId: data.id }),
+      JSON.stringify({ payoutId: data.data.id }),
       { 
         headers: { 
           ...corsHeaders,
