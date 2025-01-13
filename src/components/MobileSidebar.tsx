@@ -29,7 +29,10 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
     const checkAdminStatus = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+          navigate("/auth");
+          return;
+        }
 
         const { data: adminUser } = await supabase
           .from('admin_users')
@@ -37,33 +40,42 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
           .eq('id', user.id)
           .maybeSingle();
 
-        // Filter menu items based on admin status
         const filtered = menuItems.filter(item => 
           item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)
         );
         setFilteredMenuItems(filtered);
       } catch (error) {
         console.error('Error checking admin status:', error);
+        handleAuthError(error);
       }
     };
 
     checkAdminStatus();
-  }, []);
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
+      // Clear any stored session data
+      await supabase.auth.clearSession();
+      
       navigate("/auth");
       setIsCollapsed(true);
     } catch (error) {
       console.error("Error logging out:", error);
-      toast({
-        title: "Error",
-        description: "An error occurred while logging out",
-        variant: "destructive",
-      });
+      handleAuthError(error);
     }
+  };
+
+  const handleAuthError = (error: any) => {
+    console.error('Auth error:', error);
+    toast({
+      title: "Erreur",
+      description: "Une erreur est survenue. Veuillez réessayer.",
+      variant: "destructive",
+    });
   };
 
   return (
