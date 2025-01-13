@@ -10,12 +10,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface WithdrawalConfirmationProps {
   amount: string;
+  description: string;
   onBack: () => void;
   onEdit: () => void;
   userProfile: any;
 }
 
-const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: WithdrawalConfirmationProps) => {
+const WithdrawalConfirmation = ({ amount, description, onBack, onEdit, userProfile }: WithdrawalConfirmationProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
@@ -26,21 +27,53 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilisateur non connecté");
 
-      const { error } = await supabase
+      // Créer d'abord la demande de retrait dans la base de données
+      const { data: payout, error: payoutError } = await supabase
         .from("payouts")
         .insert({
           user_id: user.id,
           amount: parseInt(amount),
-          description: "Retrait de fonds",
+          description: description,
           customer_email: userProfile.company_email,
           customer_first_name: userProfile.first_name,
           customer_last_name: userProfile.last_name,
           customer_phone: userProfile.momo_number,
           method: userProfile.momo_provider,
           currency: "XOF",
-        });
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (payoutError) throw payoutError;
+
+      // Initier le paiement via l'API Moneroo
+      const { data: monerooResponse, error: monerooError } = await supabase.functions.invoke('initiate-payout', {
+        body: {
+          payoutId: payout.id,
+          amount: parseInt(amount),
+          currency: "XOF",
+          description: description,
+          recipient: {
+            firstName: userProfile.first_name,
+            lastName: userProfile.last_name,
+            email: userProfile.company_email,
+            phone: userProfile.momo_number,
+            provider: userProfile.momo_provider,
+          }
+        }
+      });
+
+      if (monerooError) throw monerooError;
+
+      // Mettre à jour le payout avec l'ID Moneroo
+      if (monerooResponse?.payoutId) {
+        const { error: updateError } = await supabase
+          .from("payouts")
+          .update({ moneroo_payout_id: monerooResponse.payoutId })
+          .eq('id', payout.id);
+
+        if (updateError) throw updateError;
+      }
 
       toast({
         title: "Demande de retrait créée",
@@ -104,6 +137,11 @@ const WithdrawalConfirmation = ({ amount, onBack, onEdit, userProfile }: Withdra
             <div className="grid gap-2">
               <p className="text-sm text-gray-500">Montant du retrait</p>
               <p className="font-medium">{parseInt(amount).toLocaleString()} XOF</p>
+            </div>
+
+            <div className="grid gap-2">
+              <p className="text-sm text-gray-500">Description</p>
+              <p className="font-medium">{description}</p>
             </div>
             
             <div className="grid gap-2">

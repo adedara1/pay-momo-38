@@ -18,11 +18,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   amount: z.string().min(1, "Le montant est requis"),
+  description: z.string().default("Retrait de fonds"),
 });
 
 export default function WithdrawalForm() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("Retrait de fonds");
 
   const { data: userProfile } = useQuery({
     queryKey: ["user-profile"],
@@ -45,11 +47,13 @@ export default function WithdrawalForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: "",
+      description: "Retrait de fonds",
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     setAmount(values.amount);
+    setDescription(values.description);
     setShowConfirmation(true);
   };
 
@@ -57,6 +61,7 @@ export default function WithdrawalForm() {
     return (
       <WithdrawalConfirmation
         amount={amount}
+        description={description}
         onBack={() => {
           setShowConfirmation(false);
           form.reset();
@@ -78,6 +83,20 @@ export default function WithdrawalForm() {
               <FormLabel>Montant de retrait (FCFA)</FormLabel>
               <FormControl>
                 <Input type="number" placeholder="10000" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
