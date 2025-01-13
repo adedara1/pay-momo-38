@@ -93,12 +93,12 @@ serve(async (req) => {
     if (userProfile.auto_transfer && userProfile.momo_number && userProfile.momo_provider) {
       console.log('Initiating automatic transfer')
 
-      // Initier le transfert via l'API Moneroo
+      // Initier le transfert via l'API Moneroo en utilisant la clé de payout
       const monerooResponse = await fetch('https://api.moneroo.io/v1/payouts/initialize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('MONEROO_SECRET_KEY')}`,
+          'Authorization': `Bearer ${Deno.env.get('MONEROO_PAYOUT_KEY')}`,
           'Accept': 'application/json'
         },
         body: JSON.stringify({
