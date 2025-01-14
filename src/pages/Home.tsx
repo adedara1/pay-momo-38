@@ -98,7 +98,8 @@ const HomeContent = () => {
       </div>
 
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
-        <div className="flex items-center justify-center mb-4">
+        <div className="flex flex-col items-center justify-center mb-4">
+          <h2 className="text-lg font-semibold mb-2">Afficher plus</h2>
           <CollapsibleTrigger className="p-2 hover:bg-gray-100 rounded-full transition-colors">
             {isOpen ? (
               <ChevronUp className="h-6 w-6 text-gray-500" />
