@@ -2,7 +2,7 @@ import StatCard from "@/components/StatCard";
 import { UserStats } from "@/types/stats";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "@/hooks/use-session";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -15,48 +15,69 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
   const { toast } = useToast();
   const [userId, setUserId] = useState<string | null>(null);
 
-  // First check if we have a valid session
-  useEffect(() => {
-    const initializeUser = async () => {
+  const initializeUser = useCallback(async () => {
+    try {
       const isValid = await checkSession();
       if (isValid) {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) throw error;
         if (user) {
           setUserId(user.id);
         }
       }
-    };
+    } catch (error) {
+      console.error('Failed to initialize user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load user data. Please try refreshing the page.",
+        variant: "destructive",
+      });
+    }
+  }, [checkSession, toast]);
 
+  useEffect(() => {
     initializeUser();
-  }, [checkSession]);
+  }, [initializeUser]);
 
   const { data: userStats, isLoading } = useQuery({
     queryKey: ['user-stats', userId],
     queryFn: async () => {
       if (!userId) return null;
 
-      const { data, error } = await supabase
-        .from('user_stats')
-        .select('available_balance, pending_requests, validated_requests')
-        .eq('user_id', userId)
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from('user_stats')
+          .select('available_balance, pending_requests, validated_requests')
+          .eq('user_id', userId)
+          .maybeSingle();
 
-      if (error) {
+        if (error) {
+          toast({
+            title: "Error loading stats",
+            description: error.message,
+            variant: "destructive",
+          });
+          return null;
+        }
+
+        return {
+          available: data?.available_balance || 0,
+          pending: data?.pending_requests || 0,
+          validated: data?.validated_requests || 0
+        };
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
         toast({
-          title: "Error loading stats",
-          description: error.message,
+          title: "Error",
+          description: "Failed to load statistics. Please try again later.",
           variant: "destructive",
         });
         return null;
       }
-
-      return {
-        available: data?.available_balance || 0,
-        pending: data?.pending_requests || 0,
-        validated: data?.validated_requests || 0
-      };
     },
     enabled: !!userId,
+    retry: 1,
+    staleTime: 30000, // Cache data for 30 seconds
   });
 
   if (isLoading) {
