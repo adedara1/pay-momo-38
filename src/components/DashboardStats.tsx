@@ -2,36 +2,75 @@ import StatCard from "@/components/StatCard";
 import { UserStats } from "@/types/stats";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { useSession } from "@/hooks/use-session";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DashboardStatsProps {
   stats: UserStats;
 }
 
 export const DashboardStats = ({ stats }: DashboardStatsProps) => {
-  const { data: userStats, isLoading } = useQuery({
-    queryKey: ['user-stats'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+  const { checkSession } = useSession();
+  const { toast } = useToast();
+  const [userId, setUserId] = useState<string | null>(null);
 
-      const { data } = await supabase
+  // First check if we have a valid session
+  useEffect(() => {
+    const initializeUser = async () => {
+      const isValid = await checkSession();
+      if (isValid) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+        }
+      }
+    };
+
+    initializeUser();
+  }, [checkSession]);
+
+  const { data: userStats, isLoading } = useQuery({
+    queryKey: ['user-stats', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const { data, error } = await supabase
         .from('user_stats')
         .select('available_balance, pending_requests, validated_requests')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .maybeSingle();
+
+      if (error) {
+        toast({
+          title: "Error loading stats",
+          description: error.message,
+          variant: "destructive",
+        });
+        return null;
+      }
 
       return {
         available: data?.available_balance || 0,
         pending: data?.pending_requests || 0,
         validated: data?.validated_requests || 0
       };
-    }
+    },
+    enabled: !!userId,
   });
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-48">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  if (!userId || !stats) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <p className="text-gray-500">No stats available</p>
       </div>
     );
   }
