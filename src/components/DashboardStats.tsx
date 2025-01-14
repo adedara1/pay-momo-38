@@ -15,29 +15,29 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
   const { toast } = useToast();
   const [userId, setUserId] = useState<string | null>(null);
 
-  const initializeUser = useCallback(async () => {
-    try {
-      const isValid = await checkSession();
-      if (isValid) {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        if (user) {
-          setUserId(user.id);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to initialize user:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load user data. Please try refreshing the page.",
-        variant: "destructive",
-      });
-    }
-  }, [checkSession, toast]);
-
   useEffect(() => {
+    const initializeUser = async () => {
+      try {
+        const isValid = await checkSession();
+        if (isValid) {
+          const { data: { user }, error } = await supabase.auth.getUser();
+          if (error) throw error;
+          if (user) {
+            setUserId(user.id);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to initialize user:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load user data. Please try refreshing the page.",
+          variant: "destructive",
+        });
+      }
+    };
+
     initializeUser();
-  }, [initializeUser]);
+  }, [checkSession, toast]);
 
   const { data: userStats, isLoading } = useQuery({
     queryKey: ['user-stats', userId],
