@@ -195,9 +195,9 @@ const HomeContent = () => {
     <>
       <div className="w-full bg-gray-50 min-h-screen">
         {/* Banner Section */}
-        <div className="relative">
+        <div className="relative px-4 md:px-8">
           <div 
-            className="w-[1584px] h-[140px] mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
+            className="w-full max-w-[1584px] h-[140px] mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
             style={{
               backgroundImage: `url('${bannerImage}')`,
               backgroundSize: "cover",
@@ -246,7 +246,7 @@ const HomeContent = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <h1 className="text-3xl font-bold text-center text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-lg">
+            <h1 className="text-3xl font-bold text-white absolute left-16 top-1/2 transform -translate-y-1/2 drop-shadow-lg">
               Tableau de bord
             </h1>
           </div>
