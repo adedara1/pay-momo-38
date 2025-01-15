@@ -87,9 +87,15 @@ const HomeContent = () => {
   return (
     <>
       <div className="w-full bg-gray-50 min-h-screen">
-        <div className="w-full max-w-[100vw] px-4 py-6 bg-white shadow-sm">
+        <div 
+          className="w-full max-w-[100vw] px-4 py-6 shadow-sm"
+          style={{
+            background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
           <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
-            <h1 className="text-xl md:text-2xl font-bold mb-4">
+            <h1 className="text-xl md:text-2xl font-bold mb-4 text-gray-800">
               Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
             </h1>
             <div className="mb-4 md:mb-8">
