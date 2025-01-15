@@ -5,13 +5,21 @@ import WalletStats from "@/components/WalletStats";
 import { useStatsSync } from "@/hooks/use-stats-sync";
 import { useQuery } from "@tanstack/react-query";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, UserRound } from "lucide-react";
 import SalesCharts from "@/components/SalesCharts";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import { UserStats } from "@/types/stats";
 import OrdersManagement from "@/components/OrdersManagement";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 const HomeContent = () => {
+  const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [userId, setUserId] = useState<string>();
   const [isOpen, setIsOpen] = useState(false);
@@ -87,6 +95,20 @@ const HomeContent = () => {
   return (
     <>
       <div className="w-full bg-gray-50 min-h-screen">
+        {/* New Profile Section */}
+        <div className="w-full max-w-[100vw] px-4 py-3 mb-4 rounded-[15px] bg-white shadow-sm flex justify-end items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors">
+              <UserRound className="h-6 w-6" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
+                Mon profile
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         <div 
           className="w-full max-w-[100vw] px-4 py-6 shadow-sm"
           style={{
