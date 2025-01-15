@@ -96,17 +96,29 @@ const HomeContent = () => {
     <>
       <div className="w-full bg-gray-50 min-h-screen">
         {/* New Profile Section */}
-        <div className="w-full max-w-[100vw] px-4 py-3 mb-4 rounded-[15px] bg-white shadow-sm flex justify-end items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors">
-              <UserRound className="h-6 w-6" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => navigate("/profile")}>
-                Mon profile
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div 
+          className="w-full max-w-[100vw] px-4 py-6 mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative h-[200px] overflow-hidden"
+          style={{
+            backgroundImage: "url('/lovable-uploads/c8abff4e-7868-405c-a7fc-bd0868ce18f1.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center"
+          }}
+        >
+          <div className="absolute top-0 right-0 p-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors bg-white/80 backdrop-blur-sm">
+                <UserRound className="h-6 w-6" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  Mon profile
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <h1 className="text-3xl font-bold text-center text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-lg">
+            Tableau de bord
+          </h1>
         </div>
 
         <div 
