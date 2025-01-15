@@ -23,9 +23,31 @@ const HomeContent = () => {
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [userId, setUserId] = useState<string>();
   const [isOpen, setIsOpen] = useState(false);
+  const [bannerImage, setBannerImage] = useState<string>('/lovable-uploads/c8abff4e-7868-405c-a7fc-bd0868ce18f1.png');
 
   // Enable stats sync
   useStatsSync(userId);
+
+  // Fetch banner image
+  useEffect(() => {
+    const fetchBannerImage = async () => {
+      const { data, error } = await supabase
+        .from('banner_images')
+        .select('image_url')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (data && !error) {
+        setBannerImage(data.image_url);
+        console.log('Banner image loaded:', data.image_url);
+      } else if (error) {
+        console.error('Error fetching banner image:', error);
+      }
+    };
+
+    fetchBannerImage();
+  }, []);
 
   // Fetch user profile and set userId
   useEffect(() => {
@@ -95,13 +117,16 @@ const HomeContent = () => {
   return (
     <>
       <div className="w-full bg-gray-50 min-h-screen">
-        {/* New Profile Section */}
+        {/* Banner Section */}
         <div 
-          className="w-full max-w-[100vw] px-4 py-6 mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative h-[200px] overflow-hidden"
+          className="w-full max-w-[100vw] px-4 py-6 mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden"
           style={{
-            backgroundImage: "url('/lovable-uploads/c8abff4e-7868-405c-a7fc-bd0868ce18f1.png')",
+            backgroundImage: `url('${bannerImage}')`,
             backgroundSize: "cover",
-            backgroundPosition: "center"
+            backgroundPosition: "center",
+            height: "auto",
+            minHeight: "200px",
+            aspectRatio: "16/9"
           }}
         >
           <div className="absolute top-0 right-0 p-4">
