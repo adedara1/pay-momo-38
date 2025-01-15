@@ -8,7 +8,6 @@ import {
   Headphones,
   BarChart,
   LogOut,
-  LayoutDashboard,
   Package,
   Wallet,
   RefreshCw,
@@ -19,7 +18,6 @@ import {
 
 export const menuItems = [
   { icon: Home, label: "Accueil", path: "/home" },
-  { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
   {
     icon: Menu,
     label: "Menu Admin",

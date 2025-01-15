@@ -2,7 +2,6 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import MainSidebar from "@/components/MainSidebar";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import Home from "@/pages/Home";
-import Dashboard from "@/pages/Dashboard";
 import ProductPage from "@/pages/ProductPage";
 import Blog from "@/pages/Blog";
 import ProductsPage from "@/pages/ProductsPage";
@@ -45,7 +44,6 @@ const AppContent = () => {
           <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute checkAdmin={true}><Dashboard /></ProtectedRoute>} />
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
           <Route path="/products-pages" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
