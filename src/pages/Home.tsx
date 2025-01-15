@@ -68,46 +68,62 @@ const HomeContent = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
-    try {
-      // Upload to storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const { error: uploadError, data } = await supabase.storage
-        .from('product-images')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(fileName);
-
-      // Save to banner_images table
-      const { error: dbError } = await supabase
-        .from('banner_images')
-        .insert({
-          image_url: publicUrl,
+    // Create a new image object to check dimensions
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    
+    img.onload = async () => {
+      URL.revokeObjectURL(objectUrl);
+      
+      if (img.width !== 1584 || img.height !== 140) {
+        toast({
+          title: "Erreur",
+          description: "L'image doit être exactement de 1584x140 pixels",
+          variant: "destructive",
         });
+        return;
+      }
 
-      if (dbError) throw dbError;
+      setIsUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError, data } = await supabase.storage
+          .from('product-images')
+          .upload(fileName, file);
 
-      setBannerImage(publicUrl);
-      toast({
-        title: "Success",
-        description: "Banner image updated successfully",
-      });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast({
-        title: "Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(fileName);
+
+        const { error: dbError } = await supabase
+          .from('banner_images')
+          .insert({
+            image_url: publicUrl,
+          });
+
+        if (dbError) throw dbError;
+
+        setBannerImage(publicUrl);
+        toast({
+          title: "Succès",
+          description: "Image de bannière mise à jour",
+        });
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast({
+          title: "Erreur",
+          description: "Échec du téléchargement de l'image",
+          variant: "destructive",
+        });
+      } finally {
+        setIsUploading(false);
+      }
+    };
+
+    img.src = objectUrl;
   };
 
   // Fetch user profile and set userId
@@ -181,14 +197,11 @@ const HomeContent = () => {
         {/* Banner Section */}
         <div className="relative">
           <div 
-            className="w-full max-w-[100vw] px-4 py-6 mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden"
+            className="w-[1584px] h-[140px] mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
             style={{
               backgroundImage: `url('${bannerImage}')`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              height: "auto",
-              minHeight: "200px",
-              aspectRatio: "16/9"
             }}
           >
             <Dialog>
@@ -203,10 +216,11 @@ const HomeContent = () => {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Update Banner Image</DialogTitle>
+                  <DialogTitle>Mettre à jour l'image de bannière</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="flex flex-col gap-4">
+                    <p className="text-sm text-gray-500">L'image doit être exactement de 1584x140 pixels</p>
                     <input
                       type="file"
                       accept="image/*"
@@ -214,7 +228,7 @@ const HomeContent = () => {
                       disabled={isUploading}
                       className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
-                    {isUploading && <p className="text-sm text-gray-500">Uploading...</p>}
+                    {isUploading && <p className="text-sm text-gray-500">Téléchargement en cours...</p>}
                   </div>
                 </div>
               </DialogContent>
