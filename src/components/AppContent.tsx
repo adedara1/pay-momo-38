@@ -37,7 +37,13 @@ const AppContent = () => {
     <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden">
       {shouldShowSidebar && !isSettingsPage && <MainSidebar />}
       {isSettingsPage && <SettingsSidebar userProfile={null} />}
-      <main className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${shouldShowSidebar ? 'md:ml-64 max-w-7xl mx-auto' : 'md:w-full'}`}>
+      <main 
+        className={`flex-1 w-full overflow-y-auto p-4 md:p-8 ${shouldShowSidebar ? 'md:ml-64 max-w-7xl mx-auto' : 'md:w-full'}`}
+        style={location.pathname === '/home' ? {
+          background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
+          backdropFilter: "blur(10px)"
+        } : {}}
+      >
         <Routes>
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
           <Route path="/admins" element={<PublicRoute><AdminAuth /></PublicRoute>} />
