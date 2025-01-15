@@ -5,11 +5,20 @@ import WalletStats from "@/components/WalletStats";
 import { useStatsSync } from "@/hooks/use-stats-sync";
 import { useQuery } from "@tanstack/react-query";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, UserRound } from "lucide-react";
+import { ChevronDown, ChevronUp, UserRound, Upload } from "lucide-react";
 import SalesCharts from "@/components/SalesCharts";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import { UserStats } from "@/types/stats";
 import OrdersManagement from "@/components/OrdersManagement";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,10 +29,12 @@ import { useNavigate } from "react-router-dom";
 
 const HomeContent = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [userId, setUserId] = useState<string>();
   const [isOpen, setIsOpen] = useState(false);
-  const [bannerImage, setBannerImage] = useState<string>('/lovable-uploads/0ff14eb1-f4fe-4329-b886-906bb146a816.png');
+  const [bannerImage, setBannerImage] = useState<string>('/lovable-uploads/2dae098d-873c-40ec-9994-1dcc844f975f.png');
+  const [isUploading, setIsUploading] = useState(false);
 
   // Enable stats sync
   useStatsSync(userId);
@@ -52,6 +63,52 @@ const HomeContent = () => {
 
     fetchBannerImage();
   }, []);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      // Upload to storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const { error: uploadError, data } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      // Save to banner_images table
+      const { error: dbError } = await supabase
+        .from('banner_images')
+        .insert({
+          image_url: publicUrl,
+        });
+
+      if (dbError) throw dbError;
+
+      setBannerImage(publicUrl);
+      toast({
+        title: "Success",
+        description: "Banner image updated successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Fetch user profile and set userId
   useEffect(() => {
@@ -122,32 +179,63 @@ const HomeContent = () => {
     <>
       <div className="w-full bg-gray-50 min-h-screen">
         {/* Banner Section */}
-        <div 
-          className="w-full max-w-[100vw] px-4 py-6 mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden"
-          style={{
-            backgroundImage: `url('${bannerImage}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            height: "auto",
-            minHeight: "200px",
-            aspectRatio: "16/9"
-          }}
-        >
-          <div className="absolute top-0 right-0 p-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors bg-white/80 backdrop-blur-sm">
-                <UserRound className="h-6 w-6" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/profile")}>
-                  Mon profile
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+        <div className="relative">
+          <div 
+            className="w-full max-w-[100vw] px-4 py-6 mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden"
+            style={{
+              backgroundImage: `url('${bannerImage}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              height: "auto",
+              minHeight: "200px",
+              aspectRatio: "16/9"
+            }}
+          >
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="absolute top-4 left-4 rounded-full border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur-sm"
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Update Banner Image</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="flex flex-col gap-4">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={isUploading}
+                      className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                    {isUploading && <p className="text-sm text-gray-500">Uploading...</p>}
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <div className="absolute top-0 right-0 p-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors bg-white/80 backdrop-blur-sm">
+                  <UserRound className="h-6 w-6" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    Mon profile
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <h1 className="text-3xl font-bold text-center text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-lg">
+              Tableau de bord
+            </h1>
           </div>
-          <h1 className="text-3xl font-bold text-center text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-lg">
-            Tableau de bord
-          </h1>
         </div>
 
         <div 
