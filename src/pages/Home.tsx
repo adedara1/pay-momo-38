@@ -5,11 +5,17 @@ import WalletStats from "@/components/WalletStats";
 import { useStatsSync } from "@/hooks/use-stats-sync";
 import { useQuery } from "@tanstack/react-query";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, UserRound } from "lucide-react";
 import SalesCharts from "@/components/SalesCharts";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import { UserStats } from "@/types/stats";
 import OrdersManagement from "@/components/OrdersManagement";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const HomeContent = () => {
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
@@ -87,16 +93,29 @@ const HomeContent = () => {
   return (
     <>
       <div className="w-full bg-gray-50 min-h-screen">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 px-6 pt-6">
+          Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
+        </h1>
         <div 
-          className="w-full max-w-[100vw] px-4 py-6 shadow-sm"
+          className="w-full max-w-[100vw] px-4 py-6 shadow-sm relative"
           style={{
             background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
             backdropFilter: "blur(10px)",
           }}
         >
-          <h1 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 px-2 md:px-4">
-            Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
-          </h1>
+          <div className="absolute top-4 right-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:bg-gray-50 transition-colors">
+                <UserRound className="w-6 h-6 text-gray-600" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40 bg-white">
+                <DropdownMenuItem>
+                  Mon profile
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[10px]">
             <div className="mb-4 md:mb-8">
               <WalletStats />
