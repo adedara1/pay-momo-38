@@ -23,7 +23,7 @@ const HomeContent = () => {
   const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [userId, setUserId] = useState<string>();
   const [isOpen, setIsOpen] = useState(false);
-  const [bannerImage, setBannerImage] = useState<string>('/lovable-uploads/c8abff4e-7868-405c-a7fc-bd0868ce18f1.png');
+  const [bannerImage, setBannerImage] = useState<string>('/lovable-uploads/0ff14eb1-f4fe-4329-b886-906bb146a816.png');
 
   // Enable stats sync
   useStatsSync(userId);
@@ -31,18 +31,22 @@ const HomeContent = () => {
   // Fetch banner image
   useEffect(() => {
     const fetchBannerImage = async () => {
-      const { data, error } = await supabase
-        .from('banner_images')
-        .select('image_url')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-      
-      if (data && !error) {
-        setBannerImage(data.image_url);
-        console.log('Banner image loaded:', data.image_url);
-      } else if (error) {
-        console.error('Error fetching banner image:', error);
+      try {
+        const { data, error } = await supabase
+          .from('banner_images')
+          .select('image_url')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (data && !error) {
+          setBannerImage(data.image_url);
+          console.log('Banner image loaded:', data.image_url);
+        } else if (error) {
+          console.error('Error fetching banner image:', error);
+        }
+      } catch (error) {
+        console.error('Error in fetchBannerImage:', error);
       }
     };
 
