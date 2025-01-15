@@ -87,17 +87,21 @@ const HomeContent = () => {
   return (
     <>
       <div className="w-full bg-gray-50 min-h-screen">
-        <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
-          <div className="mb-4 md:mb-8">
-            <WalletStats />
-          </div>
-
-          <div className="mb-6">
-            <OrdersManagement />
-          </div>
-
+        <div className="w-full max-w-[100vw] px-4 py-6 bg-white shadow-sm">
           <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
-            <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
+            <h1 className="text-xl md:text-2xl font-bold mb-4">
+              Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
+            </h1>
+            <div className="mb-4 md:mb-8">
+              <WalletStats />
+            </div>
+
+            <div className="mb-6">
+              <OrdersManagement />
+            </div>
+
+            <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
+              <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
             <div className="flex flex-col items-center justify-center mb-4">
               <h2 className="text-lg font-semibold mb-2">Afficher plus</h2>
               <CollapsibleTrigger className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -180,9 +184,10 @@ const HomeContent = () => {
                 />
               </div>
             </CollapsibleContent>
-            </Collapsible>
+              </Collapsible>
 
-            <SalesCharts />
+              <SalesCharts />
+            </div>
           </div>
         </div>
       </div>
