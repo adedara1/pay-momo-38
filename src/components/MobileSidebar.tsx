@@ -81,7 +81,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
         variant="ghost"
         size="icon"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="fixed top-4 left-4 z-[60] bg-background shadow-md hover:bg-accent"
+        className="fixed top-4 right-4 z-[60] bg-background shadow-md hover:bg-accent"
       >
         <Menu className="h-5 w-5" />
       </Button>
