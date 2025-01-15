@@ -37,7 +37,7 @@ const HomeContent = () => {
           .select('image_url')
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
         
         if (data && !error) {
           setBannerImage(data.image_url);
