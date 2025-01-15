@@ -86,21 +86,9 @@ const HomeContent = () => {
 
   return (
     <>
-      <div className="w-full max-w-[100vw] px-2 md:px-4 py-4">
-        <h1 className="text-xl md:text-2xl font-bold">
-          Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
-        </h1>
-      </div>
-
       <div className="w-full bg-gray-50 min-h-screen">
         <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
           <div className="mb-4 md:mb-8">
-              <h1 className="text-xl md:text-2xl font-bold">
-                Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
-              </h1>
-              <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
-                Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
-              </h1>
             <WalletStats />
           </div>
 
