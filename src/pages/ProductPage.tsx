@@ -42,7 +42,7 @@ const ProductPage = () => {
         throw new Error("Produit non trouvé");
       }
 
-      console.log("Product fetched:", data);
+      console.log("Product found:", data);
       return {
         ...data,
         long_description: data.long_description || null
@@ -50,7 +50,7 @@ const ProductPage = () => {
     },
     retry: 1,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes (previously cacheTime)
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
   });
 
   if (isLoading) {
