@@ -1,9 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Menu, X, Edit2 } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { DataEditorContent } from "./DataEditor/DataEditorContent";
 
 interface UserProfile {
   first_name: string;
@@ -19,13 +18,13 @@ const settingsMenuItems = [
   { label: "Users Data Update", path: "/usersdata-update" },
   { label: "Editeur de page", path: "/editeur" },
   { label: "Données", path: "/donnees" },
+  { label: "Page de paiement", path: "/product/1179735b-0239-49df-95bf-048ca8554fdc" },
   { label: "Aperçu de page", path: "/page-apercu" },
 ];
 
 const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [currentView, setCurrentView] = useState("configuration");
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
