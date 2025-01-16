@@ -193,11 +193,11 @@ const HomeContent = () => {
 
   return (
     <>
-      <div className="w-full bg-gray-50 min-h-screen border-4 border-blue-500">
+      <div className="w-full bg-gray-50 min-h-screen">
         {/* Banner Section */}
         <div className="relative px-4 md:px-8">
           <div 
-            className="w-full max-w-[1584px] h-[140px] mb-4 rounded-[15px] bg-white shadow-sm relative overflow-hidden mx-auto"
+            className="w-full max-w-[1584px] h-[140px] mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
             style={{
               backgroundImage: `url('${bannerImage}')`,
               backgroundSize: "cover",
@@ -253,7 +253,7 @@ const HomeContent = () => {
         </div>
 
         <div 
-          className="w-full max-w-[100vw] px-4 py-6 shadow-sm rounded-t-[15px]"
+          className="w-full max-w-[100vw] px-4 py-6 shadow-sm"
           style={{
             background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
             backdropFilter: "blur(10px)",
@@ -274,88 +274,88 @@ const HomeContent = () => {
 
             <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
               <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
-                <div className="flex flex-col items-center justify-center mb-4">
-                  <h2 className="text-lg font-semibold mb-2">Afficher plus</h2>
-                  <CollapsibleTrigger className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                    {isOpen ? (
-                      <ChevronUp className="h-6 w-6 text-gray-500" />
-                    ) : (
-                      <ChevronDown className="h-6 w-6 text-gray-500" />
-                    )}
-                  </CollapsibleTrigger>
-                </div>
-                
-                <CollapsibleContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
-                    <StatCard
-                      title="Ventes Cumulées"
-                      value={stats.totalSales}
-                      suffix="Fcfa"
-                      className="bg-blue-500 text-white"
-                    />
-                    <StatCard
-                      title="Ventes du jours"
-                      value={stats.dailySales}
-                      className="bg-purple-500 text-white"
-                    />
-                    <StatCard
-                      title="Ventes Du Mois"
-                      value={stats.monthlySales}
-                      className="bg-pink-500 text-white"
-                    />
-                  </div>
+            <div className="flex flex-col items-center justify-center mb-4">
+              <h2 className="text-lg font-semibold mb-2">Afficher plus</h2>
+              <CollapsibleTrigger className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                {isOpen ? (
+                  <ChevronUp className="h-6 w-6 text-gray-500" />
+                ) : (
+                  <ChevronDown className="h-6 w-6 text-gray-500" />
+                )}
+              </CollapsibleTrigger>
+            </div>
+            
+            <CollapsibleContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
+                <StatCard
+                  title="Ventes Cumulées"
+                  value={stats.totalSales}
+                  suffix="Fcfa"
+                  className="bg-blue-500 text-white"
+                />
+                <StatCard
+                  title="Ventes du jours"
+                  value={stats.dailySales}
+                  className="bg-purple-500 text-white"
+                />
+                <StatCard
+                  title="Ventes Du Mois"
+                  value={stats.monthlySales}
+                  className="bg-pink-500 text-white"
+                />
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
-                    <StatCard
-                      title="Total Des Transactions"
-                      value={String(stats.totalTransactions).padStart(3, '0')}
-                    />
-                    <StatCard
-                      title="Transactions Du Jour"
-                      value={String(stats.dailyTransactions).padStart(2, '0')}
-                    />
-                    <StatCard
-                      title="Transactions Du Mois"
-                      value={String(stats.monthlyTransactions).padStart(2, '0')}
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
+                <StatCard
+                  title="Total Des Transactions"
+                  value={String(stats.totalTransactions).padStart(3, '0')}
+                />
+                <StatCard
+                  title="Transactions Du Jour"
+                  value={String(stats.dailyTransactions).padStart(2, '0')}
+                />
+                <StatCard
+                  title="Transactions Du Mois"
+                  value={String(stats.monthlyTransactions).padStart(2, '0')}
+                />
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
-                    <StatCard
-                      title="Ventes du Mois Précédent"
-                      value={stats.previousMonthSales}
-                      suffix="Fcfa"
-                      className="bg-blue-800 text-white"
-                    />
-                    <StatCard
-                      title="Transactions du Mois Précédent"
-                      value={String(stats.previousMonthTransactions).padStart(2, '0')}
-                      className="bg-purple-800 text-white"
-                    />
-                    <StatCard
-                      title="Croissance Des Ventes"
-                      value={stats.salesGrowth}
-                      suffix="%"
-                      className="bg-purple-900 text-white"
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
+                <StatCard
+                  title="Ventes du Mois Précédent"
+                  value={stats.previousMonthSales}
+                  suffix="Fcfa"
+                  className="bg-blue-800 text-white"
+                />
+                <StatCard
+                  title="Transactions du Mois Précédent"
+                  value={String(stats.previousMonthTransactions).padStart(2, '0')}
+                  className="bg-purple-800 text-white"
+                />
+                <StatCard
+                  title="Croissance Des Ventes"
+                  value={stats.salesGrowth}
+                  suffix="%"
+                  className="bg-purple-900 text-white"
+                />
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
-                    <StatCard
-                      title="Totals Produits"
-                      value={String(stats.totalProducts).padStart(3, '0')}
-                    />
-                    <StatCard
-                      title="Totals Produits Visible"
-                      value={String(stats.visibleProducts).padStart(2, '0')}
-                    />
-                    <StatCard
-                      title="Solde(s)"
-                      value={stats.soldAmount}
-                      className="bg-gray-900 text-white"
-                    />
-                  </div>
-                </CollapsibleContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
+                <StatCard
+                  title="Totals Produits"
+                  value={String(stats.totalProducts).padStart(3, '0')}
+                />
+                <StatCard
+                  title="Totals Produits Visible"
+                  value={String(stats.visibleProducts).padStart(2, '0')}
+                />
+                <StatCard
+                  title="Solde(s)"
+                  value={stats.soldAmount}
+                  className="bg-gray-900 text-white"
+                />
+              </div>
+            </CollapsibleContent>
               </Collapsible>
 
               <SalesCharts />
