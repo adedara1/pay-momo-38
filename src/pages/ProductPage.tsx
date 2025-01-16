@@ -68,14 +68,10 @@ const ProductPage = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="p-6">
-          <Skeleton className="h-64 w-full mb-6" />
-          <div className="space-y-4">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-8 w-1/4" />
-          </div>
+      <div className="min-h-screen p-6">
+        <div className="grid md:grid-cols-2 gap-8">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
         </div>
       </div>
     );
@@ -83,35 +79,31 @@ const ProductPage = () => {
 
   if (error || !product) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="p-6 text-center">
-          <p className="text-red-500 mb-4">{error || "Produit non trouvé"}</p>
-        </div>
+      <div className="min-h-screen p-6 flex items-center justify-center">
+        <p className="text-red-500">{error || "Produit non trouvé"}</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto max-w-4xl">
-        <div className="grid md:grid-cols-2 gap-8 p-6">
-          <div>
-            <ProductDetails
-              name={product.name}
-              description={product.description}
-              long_description={product.long_description}
-              amount={product.amount}
-              imageUrl={product.image_url}
-            />
-          </div>
-          <div>
-            <CustomerInfoForm
-              amount={product.amount}
-              description={product.description || product.name}
-              paymentLinkId={product.payment_link_id || ""}
-              onClose={() => {}}
-            />
-          </div>
+      <div className="grid md:grid-cols-2 gap-8 p-6 min-h-screen">
+        <div>
+          <ProductDetails
+            name={product.name}
+            description={product.description}
+            long_description={product.long_description}
+            amount={product.amount}
+            imageUrl={product.image_url}
+          />
+        </div>
+        <div>
+          <CustomerInfoForm
+            amount={product.amount}
+            description={product.description || product.name}
+            paymentLinkId={product.payment_link_id || ""}
+            onClose={() => {}}
+          />
         </div>
       </div>
     </div>
