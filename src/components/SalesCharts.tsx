@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, ResponsiveContainer } from 'recharts';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const SalesCharts = () => {
-  // Données pour les graphiques (à remplacer par des données réelles)
+  const isMobile = useIsMobile();
+  
   const monthlyData = [
     { month: 'Jan', sales: 5000 },
     { month: 'Feb', sales: 6000 },
@@ -33,40 +35,54 @@ const SalesCharts = () => {
     { name: 'Pack Formation', value: 8000 },
   ];
 
+  const chartWidth = isMobile ? 300 : 800;
+
   return (
     <div className="space-y-6 mt-8">
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Évolution des ventes par mois</h3>
-        <LineChart width={800} height={300} data={monthlyData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="sales" stroke="#8884d8" />
-        </LineChart>
+        <div className="w-full overflow-x-hidden">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={monthlyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="sales" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </Card>
 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Nombre de ventes et de visites par jour</h3>
-        <LineChart width={800} height={300} data={dailyData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="day" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="sales" stroke="#8884d8" name="Ventes" />
-          <Line type="monotone" dataKey="visits" stroke="#82ca9d" name="Visites" />
-        </LineChart>
+        <div className="w-full overflow-x-hidden">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={dailyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="sales" stroke="#8884d8" name="Ventes" />
+              <Line type="monotone" dataKey="visits" stroke="#82ca9d" name="Visites" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </Card>
 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Produits les plus vendus</h3>
-        <BarChart width={800} height={300} data={topProducts}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="value" fill="#8884d8" />
-        </BarChart>
+        <div className="w-full overflow-x-hidden">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={topProducts}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </Card>
     </div>
   );
