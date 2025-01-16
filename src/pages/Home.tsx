@@ -256,10 +256,10 @@ const HomeContent = () => {
         style={{
           background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
           backdropFilter: "blur(10px)",
-          height: "200px" // Added fixed height to help with overlay calculation
+          height: "200px"
         }}
       >
-        <h1 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 px-2 md:px-4">
+        <h1 className="text-xl md:text-2xl font-bold mb-[40px] text-gray-800 px-2 md:px-4">
           Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
         </h1>
       </div>
