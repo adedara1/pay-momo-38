@@ -262,8 +262,9 @@ const HomeContent = () => {
           <h1 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 px-2 md:px-4">
             Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
           </h1>
+        </div>
 
-          <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[10px]">
+        <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[10px]">
             <div className="mb-4 md:mb-8">
               <WalletStats />
             </div>
