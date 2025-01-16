@@ -1,15 +1,12 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/types/product";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
 import ProductPageLayout from "@/components/product/ProductPageLayout";
 import { useQuery } from "@tanstack/react-query";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { toast } = useToast();
 
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', id],
