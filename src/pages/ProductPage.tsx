@@ -50,7 +50,7 @@ const ProductPage = () => {
     },
     retry: 1,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    cacheTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes (previously cacheTime)
   });
 
   if (isLoading) {
