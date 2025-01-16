@@ -253,7 +253,7 @@ const HomeContent = () => {
         </div>
 
         <div 
-          className="w-full max-w-[100vw] px-4 py-6 shadow-sm"
+          className="w-full max-w-[100vw] px-4 py-6 shadow-sm rounded-t-[25px]"
           style={{
             background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
             backdropFilter: "blur(10px)",
