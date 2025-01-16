@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthError } from "@supabase/supabase-js";
 
 export const useSession = () => {
   const navigate = useNavigate();
@@ -8,46 +9,69 @@ export const useSession = () => {
 
   const checkSession = async () => {
     try {
-      // First check if we have a valid session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Session check error:', sessionError);
-        await handleInvalidSession();
-        return false;
-      }
-      
-      if (!session) {
-        console.error('No session found');
-        await handleInvalidSession();
-        return false;
+      // Ajout d'un délai de 1 seconde avant de réessayer en cas d'échec
+      const retryDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+      const maxRetries = 3;
+      let retryCount = 0;
+
+      while (retryCount < maxRetries) {
+        try {
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            throw sessionError;
+          }
+          
+          if (!session) {
+            console.log('No session found');
+            await handleInvalidSession();
+            return false;
+          }
+
+          // Verify if the user is still valid
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          if (userError || !user) {
+            console.error('User check error:', userError);
+            await handleInvalidSession();
+            return false;
+          }
+
+          // Verify if the user has a valid profile
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', user.id)
+            .single();
+
+          if (profileError || !profile) {
+            console.error('Profile check error:', profileError);
+            await handleInvalidSession();
+            return false;
+          }
+
+          return true;
+        } catch (error) {
+          retryCount++;
+          if (retryCount === maxRetries) {
+            throw error;
+          }
+          console.log(`Retry attempt ${retryCount} of ${maxRetries}`);
+          await retryDelay(1000); // Attendre 1 seconde avant de réessayer
+        }
       }
 
-      // Verify if the user is still valid
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        console.error('User check error:', userError);
-        await handleInvalidSession();
-        return false;
-      }
-
-      // Verify if the user has a valid profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError || !profile) {
-        console.error('Profile check error:', profileError);
-        await handleInvalidSession();
-        return false;
-      }
-
-      return true;
+      return false;
     } catch (error) {
       console.error('Session check error:', error);
-      await handleInvalidSession();
+      if (error instanceof AuthError && error.message === 'Failed to fetch') {
+        toast({
+          title: "Erreur de connexion",
+          description: "Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.",
+          variant: "destructive",
+        });
+      } else {
+        await handleInvalidSession();
+      }
       return false;
     }
   };
