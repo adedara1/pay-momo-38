@@ -5,6 +5,7 @@ import MobileSidebar from "./MobileSidebar";
 import BlogSidebar from "./BlogSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserProfile {
   first_name: string;
@@ -15,49 +16,71 @@ interface UserProfile {
 
 const MainSidebar = () => {
   const isMobile = useIsMobile();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { toast } = useToast();
   const { checkSession } = useSession();
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!await checkSession()) return;
-
+    const initializeUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, company_name, company_logo_url')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-          toast({
-            title: "Error",
-            description: "Failed to load user profile",
-            variant: "destructive",
-          });
+        const isValid = await checkSession();
+        if (!isValid) {
+          console.log('Session is not valid');
           return;
         }
 
-        if (data) {
-          setUserProfile(data);
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+        
+        if (user) {
+          console.log('Setting user ID:', user.id);
+          setUserId(user.id);
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error initializing user:', error);
         toast({
           title: "Error",
-          description: "An unexpected error occurred",
+          description: "Failed to initialize user session. Please try refreshing the page.",
           variant: "destructive",
         });
       }
     };
 
-    fetchUserProfile();
-  }, [toast, checkSession]);
+    initializeUser();
+  }, [checkSession, toast]);
+
+  const { data: userProfile, isError } = useQuery({
+    queryKey: ['user-profile', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, company_name, company_logo_url')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+      }
+
+      return data;
+    },
+    enabled: !!userId,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
+  });
+
+  if (isError) {
+    toast({
+      title: "Error",
+      description: "Failed to load user profile. Please try refreshing the page.",
+      variant: "destructive",
+    });
+  }
 
   return (
     <>
