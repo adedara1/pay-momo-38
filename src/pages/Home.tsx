@@ -5,7 +5,7 @@ import WalletStats from "@/components/WalletStats";
 import { useStatsSync } from "@/hooks/use-stats-sync";
 import { useQuery } from "@tanstack/react-query";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, UserRound, Upload } from "lucide-react";
+import { ChevronDown, ChevronUp, UserRound } from "lucide-react";
 import SalesCharts from "@/components/SalesCharts";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import { UserStats } from "@/types/stats";
@@ -203,36 +203,6 @@ const HomeContent = () => {
             backgroundPosition: "center",
           }}
         >
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon"
-                className="absolute top-4 left-4 rounded-full border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur-sm"
-              >
-                <Upload className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Mettre à jour l'image de bannière</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="flex flex-col gap-4">
-                  <p className="text-sm text-gray-500">L'image doit être exactement de 1584x140 pixels</p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={isUploading}
-                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
-                  {isUploading && <p className="text-sm text-gray-500">Téléchargement en cours...</p>}
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
           <div className="absolute top-0 right-0 p-4">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors bg-white/80 backdrop-blur-sm">

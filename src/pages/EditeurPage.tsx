@@ -1,7 +1,16 @@
 import { useState } from "react";
 import StyleControls from "@/components/StyleControls";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +19,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const EditeurPage = () => {
+  const { toast } = useToast();
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [styles, setStyles] = useState({
     fontSize: 16,
     lineHeight: 1.5,
@@ -22,6 +33,67 @@ const EditeurPage = () => {
     marginBottom: 0,
     marginLeft: 0
   });
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Create a new image object to check dimensions
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    
+    img.onload = async () => {
+      URL.revokeObjectURL(objectUrl);
+      
+      if (img.width !== 1584 || img.height !== 140) {
+        toast({
+          title: "Erreur",
+          description: "L'image doit être exactement de 1584x140 pixels",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError, data } = await supabase.storage
+          .from('product-images')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(fileName);
+
+        const { error: dbError } = await supabase
+          .from('banner_images')
+          .insert({
+            image_url: publicUrl,
+          });
+
+        if (dbError) throw dbError;
+
+        toast({
+          title: "Succès",
+          description: "Image de bannière mise à jour",
+        });
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast({
+          title: "Erreur",
+          description: "Échec du téléchargement de l'image",
+          variant: "destructive",
+        });
+      } finally {
+        setIsUploading(false);
+      }
+    };
+
+    img.src = objectUrl;
+  };
 
   const pages = [
     { name: "Dashboard", path: "/dashboard", content: (
@@ -116,7 +188,38 @@ const EditeurPage = () => {
   const selectedPageContent = pages.find(page => page.path === selectedPage)?.content;
 
   return (
-    <div className="flex gap-4">
+    <div className="space-y-4">
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="rounded-full border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur-sm"
+          >
+            <Upload className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mettre à jour l'image de bannière</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex flex-col gap-4">
+              <p className="text-sm text-gray-500">L'image doit être exactement de 1584x140 pixels</p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={isUploading}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              {isUploading && <p className="text-sm text-gray-500">Téléchargement en cours...</p>}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <div className="flex gap-4">
         <div className="mb-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -147,12 +250,13 @@ const EditeurPage = () => {
           </div>
         )}
       
-      <div className="w-80">
-        <StyleControls 
-          styles={styles}
-          onStyleChange={handleStyleChange}
-          disabled={!selectedElement}
-        />
+        <div className="w-80">
+          <StyleControls 
+            styles={styles}
+            onStyleChange={handleStyleChange}
+            disabled={!selectedElement}
+          />
+        </div>
       </div>
     </div>
   );
