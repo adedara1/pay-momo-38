@@ -193,11 +193,11 @@ const HomeContent = () => {
 
   return (
     <>
-      <div className="w-full bg-gray-50 min-h-screen">
+      <div className="w-full bg-gray-50 min-h-screen border-4 border-blue-500">
         {/* Banner Section */}
         <div className="relative px-4 md:px-8">
           <div 
-            className="w-full max-w-[1584px] h-[140px] mb-4 rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
+            className="w-full max-w-[1584px] h-[140px] mb-4 rounded-[15px] bg-white shadow-sm relative overflow-hidden mx-auto"
             style={{
               backgroundImage: `url('${bannerImage}')`,
               backgroundSize: "cover",
