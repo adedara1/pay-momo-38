@@ -259,7 +259,7 @@ const HomeContent = () => {
           height: "200px"
         }}
       >
-        <h1 className="text-xl md:text-2xl font-bold mb-[40px] text-gray-800 px-2 md:px-4">
+        <h1 className="text-xl md:text-2xl font-bold mb-[40px] mt-[35px] text-gray-800 px-2 md:px-4">
           Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
         </h1>
       </div>
