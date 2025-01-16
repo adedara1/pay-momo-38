@@ -192,89 +192,88 @@ const HomeContent = () => {
   });
 
   return (
-    <>
-      <div className="w-full min-h-screen border border-white relative" style={{ backgroundColor: '#000080' }}>
-        {/* Banner Section */}
-        <div className="relative px-4 md:px-8">
-          <div 
-            className="w-full max-w-[1584px] h-[140px] mb-4 mt-[50px] rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
-            style={{
-              backgroundImage: `url('${bannerImage}')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="absolute top-4 left-4 rounded-full border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur-sm"
-                >
-                  <Upload className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Mettre à jour l'image de bannière</DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="flex flex-col gap-4">
-                    <p className="text-sm text-gray-500">L'image doit être exactement de 1584x140 pixels</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      disabled={isUploading}
-                      className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                    />
-                    {isUploading && <p className="text-sm text-gray-500">Téléchargement en cours...</p>}
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <div className="absolute top-0 right-0 p-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors bg-white/80 backdrop-blur-sm">
-                  <UserRound className="h-6 w-6" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate("/profile")}>
-                    Mon profile
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <h1 className="text-3xl font-bold text-white absolute left-16 top-1/2 transform -translate-y-1/2 drop-shadow-lg">
-              Tableau de bord
-            </h1>
-          </div>
-        </div>
-
+    <div className="w-full min-h-screen border border-white relative" style={{ backgroundColor: '#000080' }}>
+      {/* Banner Section */}
+      <div className="relative px-4 md:px-8">
         <div 
-          className="w-full max-w-[100vw] px-4 py-6 shadow-sm rounded-t-[25px]"
+          className="w-full max-w-[1584px] h-[140px] mb-4 mt-[50px] rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
           style={{
-            background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
-            backdropFilter: "blur(10px)",
+            backgroundImage: `url('${bannerImage}')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
-          <h1 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 px-2 md:px-4">
-            Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="icon"
+                className="absolute top-4 left-4 rounded-full border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur-sm"
+              >
+                <Upload className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Mettre à jour l'image de bannière</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm text-gray-500">L'image doit être exactement de 1584x140 pixels</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {isUploading && <p className="text-sm text-gray-500">Téléchargement en cours...</p>}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <div className="absolute top-0 right-0 p-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors bg-white/80 backdrop-blur-sm">
+                <UserRound className="h-6 w-6" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  Mon profile
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <h1 className="text-3xl font-bold text-white absolute left-16 top-1/2 transform -translate-y-1/2 drop-shadow-lg">
+            Tableau de bord
           </h1>
         </div>
+      </div>
 
-        <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[10px]">
-            <div className="mb-4 md:mb-8">
-              <WalletStats />
-            </div>
+      <div 
+        className="w-full max-w-[100vw] px-4 py-6 shadow-sm rounded-t-[25px]"
+        style={{
+          background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <h1 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 px-2 md:px-4">
+          Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
+        </h1>
+      </div>
 
-            <div className="mb-6">
-              <OrdersManagement />
-            </div>
+      <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[10px]">
+        <div className="mb-4 md:mb-8">
+          <WalletStats />
+        </div>
 
-            <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
-              <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
+        <div className="mb-6">
+          <OrdersManagement />
+        </div>
+
+        <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
+          <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
             <div className="flex flex-col items-center justify-center mb-4">
               <h2 className="text-lg font-semibold mb-2">Afficher plus</h2>
               <CollapsibleTrigger className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -357,14 +356,12 @@ const HomeContent = () => {
                 />
               </div>
             </CollapsibleContent>
-              </Collapsible>
+          </Collapsible>
 
-              <SalesCharts />
-            </div>
-          </div>
+          <SalesCharts />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
