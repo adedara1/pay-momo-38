@@ -252,10 +252,11 @@ const HomeContent = () => {
       </div>
 
       <div 
-        className="w-full max-w-[100vw] px-4 py-6 shadow-sm rounded-t-[25px]"
+        className="w-full max-w-[100vw] px-4 py-6 shadow-sm rounded-t-[25px] relative"
         style={{
           background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
           backdropFilter: "blur(10px)",
+          height: "200px" // Added fixed height to help with overlay calculation
         }}
       >
         <h1 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 px-2 md:px-4">
@@ -263,7 +264,7 @@ const HomeContent = () => {
         </h1>
       </div>
 
-      <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[10px]">
+      <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[25px] relative -mt-[150px]">
         <div className="mb-4 md:mb-8">
           <WalletStats />
         </div>
