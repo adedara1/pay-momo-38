@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 
 interface ProductDetailsProps {
   name: string;
@@ -10,13 +9,12 @@ interface ProductDetailsProps {
   imageUrl: string | null;
 }
 
-const ProductDetails = ({ name, description, long_description, amount, imageUrl }: ProductDetailsProps) => {
+const ProductDetails = ({ name, description, long_description, amount }: ProductDetailsProps) => {
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
 
   const toggleDetails = () => {
     setIsDetailsVisible(!isDetailsVisible);
     if (!isDetailsVisible) {
-      // Only scroll when opening
       setTimeout(() => {
         const element = document.getElementById('long-description');
         if (element) {
