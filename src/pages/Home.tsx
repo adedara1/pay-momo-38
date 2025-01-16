@@ -193,7 +193,7 @@ const HomeContent = () => {
 
   return (
     <>
-      <div className="w-full bg-gray-50 min-h-screen border border-white">
+      <div className="w-full min-h-screen border border-white relative" style={{ backgroundColor: '#000080' }}>
         {/* Banner Section */}
         <div className="relative px-4 md:px-8">
           <div 
