@@ -1,21 +1,22 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Product } from "@/types/product";
+import { SimplePage } from "@/types/simple-page";
 import ProductDetails from "./ProductDetails";
 import CustomerInfoForm from "@/components/CustomerInfoForm";
 
 interface ProductPageLayoutProps {
-  product: Product;
+  product: Product | SimplePage;
 }
 
 const ProductPageLayout = ({ product }: ProductPageLayoutProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {isMobile ? (
-        <>
+        <div className="flex flex-col">
           {product.image_url && (
-            <div className="w-full h-64 mb-6">
+            <div className="w-full h-64">
               <img
                 src={product.image_url}
                 alt={product.name}
@@ -23,28 +24,24 @@ const ProductPageLayout = ({ product }: ProductPageLayoutProps) => {
               />
             </div>
           )}
-          <div className="grid md:grid-cols-2 gap-8 p-6 min-h-screen">
-            <div>
-              <ProductDetails
-                name={product.name}
-                description={product.description}
-                long_description={product.long_description}
-                amount={product.amount}
-                imageUrl={product.image_url}
-              />
-            </div>
-            <div>
-              <CustomerInfoForm
-                amount={product.amount}
-                description={product.description || product.name}
-                paymentLinkId={product.payment_link_id || ""}
-                onClose={() => {}}
-              />
-            </div>
+          <div className="flex-1 p-6 space-y-8">
+            <ProductDetails
+              name={product.name}
+              description={product.description}
+              long_description={'long_description' in product ? product.long_description : null}
+              amount={product.amount}
+              imageUrl={product.image_url}
+            />
+            <CustomerInfoForm
+              amount={product.amount}
+              description={product.description || product.name}
+              paymentLinkId={product.payment_link_id || ""}
+              onClose={() => {}}
+            />
           </div>
-        </>
+        </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-8 p-6 min-h-screen">
+        <div className="grid md:grid-cols-2 gap-8 p-6 min-h-screen max-w-7xl mx-auto">
           <div className="space-y-6">
             {product.image_url && (
               <div className="w-full h-[400px]">
@@ -58,12 +55,12 @@ const ProductPageLayout = ({ product }: ProductPageLayoutProps) => {
             <ProductDetails
               name={product.name}
               description={product.description}
-              long_description={product.long_description}
+              long_description={'long_description' in product ? product.long_description : null}
               amount={product.amount}
               imageUrl={product.image_url}
             />
           </div>
-          <div>
+          <div className="sticky top-6">
             <CustomerInfoForm
               amount={product.amount}
               description={product.description || product.name}
