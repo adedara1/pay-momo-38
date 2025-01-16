@@ -87,6 +87,15 @@ const ProductPage = () => {
 
   return (
     <div className="min-h-screen">
+      {product.image_url && (
+        <div className="w-full h-64 mb-6">
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <div className="grid md:grid-cols-2 gap-8 p-6 min-h-screen">
         <div>
           <ProductDetails

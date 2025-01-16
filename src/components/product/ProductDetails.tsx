@@ -28,15 +28,6 @@ const ProductDetails = ({ name, description, long_description, amount, imageUrl 
 
   return (
     <div className="space-y-4">
-      {imageUrl && (
-        <div className="w-full h-64 mb-6">
-          <img
-            src={imageUrl}
-            alt={name}
-            className="w-full h-full object-cover rounded-lg"
-          />
-        </div>
-      )}
       <h1 className="text-2xl font-bold">{name}</h1>
       <p className="text-xl">{amount} XOF</p>
       {description && <p className="text-gray-600">{description}</p>}
