@@ -26,16 +26,21 @@ export const ProductImageInput = ({ handleImageChange, required = true }: Produc
     setIsDragging(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const fileInput = inputRef.current;
-      if (fileInput) {
-        // Create a new event with the dropped file
-        const newEvent = {
-          target: {
-            files: e.dataTransfer.files
-          }
-        } as unknown as React.ChangeEvent<HTMLInputElement>;
+      // Create a new FileList with the dropped file
+      const dt = new DataTransfer();
+      dt.items.add(e.dataTransfer.files[0]);
+      
+      // Update the input's files
+      if (inputRef.current) {
+        inputRef.current.files = dt.files;
+        // Trigger the change event manually
+        const event = new Event('change', { bubbles: true });
+        inputRef.current.dispatchEvent(event);
         
-        handleImageChange(newEvent);
+        // Call the handleImageChange with the proper event
+        handleImageChange({
+          target: inputRef.current
+        } as React.ChangeEvent<HTMLInputElement>);
       }
     }
   };
