@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CreditCard } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CustomerInfoFormProps {
   amount: number;
@@ -22,28 +23,31 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
   const [isFormVisible, setIsFormVisible] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsFormVisible(entry.isIntersecting);
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "-50px",
-      }
-    );
+    if (isMobile) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsFormVisible(entry.isIntersecting);
+        },
+        {
+          threshold: 0.1,
+          rootMargin: "-50px",
+        }
+      );
 
-    if (formRef.current) {
-      observer.observe(formRef.current);
-    }
-
-    return () => {
       if (formRef.current) {
-        observer.unobserve(formRef.current);
+        observer.observe(formRef.current);
       }
-    };
-  }, []);
+
+      return () => {
+        if (formRef.current) {
+          observer.unobserve(formRef.current);
+        }
+      };
+    }
+  }, [isMobile]);
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ 
@@ -123,50 +127,52 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
 
   return (
     <>
-      <Card className="p-6">
+      <Card className={`p-6 ${!isMobile ? 'sticky top-24' : ''}`}>
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <Input
-              type="email"
-              value={customerEmail}
-              onChange={(e) => setCustomerEmail(e.target.value)}
-              placeholder="email@exemple.com"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`${isMobile ? 'flex flex-col space-y-4' : 'space-y-4'}`}>
             <div>
-              <label className="block text-sm font-medium mb-1">Prénom</label>
+              <label className="block text-sm font-medium mb-1">Email</label>
               <Input
-                value={customerFirstName}
-                onChange={(e) => setCustomerFirstName(e.target.value)}
-                placeholder="Prénom"
+                type="email"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                placeholder="email@exemple.com"
                 required
               />
             </div>
 
+            <div className={`${isMobile ? 'flex flex-col space-y-4' : 'grid grid-cols-2 gap-4'}`}>
+              <div>
+                <label className="block text-sm font-medium mb-1">Prénom</label>
+                <Input
+                  value={customerFirstName}
+                  onChange={(e) => setCustomerFirstName(e.target.value)}
+                  placeholder="Prénom"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Nom</label>
+                <Input
+                  value={customerLastName}
+                  onChange={(e) => setCustomerLastName(e.target.value)}
+                  placeholder="Nom"
+                  required
+                />
+              </div>
+            </div>
+
             <div>
-              <label className="block text-sm font-medium mb-1">Nom</label>
+              <label className="block text-sm font-medium mb-1">Téléphone</label>
               <Input
-                value={customerLastName}
-                onChange={(e) => setCustomerLastName(e.target.value)}
-                placeholder="Nom"
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="+221 XX XXX XX XX"
                 required
               />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Téléphone</label>
-            <Input
-              type="tel"
-              value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              placeholder="+221 XX XXX XX XX"
-              required
-            />
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
@@ -175,7 +181,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
         </form>
       </Card>
 
-      {!isFormVisible && (
+      {!isFormVisible && isMobile && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50 flex justify-center">
           <Button 
             onClick={scrollToForm} 
