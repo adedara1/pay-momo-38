@@ -26,28 +26,26 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (isMobile) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setIsFormVisible(entry.isIntersecting);
-        },
-        {
-          threshold: 0.1,
-          rootMargin: "-50px",
-        }
-      );
-
-      if (formRef.current) {
-        observer.observe(formRef.current);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFormVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "-50px",
       }
+    );
 
-      return () => {
-        if (formRef.current) {
-          observer.unobserve(formRef.current);
-        }
-      };
+    if (formRef.current) {
+      observer.observe(formRef.current);
     }
-  }, [isMobile]);
+
+    return () => {
+      if (formRef.current) {
+        observer.unobserve(formRef.current);
+      }
+    };
+  }, []);
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ 
