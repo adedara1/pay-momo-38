@@ -24,7 +24,7 @@ const ProductPageLayout = ({ product }: ProductPageLayoutProps) => {
               />
             </div>
           )}
-          <div className="flex-1 p-6 space-y-8">
+          <div className="flex-1 p-6 space-y-8" style={{ backgroundColor: '#ccddff' }}>
             <ProductDetails
               name={product.name}
               description={product.description}
