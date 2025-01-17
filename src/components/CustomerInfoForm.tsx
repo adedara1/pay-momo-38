@@ -127,7 +127,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
 
   return (
     <>
-      <Card className={`p-6 ${!isMobile ? 'sticky top-24' : ''}`}>
+      <Card className="p-6 sticky top-24">
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
           <div className={`${isMobile ? 'flex flex-col space-y-4' : 'space-y-4'}`}>
             <div>
@@ -181,7 +181,7 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
         </form>
       </Card>
 
-      {!isFormVisible && isMobile && (
+      {!isFormVisible && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50 flex justify-center">
           <Button 
             onClick={scrollToForm} 
