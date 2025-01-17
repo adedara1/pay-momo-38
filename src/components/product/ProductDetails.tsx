@@ -26,7 +26,7 @@ const ProductDetails = ({ name, description, long_description, amount }: Product
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold w-[calc(100%+50px)]">{name}</h1>
+      <h1 className="text-2xl font-bold">{name}</h1>
       <p className="text-xl">{amount} XOF</p>
       {description && <p className="text-gray-600">{description}</p>}
       
