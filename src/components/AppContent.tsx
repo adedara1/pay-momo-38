@@ -23,7 +23,7 @@ import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import PublicRoute from "@/components/routes/PublicRoute";
 
 // Routes that should not display the sidebar
-const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile'];
+const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile', '/paiement'];
 
 // Routes that should display the settings sidebar
 const settingsRoutes = ['/configuration', '/editeur', '/donnees', '/page-apercu'];
@@ -43,6 +43,7 @@ const AppContent = () => {
           <Route path="/admins" element={<PublicRoute><AdminAuth /></PublicRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
           <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/paiement" element={<PaymentFrame />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
           <Route path="/products-pages" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />

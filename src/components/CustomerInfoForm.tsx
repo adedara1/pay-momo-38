@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CreditCard } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 
 interface CustomerInfoFormProps {
   amount: number;
@@ -23,11 +23,10 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, onPayme
   const [customerPhone, setCustomerPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(true);
-  const [showPaymentFrame, setShowPaymentFrame] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -114,8 +113,8 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, onPayme
         onPaymentStart();
       }
 
-      setPaymentUrl(paymentData.payment_url);
-      setShowPaymentFrame(true);
+      // Rediriger vers la page de paiement avec l'URL en paramètre
+      navigate(`/paiement?url=${encodeURIComponent(paymentData.payment_url)}`);
 
     } catch (error) {
       console.error("Error initiating payment:", error);
@@ -200,18 +199,6 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, onPayme
           </Button>
         </div>
       )}
-
-      <Dialog open={showPaymentFrame} onOpenChange={setShowPaymentFrame}>
-        <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] p-0">
-          {paymentUrl && (
-            <iframe
-              src={paymentUrl}
-              className="w-full h-[80vh] border-0"
-              allow="payment"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
