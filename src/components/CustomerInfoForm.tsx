@@ -13,9 +13,10 @@ interface CustomerInfoFormProps {
   description: string;
   paymentLinkId: string;
   onClose: () => void;
+  onPaymentStart?: () => void;
 }
 
-const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: CustomerInfoFormProps) => {
+const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, onPaymentStart }: CustomerInfoFormProps) => {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerFirstName, setCustomerFirstName] = useState("");
   const [customerLastName, setCustomerLastName] = useState("");
@@ -109,7 +110,10 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
         throw new Error("URL de paiement manquante dans la réponse");
       }
 
-      // Instead of redirecting, show the payment URL in an iframe
+      if (onPaymentStart) {
+        onPaymentStart();
+      }
+
       setPaymentUrl(paymentData.payment_url);
       setShowPaymentFrame(true);
 
