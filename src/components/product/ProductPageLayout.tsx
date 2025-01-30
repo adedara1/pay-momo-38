@@ -4,6 +4,8 @@ import { SimplePage } from "@/types/simple-page";
 import ProductDetails from "./ProductDetails";
 import CustomerInfoForm from "@/components/CustomerInfoForm";
 import { Tag } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface ProductPageLayoutProps {
   product: Product | SimplePage;
@@ -11,6 +13,13 @@ interface ProductPageLayoutProps {
 
 const ProductPageLayout = ({ product }: ProductPageLayoutProps) => {
   const isMobile = useIsMobile();
+  const [showPaymentFrame, setShowPaymentFrame] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState("");
+
+  const handlePaymentStart = (url: string) => {
+    setPaymentUrl(url);
+    setShowPaymentFrame(true);
+  };
 
   return (
     <>
@@ -47,6 +56,7 @@ const ProductPageLayout = ({ product }: ProductPageLayoutProps) => {
                 description={product.description || product.name}
                 paymentLinkId={product.payment_link_id || ""}
                 onClose={() => {}}
+                onPaymentStart={handlePaymentStart}
               />
             </div>
           </div>
@@ -76,11 +86,24 @@ const ProductPageLayout = ({ product }: ProductPageLayoutProps) => {
                 description={product.description || product.name}
                 paymentLinkId={product.payment_link_id || ""}
                 onClose={() => {}}
+                onPaymentStart={handlePaymentStart}
               />
             </div>
           </div>
         )}
       </div>
+
+      <Dialog open={showPaymentFrame} onOpenChange={setShowPaymentFrame}>
+        <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] p-0">
+          {paymentUrl && (
+            <iframe
+              src={paymentUrl}
+              className="w-full h-[80vh] border-0"
+              allow="payment"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
