@@ -1,85 +1,123 @@
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useRef, useEffect } from "react";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CreditCard } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface CustomerInfoFormProps {
   amount: number;
   description: string;
   paymentLinkId: string;
   onClose: () => void;
-  onPaymentStart: (url: string) => void;
 }
 
-const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, onPaymentStart }: CustomerInfoFormProps) => {
+const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: CustomerInfoFormProps) => {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerFirstName, setCustomerFirstName] = useState("");
   const [customerLastName, setCustomerLastName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(true);
+  const [showPaymentFrame, setShowPaymentFrame] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formRef.current?.checkValidity()) {
-      toast({
-        title: "Erreur de validation",
-        description: "Veuillez remplir tous les champs obligatoires",
-        variant: "destructive",
-      });
-      return;
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFormVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "-50px",
+      }
+    );
+
+    if (formRef.current) {
+      observer.observe(formRef.current);
     }
 
+    return () => {
+      if (formRef.current) {
+        observer.unobserve(formRef.current);
+      }
+    };
+  }, []);
+
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ 
+      behavior: "smooth",
+      block: "start"
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
 
     try {
-      console.log("Initializing payment with data:", {
+      if (amount < 200) {
+        toast({
+          title: "Montant invalide",
+          description: "Le montant minimum est de 200 FCFA",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      console.log("Initiating payment with customer info:", {
         amount,
         description,
-        customer: {
-          email: customerEmail,
-          first_name: customerFirstName,
-          last_name: customerLastName,
-          phone: customerPhone
-        }
+        customerEmail,
+        customerFirstName,
+        customerLastName,
+        customerPhone
       });
 
-      const { data: paymentData, error } = await supabase.functions.invoke("initialize-payment", {
-        body: {
-          amount: amount,
-          description: description,
-          customer: {
-            email: customerEmail || undefined,
-            first_name: customerFirstName || undefined,
-            last_name: customerLastName || undefined,
-            phone: customerPhone || undefined
+      const { data: paymentData, error: paymentError } = await supabase.functions.invoke(
+        "create-payment-link",
+        {
+          body: {
+            amount,
+            description,
+            payment_type: "product",
+            customer: {
+              email: customerEmail,
+              first_name: customerFirstName,
+              last_name: customerLastName,
+              phone: customerPhone
+            }
           }
         }
-      });
+      );
 
-      if (error) throw error;
+      if (paymentError) {
+        console.error("Payment error:", paymentError);
+        throw paymentError;
+      }
 
-      console.log("Payment initialized:", paymentData);
+      console.log("Payment initiated successfully:", paymentData);
 
       if (!paymentData.payment_url) {
         throw new Error("URL de paiement manquante dans la réponse");
       }
 
-      // Instead of redirecting, call the onPaymentStart callback
-      onPaymentStart(paymentData.payment_url);
-      setIsFormVisible(false);
+      // Instead of redirecting, show the payment URL in an iframe
+      setPaymentUrl(paymentData.payment_url);
+      setShowPaymentFrame(true);
 
     } catch (error) {
       console.error("Error initiating payment:", error);
       toast({
-        title: "Erreur de paiement",
-        description: error.message || "Une erreur est survenue lors du paiement",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'initiation du paiement",
         variant: "destructive",
       });
     } finally {
@@ -87,71 +125,89 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose, onPayme
     }
   };
 
-  if (!isFormVisible) {
-    return null;
-  }
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat('fr-FR').format(amount);
+  };
 
   return (
     <>
-      <div className={`space-y-6 ${isMobile ? '' : 'bg-white p-6 rounded-lg shadow-lg'}`}>
-        <div className="space-y-2">
-          <h2 className="text-2xl font-semibold">Informations de paiement</h2>
-          <p className="text-gray-500">
-            Montant à payer: {amount} XOF
-          </p>
-        </div>
-
+      <Card className="p-6 sticky top-24">
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email (optionnel)</label>
-            <Input
-              type="email"
-              value={customerEmail}
-              onChange={(e) => setCustomerEmail(e.target.value)}
-              placeholder="email@exemple.com"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`${isMobile ? 'flex flex-col space-y-4' : 'space-y-4'}`}>
             <div>
-              <label className="block text-sm font-medium mb-1">Prénom (optionnel)</label>
+              <label className="block text-sm font-medium mb-1">Email</label>
               <Input
-                value={customerFirstName}
-                onChange={(e) => setCustomerFirstName(e.target.value)}
-                placeholder="Prénom"
+                type="email"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                placeholder="email@exemple.com"
+                required
               />
             </div>
 
+            <div className={`${isMobile ? 'flex flex-col space-y-4' : 'grid grid-cols-2 gap-4'}`}>
+              <div>
+                <label className="block text-sm font-medium mb-1">Prénom</label>
+                <Input
+                  value={customerFirstName}
+                  onChange={(e) => setCustomerFirstName(e.target.value)}
+                  placeholder="Prénom"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Nom</label>
+                <Input
+                  value={customerLastName}
+                  onChange={(e) => setCustomerLastName(e.target.value)}
+                  placeholder="Nom"
+                  required
+                />
+              </div>
+            </div>
+
             <div>
-              <label className="block text-sm font-medium mb-1">Nom (optionnel)</label>
+              <label className="block text-sm font-medium mb-1">Téléphone</label>
               <Input
-                value={customerLastName}
-                onChange={(e) => setCustomerLastName(e.target.value)}
-                placeholder="Nom"
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="+221 XX XXX XX XX"
+                required
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Téléphone (optionnel)</label>
-            <Input
-              type="tel"
-              value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              placeholder="+221 XX XXX XX XX"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full bg-green-600 hover:bg-green-700"
-            disabled={isLoading}
-          >
-            <CreditCard className="mr-2 h-5 w-5" />
-            {isLoading ? "Traitement..." : "Payer maintenant"}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Traitement..." : "Payer Maintenant"}
           </Button>
         </form>
-      </div>
+      </Card>
+
+      {!isFormVisible && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg z-50 flex justify-center">
+          <Button 
+            onClick={scrollToForm} 
+            className="w-full md:w-[500px] bg-green-600 hover:bg-green-700 text-base"
+          >
+            <CreditCard className="mr-2 h-5 w-5" />
+            Payer {formatAmount(amount)} FCFA
+          </Button>
+        </div>
+      )}
+
+      <Dialog open={showPaymentFrame} onOpenChange={setShowPaymentFrame}>
+        <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] p-0">
+          {paymentUrl && (
+            <iframe
+              src={paymentUrl}
+              className="w-full h-[80vh] border-0"
+              allow="payment"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
