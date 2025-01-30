@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CreditCard } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface CustomerInfoFormProps {
   amount: number;
@@ -21,6 +22,8 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
   const [customerPhone, setCustomerPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(true);
+  const [showPaymentFrame, setShowPaymentFrame] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -106,7 +109,10 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
         throw new Error("URL de paiement manquante dans la réponse");
       }
 
-      window.location.href = paymentData.payment_url;
+      // Instead of redirecting, show the payment URL in an iframe
+      setPaymentUrl(paymentData.payment_url);
+      setShowPaymentFrame(true);
+
     } catch (error) {
       console.error("Error initiating payment:", error);
       toast({
@@ -190,6 +196,18 @@ const CustomerInfoForm = ({ amount, description, paymentLinkId, onClose }: Custo
           </Button>
         </div>
       )}
+
+      <Dialog open={showPaymentFrame} onOpenChange={setShowPaymentFrame}>
+        <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] p-0">
+          {paymentUrl && (
+            <iframe
+              src={paymentUrl}
+              className="w-full h-[80vh] border-0"
+              allow="payment"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
