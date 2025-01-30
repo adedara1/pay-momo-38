@@ -77,6 +77,182 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      global_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_fee_percentage: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_fee_percentage?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_fee_percentage?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          callback_url: string | null
+          created_at: string | null
+          custom_data: Json | null
+          customer_id: string | null
+          description: string | null
+          id: string
+          payment_token: string | null
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          callback_url?: string | null
+          created_at?: string | null
+          custom_data?: Json | null
+          customer_id?: string | null
+          description?: string | null
+          id?: string
+          payment_token?: string | null
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          callback_url?: string | null
+          created_at?: string | null
+          custom_data?: Json | null
+          customer_id?: string | null
+          description?: string | null
+          id?: string
+          payment_token?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      momo_providers_mapping: {
+        Row: {
+          country_iso: string
+          created_at: string | null
+          id: string
+          pawapay_code: string
+          provider_name: string
+        }
+        Insert: {
+          country_iso: string
+          created_at?: string | null
+          id?: string
+          pawapay_code: string
+          provider_name: string
+        }
+        Update: {
+          country_iso?: string
+          created_at?: string | null
+          id?: string
+          pawapay_code?: string
+          provider_name?: string
+        }
+        Relationships: []
+      }
+      pawapay_payouts: {
+        Row: {
+          amount: number
+          correspondent: string
+          country: string
+          created_at: string | null
+          currency: string
+          id: string
+          payout_id: string | null
+          recipient_address: string
+          statement_description: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          correspondent: string
+          country: string
+          created_at?: string | null
+          currency: string
+          id?: string
+          payout_id?: string | null
+          recipient_address: string
+          statement_description?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          correspondent?: string
+          country?: string
+          created_at?: string | null
+          currency?: string
+          id?: string
+          payout_id?: string | null
+          recipient_address?: string
+          statement_description?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pawapay_payouts_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "payouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pawapay_payouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_links: {
         Row: {
           amount: number
@@ -113,20 +289,99 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods_config: {
+        Row: {
+          api_endpoint: string
+          country_code: string
+          created_at: string | null
+          form_fields: Json | null
+          id: string
+          is_active: boolean | null
+          provider_code: string
+          provider_name: string
+          requires_otp: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_endpoint: string
+          country_code: string
+          created_at?: string | null
+          form_fields?: Json | null
+          id?: string
+          is_active?: boolean | null
+          provider_code: string
+          provider_name: string
+          requires_otp?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_endpoint?: string
+          country_code?: string
+          created_at?: string | null
+          form_fields?: Json | null
+          id?: string
+          is_active?: boolean | null
+          provider_code?: string
+          provider_name?: string
+          requires_otp?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          fees: number | null
+          id: string
+          invoice_id: string | null
+          payment_url: string | null
+          phone_number: string
+          provider: string
+          provider_reference: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          fees?: number | null
+          id?: string
+          invoice_id?: string | null
+          payment_url?: string | null
+          phone_number: string
+          provider: string
+          provider_reference?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          fees?: number | null
+          id?: string
+          invoice_id?: string | null
+          payment_url?: string | null
+          phone_number?: string
+          provider?: string
+          provider_reference?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       payouts: {
         Row: {
           amount: number
           created_at: string | null
-          currency: string
-          customer_email: string
-          customer_first_name: string
-          customer_last_name: string
+          currency: string | null
+          customer_email: string | null
+          customer_first_name: string | null
+          customer_last_name: string | null
           customer_phone: string | null
           description: string | null
           id: string
-          metadata: Json | null
-          method: string
-          moneroo_payout_id: string | null
+          method: string | null
           status: string | null
           updated_at: string | null
           user_id: string | null
@@ -134,16 +389,14 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string | null
-          currency?: string
-          customer_email: string
-          customer_first_name: string
-          customer_last_name: string
+          currency?: string | null
+          customer_email?: string | null
+          customer_first_name?: string | null
+          customer_last_name?: string | null
           customer_phone?: string | null
           description?: string | null
           id?: string
-          metadata?: Json | null
-          method: string
-          moneroo_payout_id?: string | null
+          method?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -151,16 +404,14 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string | null
-          currency?: string
-          customer_email?: string
-          customer_first_name?: string
-          customer_last_name?: string
+          currency?: string | null
+          customer_email?: string | null
+          customer_first_name?: string | null
+          customer_last_name?: string | null
           customer_phone?: string | null
           description?: string | null
           id?: string
-          metadata?: Json | null
-          method?: string
-          moneroo_payout_id?: string | null
+          method?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -295,21 +546,18 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          product_fee_percentage: number
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
-          product_fee_percentage?: number
           updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
-          product_fee_percentage?: number
           updated_at?: string | null
           user_id?: string
         }
