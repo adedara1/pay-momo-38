@@ -19,6 +19,7 @@ import EditeurPage from "@/pages/EditeurPage";
 import DonneesPage from "@/pages/DonneesPage";
 import UsersDataUpdate from "@/pages/UsersDataUpdate";
 import PaymentPreview from "@/pages/PaymentPreview";
+import PaymentFrame from "@/components/PaymentFrame";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import PublicRoute from "@/components/routes/PublicRoute";
 
