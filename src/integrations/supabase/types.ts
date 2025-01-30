@@ -89,7 +89,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           full_name: string
-          id?: string
+          id: string
           phone?: string | null
         }
         Update: {
@@ -307,7 +307,7 @@ export type Database = {
           country_code: string
           created_at?: string | null
           form_fields?: Json | null
-          id?: string
+          id: string
           is_active?: boolean | null
           provider_code: string
           provider_name: string
@@ -372,60 +372,63 @@ export type Database = {
       }
       payouts: {
         Row: {
-          amount: number
-          created_at: string | null
-          currency: string | null
-          customer_email: string | null
-          customer_first_name: string | null
-          customer_last_name: string | null
-          customer_phone: string | null
-          description: string | null
-          id: string
-          method: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
+          id: string;
+          user_id: string | null;
+          amount: number;
+          description: string | null;
+          customer_email: string | null;
+          customer_first_name: string | null;
+          customer_last_name: string | null;
+          customer_phone: string | null;
+          method: string | null;
+          currency: string | null;
+          status: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+          moneroo_payout_id: string | null;
+        };
         Insert: {
-          amount: number
-          created_at?: string | null
-          currency?: string | null
-          customer_email?: string | null
-          customer_first_name?: string | null
-          customer_last_name?: string | null
-          customer_phone?: string | null
-          description?: string | null
-          id?: string
-          method?: string | null
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
+          id?: string;
+          user_id?: string | null;
+          amount: number;
+          description?: string | null;
+          customer_email?: string | null;
+          customer_first_name?: string | null;
+          customer_last_name?: string | null;
+          customer_phone?: string | null;
+          method?: string | null;
+          currency?: string | null;
+          status?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          moneroo_payout_id?: string | null;
+        };
         Update: {
-          amount?: number
-          created_at?: string | null
-          currency?: string | null
-          customer_email?: string | null
-          customer_first_name?: string | null
-          customer_last_name?: string | null
-          customer_phone?: string | null
-          description?: string | null
-          id?: string
-          method?: string | null
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
+          id?: string;
+          user_id?: string | null;
+          amount?: number;
+          description?: string | null;
+          customer_email?: string | null;
+          customer_first_name?: string | null;
+          customer_last_name?: string | null;
+          customer_phone?: string | null;
+          method?: string | null;
+          currency?: string | null;
+          status?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          moneroo_payout_id?: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "payouts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
+            foreignKeyName: "payouts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       products: {
         Row: {
           amount: number
@@ -544,237 +547,27 @@ export type Database = {
       }
       settings: {
         Row: {
-          created_at: string | null
-          id: string
-          updated_at: string | null
-          user_id: string
-        }
+          id: string;
+          user_id: string;
+          created_at: string | null;
+          updated_at: string | null;
+          product_fee_percentage: number | null;
+        };
         Insert: {
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-          user_id: string
-        }
+          id?: string;
+          user_id: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          product_fee_percentage?: number | null;
+        };
         Update: {
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      simple_pages: {
-        Row: {
-          amount: number
-          created_at: string | null
-          description: string | null
-          id: string
-          image_url: string | null
-          name: string
-          payment_link_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          name: string
-          payment_link_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          name?: string
-          payment_link_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "simple_pages_payment_link_id_fkey"
-            columns: ["payment_link_id"]
-            isOneToOne: false
-            referencedRelation: "payment_links"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      transactions: {
-        Row: {
-          amount: number
-          created_at: string | null
-          customer_contact: string | null
-          customer_name: string | null
-          id: string
-          moneroo_reference: string | null
-          processed: boolean | null
-          product_id: string | null
-          status: string | null
-          type: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          customer_contact?: string | null
-          customer_name?: string | null
-          id?: string
-          moneroo_reference?: string | null
-          processed?: boolean | null
-          product_id?: string | null
-          status?: string | null
-          type?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          customer_contact?: string | null
-          customer_name?: string | null
-          id?: string
-          moneroo_reference?: string | null
-          processed?: boolean | null
-          product_id?: string | null
-          status?: string | null
-          type?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "transactions_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_stats: {
-        Row: {
-          available_balance: number | null
-          balance: number | null
-          created_at: string | null
-          daily_sales: number | null
-          daily_transactions: number | null
-          id: string
-          monthly_sales: number | null
-          monthly_transactions: number | null
-          pending_requests: number | null
-          previous_month_sales: number | null
-          previous_month_transactions: number | null
-          sales_growth: number | null
-          sales_total: number | null
-          total_products: number | null
-          total_transactions: number | null
-          updated_at: string | null
-          user_id: string | null
-          validated_requests: number | null
-          visible_products: number | null
-        }
-        Insert: {
-          available_balance?: number | null
-          balance?: number | null
-          created_at?: string | null
-          daily_sales?: number | null
-          daily_transactions?: number | null
-          id?: string
-          monthly_sales?: number | null
-          monthly_transactions?: number | null
-          pending_requests?: number | null
-          previous_month_sales?: number | null
-          previous_month_transactions?: number | null
-          sales_growth?: number | null
-          sales_total?: number | null
-          total_products?: number | null
-          total_transactions?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-          validated_requests?: number | null
-          visible_products?: number | null
-        }
-        Update: {
-          available_balance?: number | null
-          balance?: number | null
-          created_at?: string | null
-          daily_sales?: number | null
-          daily_transactions?: number | null
-          id?: string
-          monthly_sales?: number | null
-          monthly_transactions?: number | null
-          pending_requests?: number | null
-          previous_month_sales?: number | null
-          previous_month_transactions?: number | null
-          sales_growth?: number | null
-          sales_total?: number | null
-          total_products?: number | null
-          total_transactions?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-          validated_requests?: number | null
-          visible_products?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_stats_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      wallets: {
-        Row: {
-          available: number | null
-          created_at: string | null
-          id: string
-          pending: number | null
-          updated_at: string | null
-          user_id: string
-          validated: number | null
-        }
-        Insert: {
-          available?: number | null
-          created_at?: string | null
-          id?: string
-          pending?: number | null
-          updated_at?: string | null
-          user_id: string
-          validated?: number | null
-        }
-        Update: {
-          available?: number | null
-          created_at?: string | null
-          id?: string
-          pending?: number | null
-          updated_at?: string | null
-          user_id?: string
-          validated?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "wallets_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+          id?: string;
+          user_id?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          product_fee_percentage?: number | null;
+        };
+        Relationships: [];
       }
     }
     Views: {
@@ -801,7 +594,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -813,10 +606,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+      Row: infer R
+    }
+    ? R
+    : never
     : never
 
 export type TablesInsert<
