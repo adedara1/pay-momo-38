@@ -1,11 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { HeaderImageUpload } from "./shared/HeaderImageUpload";
 
 interface UserProfile {
   first_name: string;
@@ -20,12 +19,14 @@ interface BlogSidebarProps {
 
 const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Menu Admin");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
 
+  // Charger l'image d'en-tête au chargement du composant
   useEffect(() => {
     const loadHeaderImage = async () => {
       try {
@@ -53,6 +54,90 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
     };
 
     loadHeaderImage();
+  }, []);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `header-images/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      // First delete any existing header image for this user
+      await supabase
+        .from('header_images')
+        .delete()
+        .eq('user_id', user.id);
+
+      // Then insert the new one
+      const { error: dbError } = await supabase
+        .from('header_images')
+        .insert({
+          user_id: user.id,
+          image_url: publicUrl
+        });
+
+      if (dbError) {
+        throw dbError;
+      }
+
+      setHeaderImageUrl(publicUrl);
+      console.log('Header image saved:', publicUrl);
+
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        // Filter menu items based on admin status
+        const filtered = menuItems.filter(item => 
+          item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)
+        );
+        setFilteredMenuItems(filtered);
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+      }
+    };
+
+    checkAdminStatus();
   }, []);
 
   const toggleSubmenu = (label: string) => {
@@ -91,6 +176,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
+        {/* Header section with image upload */}
         <div 
           className="relative flex items-center gap-2 px-4 py-4 border-b h-16 w-64 flex-shrink-0 whitespace-nowrap"
           style={{
@@ -99,7 +185,19 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
             backgroundPosition: 'center',
           }}
         >
-          <HeaderImageUpload />
+          <label 
+            htmlFor="header-image-upload" 
+            className="absolute top-2 left-2 cursor-pointer hover:opacity-70 transition-opacity"
+          >
+            <ImagePlus className="w-5 h-5 text-blue-600" />
+            <input
+              id="header-image-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </label>
         </div>
 
         {/* Company name section */}

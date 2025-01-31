@@ -6,7 +6,6 @@ import { menuItems, logoutMenuItem } from "@/lib/menuItems";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { HeaderImageUpload } from "./shared/HeaderImageUpload";
 
 interface UserProfile {
   first_name: string;
@@ -25,35 +24,6 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
-  const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadHeaderImage = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data: headerImage, error } = await supabase
-          .from('header_images')
-          .select('image_url')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching header image:', error);
-          return;
-        }
-
-        if (headerImage) {
-          setHeaderImageUrl(headerImage.image_url);
-        }
-      } catch (error) {
-        console.error('Error loading header image:', error);
-      }
-    };
-
-    loadHeaderImage();
-  }, []);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -123,15 +93,8 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
         )}
       >
         <div className="flex h-full flex-col">
-          <div 
-            className="relative flex items-center justify-end p-4 border-b h-16 flex-shrink-0 whitespace-nowrap"
-            style={{
-              backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            <HeaderImageUpload />
+          {/* Header section */}
+          <div className="flex items-center justify-end p-4 border-b flex-shrink-0 whitespace-nowrap">
             <Button
               variant="ghost"
               size="icon"
@@ -142,6 +105,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
             </Button>
           </div>
 
+          {/* Company name section */}
           {userProfile?.company_name && (
             <div className="px-4 py-3 border-b">
               <h2 className="sr-only">Entreprise</h2>
