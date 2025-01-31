@@ -1,32 +1,11 @@
 import { ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
 
 export const HeaderImageUpload = () => {
   const { toast } = useToast();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data: adminUser } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        setIsAdmin(!!adminUser);
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-      }
-    };
-
-    checkAdminStatus();
-  }, []);
+  const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,16 +14,6 @@ export const HeaderImageUpload = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
-
-      // First, delete any existing header image for this user
-      const { error: deleteError } = await supabase
-        .from('header_images')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (deleteError) {
-        console.error('Error deleting existing header image:', deleteError);
-      }
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
@@ -62,6 +31,13 @@ export const HeaderImageUpload = () => {
         .from('product-images')
         .getPublicUrl(filePath);
 
+      // First delete any existing header image for this user
+      await supabase
+        .from('header_images')
+        .delete()
+        .eq('user_id', user.id);
+
+      // Then insert the new one
       const { error: dbError } = await supabase
         .from('header_images')
         .insert({
@@ -73,13 +49,13 @@ export const HeaderImageUpload = () => {
         throw dbError;
       }
 
+      setHeaderImageUrl(publicUrl);
+      console.log('Header image saved:', publicUrl);
+
       toast({
         title: "Success",
         description: "Image uploaded successfully",
       });
-
-      // Reload the page to show the new image
-      window.location.reload();
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
@@ -89,10 +65,6 @@ export const HeaderImageUpload = () => {
       });
     }
   };
-
-  if (!isAdmin) {
-    return null;
-  }
 
   return (
     <label 

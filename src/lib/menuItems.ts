@@ -1,74 +1,46 @@
 import {
-  LayoutDashboard,
-  FileText,
-  Settings,
-  LogOut,
-  ShoppingBag,
+  Home,
+  ShoppingCart,
+  CreditCard,
   Users,
+  Settings,
+  MessageSquare,
+  Headphones,
+  BarChart,
+  LogOut,
+  Package,
   Wallet,
-  ArrowLeftRight,
-  Link,
-  FileCode,
-  Menu
+  RefreshCw,
+  Menu,
+  Cog,
+  Store,
 } from "lucide-react";
 
 export const menuItems = [
+  { icon: Home, label: "Accueil", path: "/home" },
   {
-    icon: LayoutDashboard,
-    label: "Tableau de bord",
-    path: "/home"
-  },
-  {
-    icon: ShoppingBag,
-    label: "Produits",
-    path: "/products"
-  },
-  {
-    icon: Link,
-    label: "Liens de paiement",
-    path: "/payment-links"
-  },
-  {
-    icon: FileText,
-    label: "Pages simples",
-    path: "/simple-pages"
-  },
-  {
-    icon: ArrowLeftRight,
-    label: "Transactions",
-    path: "/transactions"
-  },
-  {
-    icon: Wallet,
-    label: "Retraits",
-    path: "/withdrawals"
-  },
-  {
-    icon: Users,
+    icon: Menu,
     label: "Menu Admin",
-    path: "/admin",
+    path: "#",
     submenu: [
-      {
-        icon: Users,
-        label: "Utilisateurs",
-        path: "/admin/users"
-      },
-      {
-        icon: FileCode,
-        label: "Données",
-        path: "/admin/data"
-      }
+      { icon: Settings, label: "Réglages", path: "/settings" },
+      { icon: Cog, label: "Configuration", path: "/configuration" },
     ]
   },
-  {
-    icon: Settings,
-    label: "Configuration",
-    path: "/configuration"
-  }
+  { icon: Package, label: "Produit", path: "/blog" },
+  { icon: Store, label: "Produits", path: "/products-pages" },
+  { icon: ShoppingCart, label: "Commandes", path: "/orders" },
+  { icon: CreditCard, label: "Transaction", path: "/transaction" },
+  { icon: Users, label: "Clients", path: "/clients" },
+  { icon: Wallet, label: "Retraits", path: "/withdrawals" },
+  { icon: RefreshCw, label: "Remboursements", path: "/refunds" },
+  { icon: MessageSquare, label: "Avis", path: "/reviews" },
+  { icon: Headphones, label: "Support", path: "/support" },
+  { icon: BarChart, label: "Facebook Pixel", path: "/facebook-pixel" },
 ];
 
 export const logoutMenuItem = {
   icon: LogOut,
   label: "Déconnexion",
-  path: "/logout"
+  path: "/logout",
 };
