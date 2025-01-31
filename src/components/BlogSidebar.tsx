@@ -34,22 +34,19 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Load UI preferences
-        const { data: preferences, error: prefError } = await supabase
+        // Load global UI preferences
+        const { data: globalPrefs, error: globalPrefError } = await supabase
           .from('ui_preferences')
           .select('show_logo_and_name')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (prefError) {
-          console.error('Error loading UI preferences:', prefError);
-        } else if (preferences) {
-          setShowLogoAndName(preferences.show_logo_and_name);
-        } else {
-          // Create default preferences if none exist
-          await supabase
-            .from('ui_preferences')
-            .insert({ user_id: user.id, show_logo_and_name: true });
+        if (globalPrefError) {
+          console.error('Error loading global UI preferences:', globalPrefError);
+        } else if (globalPrefs) {
+          // Apply global preference
+          setShowLogoAndName(globalPrefs.show_logo_and_name);
+          console.log('Global UI preferences loaded:', globalPrefs);
         }
 
         // Load header image
@@ -139,6 +136,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
 
       const newValue = !showLogoAndName;
       
+      // Update global preference
       const { error } = await supabase
         .from('ui_preferences')
         .upsert({ 
@@ -150,6 +148,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       if (error) throw error;
 
       setShowLogoAndName(newValue);
+      console.log('Logo visibility updated:', newValue);
     } catch (error) {
       console.error('Error updating logo visibility:', error);
       toast({
@@ -231,16 +230,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
             minHeight: '64px',
           }}
         >
-          <button
-            onClick={toggleLogoVisibility}
-            className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            {showLogoAndName ? (
-              <EyeOff className="w-4 h-4 text-gray-600" />
-            ) : (
-              <Eye className="w-4 h-4 text-gray-600" />
-            )}
-          </button>
+          {/* Image uploader - always visible */}
           <label 
             htmlFor="header-image-upload" 
             className="absolute top-2 left-2 cursor-pointer hover:opacity-70 transition-opacity"
@@ -254,6 +244,20 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
               className="hidden"
             />
           </label>
+
+          {/* Toggle visibility button */}
+          <button
+            onClick={toggleLogoVisibility}
+            className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
+          >
+            {showLogoAndName ? (
+              <EyeOff className="w-4 h-4 text-gray-600" />
+            ) : (
+              <Eye className="w-4 h-4 text-gray-600" />
+            )}
+          </button>
+
+          {/* Logo and company name - conditionally rendered */}
           {showLogoAndName && (
             <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
               <img
@@ -261,7 +265,9 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
                 alt="Logo"
                 className="w-8 h-8 relative z-10"
               />
-              <span className="font-semibold text-blue-600 relative z-10 whitespace-nowrap">Digit-Sarl</span>
+              <span className="font-semibold text-blue-600 relative z-10 whitespace-nowrap">
+                Digit-Sarl
+              </span>
             </div>
           )}
         </div>
