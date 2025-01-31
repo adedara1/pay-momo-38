@@ -119,8 +119,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           {isAdmin && <HeaderImageUpload />}
         </div>
 
-        <div className="mt-16"> {/* Add margin-top to account for fixed header */}
-          {/* Company name section with updated styling */}
+        <div className="mt-16">
           {userProfile?.company_name && (
             <div className="px-4 py-3 border-b rounded-[10px] bg-[#e4e6e5] border-2 border-blue-500">
               <h2 className="sr-only">Entreprise</h2>
@@ -129,7 +128,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
             </div>
           )}
 
-          {/* User profile section */}
           {userProfile && (
             <div className="px-4 py-6 text-center border-b">
               <div className="mb-4">
@@ -140,7 +138,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
                 />
               </div>
               <p className="text-sm text-muted-foreground">
-                Welcome {userProfile.first_name} {userProfile.last_name}
+                {userProfile.first_name} {userProfile.last_name}
               </p>
             </div>
           )}

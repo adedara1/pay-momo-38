@@ -157,7 +157,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
                 />
               </div>
               <p className="text-sm text-muted-foreground">
-                Welcome {userProfile.first_name} {userProfile.last_name}
+                {userProfile.first_name} {userProfile.last_name}
               </p>
             </div>
           )}
