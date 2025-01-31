@@ -122,6 +122,27 @@ export type Database = {
         }
         Relationships: []
       }
+      header_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           callback_url: string | null

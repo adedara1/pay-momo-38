@@ -34,11 +34,16 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: headerImage } = await supabase
+        const { data: headerImage, error } = await supabase
           .from('header_images')
           .select('image_url')
           .eq('user_id', user.id)
           .single();
+
+        if (error) {
+          console.error('Error fetching header image:', error);
+          return;
+        }
 
         if (headerImage) {
           setHeaderImageUrl(headerImage.image_url);
@@ -91,6 +96,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       }
 
       setHeaderImageUrl(publicUrl);
+      console.log('Header image saved:', publicUrl);
 
       toast({
         title: "Success",
@@ -174,7 +180,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
             backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            minHeight: '64px', // Garantit une hauteur minimale même quand vide
+            minHeight: '64px',
           }}
         >
           <button
