@@ -27,34 +27,50 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
   const [showLogoAndName, setShowLogoAndName] = useState(true);
 
-  // Charger l'image d'en-tête au chargement du composant
+  // Load UI preferences and header image
   useEffect(() => {
-    const loadHeaderImage = async () => {
+    const loadPreferences = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: headerImage, error } = await supabase
+        // Load UI preferences
+        const { data: preferences, error: prefError } = await supabase
+          .from('ui_preferences')
+          .select('show_logo_and_name')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (prefError) {
+          console.error('Error loading UI preferences:', prefError);
+        } else if (preferences) {
+          setShowLogoAndName(preferences.show_logo_and_name);
+        } else {
+          // Create default preferences if none exist
+          await supabase
+            .from('ui_preferences')
+            .insert({ user_id: user.id, show_logo_and_name: true });
+        }
+
+        // Load header image
+        const { data: headerImage, error: headerError } = await supabase
           .from('header_images')
           .select('image_url')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching header image:', error);
-          return;
-        }
-
-        if (headerImage) {
+        if (headerError) {
+          console.error('Error loading header image:', headerError);
+        } else if (headerImage) {
           setHeaderImageUrl(headerImage.image_url);
           console.log('Header image loaded:', headerImage.image_url);
         }
       } catch (error) {
-        console.error('Error loading header image:', error);
+        console.error('Error loading preferences:', error);
       }
     };
 
-    loadHeaderImage();
+    loadPreferences();
   }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,13 +97,13 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
         .from('product-images')
         .getPublicUrl(filePath);
 
-      // First delete any existing header image for this user
+      // Delete existing header image
       await supabase
         .from('header_images')
         .delete()
         .eq('user_id', user.id);
 
-      // Then insert the new one
+      // Insert new header image
       const { error: dbError } = await supabase
         .from('header_images')
         .insert({
@@ -111,6 +127,34 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       toast({
         title: "Error",
         description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleLogoVisibility = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const newValue = !showLogoAndName;
+      
+      const { error } = await supabase
+        .from('ui_preferences')
+        .upsert({ 
+          user_id: user.id, 
+          show_logo_and_name: newValue,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      setShowLogoAndName(newValue);
+    } catch (error) {
+      console.error('Error updating logo visibility:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update visibility preference",
         variant: "destructive",
       });
     }
@@ -188,7 +232,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           }}
         >
           <button
-            onClick={() => setShowLogoAndName(!showLogoAndName)}
+            onClick={toggleLogoVisibility}
             className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
           >
             {showLogoAndName ? (
