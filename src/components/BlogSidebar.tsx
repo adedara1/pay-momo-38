@@ -124,7 +124,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           .eq('id', user.id)
           .maybeSingle();
 
-        // Filter menu items based on admin status
         const filtered = menuItems.filter(item => 
           item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)
         );
@@ -173,9 +172,9 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
-        {/* Header section with image uploader only */}
+        {/* Header section with image uploader */}
         <div 
-          className="relative flex items-center gap-2 px-4 py-4 border-b h-16 w-64"
+          className="relative flex items-center justify-center h-16 w-64 border-b"
           style={{
             backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
             backgroundSize: 'cover',
@@ -185,7 +184,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           {/* Image uploader - always visible */}
           <label 
             htmlFor="header-image-upload" 
-            className="absolute top-2 left-2 cursor-pointer hover:opacity-70 transition-opacity"
+            className="absolute cursor-pointer hover:opacity-70 transition-opacity"
           >
             <ImagePlus className="w-5 h-5 text-blue-600" />
             <input
@@ -198,24 +197,9 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           </label>
         </div>
 
-        {/* Company name section */}
-        {userProfile?.company_name && (
-          <div className="px-4 py-3 border-b">
-            <h2 className="sr-only">Entreprise</h2>
-            <p className="text-base font-semibold">{userProfile.company_name}</p>
-          </div>
-        )}
-
         {/* User profile section */}
         {userProfile && (
           <div className="px-4 py-6 text-center border-b">
-            <div className="mb-4">
-              <img
-                src={userProfile.company_logo_url || "/placeholder.svg"}
-                alt="Profile"
-                className="w-20 h-20 mx-auto rounded-full object-cover border-4 border-blue-500"
-              />
-            </div>
             <p className="text-sm text-muted-foreground">
               Welcome {userProfile.first_name} {userProfile.last_name}
             </p>
