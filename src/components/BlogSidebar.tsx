@@ -38,7 +38,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           .from('header_images')
           .select('image_url')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching header image:', error);
@@ -81,14 +81,18 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
         .from('product-images')
         .getPublicUrl(filePath);
 
-      // Sauvegarder l'URL dans la base de données
+      // First delete any existing header image for this user
+      await supabase
+        .from('header_images')
+        .delete()
+        .eq('user_id', user.id);
+
+      // Then insert the new one
       const { error: dbError } = await supabase
         .from('header_images')
-        .upsert({
+        .insert({
           user_id: user.id,
           image_url: publicUrl
-        }, {
-          onConflict: 'user_id'
         });
 
       if (dbError) {
