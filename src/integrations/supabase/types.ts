@@ -518,6 +518,68 @@ export type Database = {
           },
         ]
       }
+      profile_change_requests: {
+        Row: {
+          business_sector: string | null
+          city: string | null
+          company_email: string | null
+          company_name: string | null
+          country: string | null
+          created_at: string | null
+          document_number: string | null
+          document_url: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone_number: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          business_sector?: string | null
+          city?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string | null
+          document_number?: string | null
+          document_url?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          business_sector?: string | null
+          city?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string | null
+          document_number?: string | null
+          document_url?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_change_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           auto_transfer: boolean | null
