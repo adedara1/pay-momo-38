@@ -4,18 +4,15 @@ import { ChevronLeft, Menu, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
 import { useState, useEffect } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-
-interface UserProfile {
-  first_name: string;
-  last_name: string;
-  company_name: string | null;
-  company_logo_url: string | null;
-}
+import { useToast } from "@/hooks/use-toast";
 
 interface MobileSidebarProps {
-  userProfile: UserProfile | null;
+  userProfile?: {
+    first_name: string;
+    last_name: string;
+  } | null;
 }
 
 const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
@@ -24,7 +21,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -47,18 +44,19 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
         }
 
         const { data: adminUser } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', user.id)
+          .from("admin_users")
+          .select("id")
+          .eq("id", user.id)
           .maybeSingle();
 
-        const filtered = menuItems.filter(item => 
-          item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)
-        );
-        setFilteredMenuItems(filtered);
+        setIsAdmin(!!adminUser);
       } catch (error) {
-        console.error('Error checking admin status:', error);
-        handleAuthError(error);
+        console.error("Error checking admin status:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de vérifier le statut administrateur",
+          variant: "destructive",
+        });
       }
     };
 
@@ -121,41 +119,34 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      await supabase.auth.signOut();
       navigate("/auth");
-      setIsCollapsed(true);
     } catch (error) {
-      console.error("Error logging out:", error);
-      handleAuthError(error);
+      console.error("Error signing out:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleAuthError = (error: any) => {
-    console.error('Auth error:', error);
-    toast({
-      title: "Erreur",
-      description: "Une erreur est survenue. Veuillez réessayer.",
-      variant: "destructive",
-    });
-  };
-
   return (
-    <>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="fixed top-4 right-4 z-[60] bg-background shadow-md hover:bg-accent"
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
-
-      <div
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden hover:bg-accent"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent
+        side="left"
         className={cn(
-          "fixed inset-0 z-[50] bg-background transition-transform duration-300",
-          isCollapsed ? "-translate-x-full" : "translate-x-0"
+          "p-0 w-72",
+          isCollapsed ? "w-20" : "w-72"
         )}
       >
         <div className="flex h-full flex-col">
@@ -187,63 +178,42 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
             </Button>
           </div>
 
-          {/* Company name section */}
-          {userProfile?.company_name && (
-            <div className="px-4 py-3 border-b">
-              <h2 className="sr-only">Entreprise</h2>
-              <p className="text-base font-semibold">{userProfile.company_name}</p>
-            </div>
-          )}
-
-          {/* User profile section */}
-          {userProfile && (
-            <div className="p-4 text-center border-b">
-              <div className="mb-4">
-                <img
-                  src={userProfile.company_logo_url || "/placeholder.svg"}
-                  alt="Profile"
-                  className="w-20 h-20 mx-auto rounded-full object-cover border-4 border-blue-500"
-                />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Welcome {userProfile.first_name} {userProfile.last_name}
-              </p>
-            </div>
-          )}
-
-          {/* Menu items */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-1">
-              {filteredMenuItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors",
-                    location.pathname === item.path && "bg-gray-100 dark:bg-gray-800"
-                  )}
-                  onClick={() => setIsCollapsed(true)}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="flex-1">{item.label}</span>
-                </Link>
-              ))}
-            </div>
+          {/* Navigation section */}
+          <div className="flex-1 overflow-auto">
+            <nav className="grid gap-1 p-2">
+              {menuItems.map((item) =>
+                (!item.adminOnly || isAdmin) && (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+                      location.pathname === item.href &&
+                        "bg-accent text-accent-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </Link>
+                )
+              )}
+            </nav>
           </div>
 
           {/* Logout section */}
-          <div className="p-4 border-t">
-            <button
+          <div className="mt-auto p-4">
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3"
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
-              <logoutMenuItem.icon className="h-5 w-5" />
-              <span>{logoutMenuItem.label}</span>
-            </button>
+              <logoutMenuItem.icon className="h-4 w-4" />
+              <span>{logoutMenuItem.title}</span>
+            </Button>
           </div>
         </div>
-      </div>
-    </>
+      </SheetContent>
+    </Sheet>
   );
 };
 
