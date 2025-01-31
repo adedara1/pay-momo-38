@@ -36,11 +36,10 @@ export const HeaderImageUpload = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Delete existing header image if any
+      // Delete existing global header image if any
       const { error: deleteError } = await supabase
-        .from('header_images')
-        .delete()
-        .eq('user_id', user.id);
+        .from('global_header_images')
+        .delete();
 
       if (deleteError) {
         console.error('Error deleting existing header image:', deleteError);
@@ -63,9 +62,8 @@ export const HeaderImageUpload = () => {
         .getPublicUrl(filePath);
 
       const { error: dbError } = await supabase
-        .from('header_images')
+        .from('global_header_images')
         .insert({
-          user_id: user.id,
           image_url: publicUrl
         });
 

@@ -29,14 +29,12 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   useEffect(() => {
     const loadHeaderImage = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
         const { data: headerImage, error } = await supabase
-          .from('header_images')
+          .from('global_header_images')
           .select('image_url')
-          .eq('user_id', user.id)
-          .maybeSingle();
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
 
         if (error) {
           console.error('Error fetching header image:', error);
@@ -45,7 +43,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
 
         if (headerImage) {
           setHeaderImageUrl(headerImage.image_url);
-          console.log('Header image loaded:', headerImage.image_url);
+          console.log('Global header image loaded:', headerImage.image_url);
         }
       } catch (error) {
         console.error('Error loading header image:', error);
