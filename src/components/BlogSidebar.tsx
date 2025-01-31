@@ -137,8 +137,8 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
                 className="w-20 h-20 mx-auto rounded-full object-cover border-4 border-blue-500"
               />
             </div>
-            <p className="text-sm text-muted-foreground">
-              Welcome {userProfile.first_name} {userProfile.last_name}
+            <p className="text-base font-bold text-black">
+              {userProfile.company_name || "Entreprise non définie"}
             </p>
           </div>
         )}
