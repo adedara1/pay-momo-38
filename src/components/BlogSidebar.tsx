@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, ImagePlus, Eye, EyeOff } from "lucide-react";
+import { ChevronDown, ChevronUp, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -25,31 +25,14 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
-  const [showLogoAndName, setShowLogoAndName] = useState(true);
 
-  // Load UI preferences and header image
+  // Load header image
   useEffect(() => {
-    const loadPreferences = async () => {
+    const loadHeaderImage = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Load global UI preferences
-        const { data: globalPrefs, error: globalPrefError } = await supabase
-          .from('ui_preferences')
-          .select('show_logo_and_name')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (globalPrefError) {
-          console.error('Error loading global UI preferences:', globalPrefError);
-        } else if (globalPrefs) {
-          // Apply global preference
-          setShowLogoAndName(globalPrefs.show_logo_and_name);
-          console.log('Global UI preferences loaded:', globalPrefs);
-        }
-
-        // Load header image
         const { data: headerImage, error: headerError } = await supabase
           .from('header_images')
           .select('image_url')
@@ -63,11 +46,11 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           console.log('Header image loaded:', headerImage.image_url);
         }
       } catch (error) {
-        console.error('Error loading preferences:', error);
+        console.error('Error loading header image:', error);
       }
     };
 
-    loadPreferences();
+    loadHeaderImage();
   }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,36 +107,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       toast({
         title: "Error",
         description: "Failed to upload image",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const toggleLogoVisibility = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const newValue = !showLogoAndName;
-      
-      // Update global preference
-      const { error } = await supabase
-        .from('ui_preferences')
-        .upsert({ 
-          user_id: user.id, 
-          show_logo_and_name: newValue,
-          updated_at: new Date().toISOString()
-        });
-
-      if (error) throw error;
-
-      setShowLogoAndName(newValue);
-      console.log('Logo visibility updated:', newValue);
-    } catch (error) {
-      console.error('Error updating logo visibility:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update visibility preference",
         variant: "destructive",
       });
     }
@@ -220,14 +173,13 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
-        {/* Logo section with upload icon and toggle button */}
+        {/* Header section with image uploader only */}
         <div 
           className="relative flex items-center gap-2 px-4 py-4 border-b h-16 w-64"
           style={{
             backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            minHeight: '64px',
           }}
         >
           {/* Image uploader - always visible */}
@@ -244,32 +196,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
               className="hidden"
             />
           </label>
-
-          {/* Toggle visibility button */}
-          <button
-            onClick={toggleLogoVisibility}
-            className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            {showLogoAndName ? (
-              <EyeOff className="w-4 h-4 text-gray-600" />
-            ) : (
-              <Eye className="w-4 h-4 text-gray-600" />
-            )}
-          </button>
-
-          {/* Logo and company name - conditionally rendered */}
-          {showLogoAndName && (
-            <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
-              <img
-                src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
-                alt="Logo"
-                className="w-8 h-8 relative z-10"
-              />
-              <span className="font-semibold text-blue-600 relative z-10 whitespace-nowrap">
-                Digit-Sarl
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Company name section */}
