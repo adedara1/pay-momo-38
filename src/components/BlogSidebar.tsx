@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { ProductImageInput } from "@/components/product/ProductImageInput";
 
 interface UserProfile {
   first_name: string;
@@ -25,34 +24,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Menu Admin");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
-  const [logoUrl, setLogoUrl] = useState("/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png");
-
-  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setLogoUrl(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
-
-      toast({
-        title: "Logo mis à jour",
-        description: "Le nouveau logo a été uploadé avec succès",
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'upload du logo:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'upload du logo",
-        variant: "destructive",
-      });
-    }
-  };
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -116,25 +87,16 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
         {/* Logo section - common for all users */}
-        <div className="flex items-center gap-2 px-4 py-4 border-b h-16 relative group">
+        <div className="flex items-center gap-2 px-4 py-4 border-b h-16">
           <img
-            src={logoUrl}
+            src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
             alt="Logo"
-            className="w-8 h-8 object-cover"
+            className="w-8 h-8"
           />
           <span className="font-semibold text-blue-600">Digit-Sarl</span>
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center bg-black/50 transition-opacity">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleLogoChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-              title="Cliquez pour changer le logo"
-            />
-            <span className="text-white text-sm">Changer le logo</span>
-          </div>
         </div>
 
+        {/* Company name section */}
         {userProfile?.company_name && (
           <div className="px-4 py-3 border-b">
             <h2 className="sr-only">Entreprise</h2>
