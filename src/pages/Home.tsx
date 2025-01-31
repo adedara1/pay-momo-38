@@ -36,10 +36,8 @@ const HomeContent = () => {
   const [bannerImage, setBannerImage] = useState<string>('/lovable-uploads/2dae098d-873c-40ec-9994-1dcc844f975f.png');
   const [isUploading, setIsUploading] = useState(false);
 
-  // Enable stats sync
   useStatsSync(userId);
 
-  // Fetch banner image
   useEffect(() => {
     const fetchBannerImage = async () => {
       try {
@@ -68,7 +66,6 @@ const HomeContent = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Create a new image object to check dimensions
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     
@@ -126,7 +123,6 @@ const HomeContent = () => {
     img.src = objectUrl;
   };
 
-  // Fetch user profile and set userId
   useEffect(() => {
     const fetchUserProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -147,7 +143,6 @@ const HomeContent = () => {
     fetchUserProfile();
   }, []);
 
-  // Use React Query for stats
   const { data: stats = {
     totalSales: 0,
     dailySales: 0,
@@ -191,9 +186,29 @@ const HomeContent = () => {
     enabled: !!userId
   });
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès",
+      });
+      
+      navigate("/auth");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="w-full min-h-screen border border-white relative" style={{ backgroundColor: '#000080' }}>
-      {/* Banner Section */}
       <div className="relative px-4 md:px-8">
         <div 
           className="w-full max-w-[1584px] h-[140px] mb-4 mt-[50px] rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
@@ -209,8 +224,11 @@ const HomeContent = () => {
                 <UserRound className="h-6 w-6" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                <DropdownMenuItem onClick={() => navigate("/voir-monprofile")}>
                   Mon profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  Déconnecter
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
