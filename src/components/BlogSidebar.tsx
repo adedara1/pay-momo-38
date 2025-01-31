@@ -121,7 +121,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
 
         {/* Company name section with updated styling */}
         {userProfile?.company_name && (
-          <div className="px-4 py-3 border-b rounded-[10px] bg-[#e4e6e5]">
+          <div className="px-4 py-3 border-b rounded-[10px] bg-[#e4e6e5] border-2 border-blue-500">
             <h2 className="sr-only">Entreprise</h2>
             <h2 className="text-sm font-medium text-gray-500 mb-1">Entreprise</h2>
             <p className="text-base font-semibold text-black">{userProfile.company_name}</p>
