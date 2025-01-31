@@ -20,6 +20,7 @@ import DonneesPage from "@/pages/DonneesPage";
 import UsersDataUpdate from "@/pages/UsersDataUpdate";
 import PaymentPreview from "@/pages/PaymentPreview";
 import PaymentFrame from "@/components/PaymentFrame";
+import ProfileManagement from "@/pages/ProfileManagement";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import PublicRoute from "@/components/routes/PublicRoute";
 
@@ -43,6 +44,7 @@ const AppContent = () => {
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
           <Route path="/admins" element={<PublicRoute><AdminAuth /></PublicRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
+          <Route path="/profile-management" element={<ProtectedRoute><ProfileManagement /></ProtectedRoute>} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/paiement" element={<PaymentFrame />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
