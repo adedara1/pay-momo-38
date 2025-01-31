@@ -175,7 +175,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
         {/* Header section with image uploader only */}
         <div 
-          className="relative flex items-center gap-2 px-4 py-4 border-b h-16 w-64"
+          className="relative flex items-center gap-2 px-4 py-4 border-b h-[64px] w-64"
           style={{
             backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
             backgroundSize: 'cover',
