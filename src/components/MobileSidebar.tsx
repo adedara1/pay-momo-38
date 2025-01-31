@@ -93,16 +93,8 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
         )}
       >
         <div className="flex h-full flex-col">
-          {/* Logo section - common for all users */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-2">
-              <img
-                src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
-                alt="Logo"
-                className="w-8 h-8"
-              />
-              <span className="font-semibold text-blue-600">Digit-Sarl</span>
-            </div>
+          {/* Header section */}
+          <div className="flex items-center justify-end p-4 border-b flex-shrink-0 whitespace-nowrap">
             <Button
               variant="ghost"
               size="icon"
@@ -121,6 +113,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
             </div>
           )}
 
+          {/* User profile section */}
           {userProfile && (
             <div className="p-4 text-center border-b">
               <div className="mb-4">
@@ -136,6 +129,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
             </div>
           )}
 
+          {/* Menu items */}
           <div className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
               {filteredMenuItems.map((item) => (
@@ -154,6 +148,8 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
               ))}
             </div>
           </div>
+
+          {/* Logout section */}
           <div className="p-4 border-t">
             <button
               onClick={handleLogout}
