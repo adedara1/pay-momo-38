@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -24,6 +24,37 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Menu Admin");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `header-images/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('lovable-uploads')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -86,8 +117,21 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
-        {/* Logo section - common for all users */}
-        <div className="flex items-center gap-2 px-4 py-4 border-b h-16">
+        {/* Logo section with upload icon */}
+        <div className="relative flex items-center gap-2 px-4 py-4 border-b h-16">
+          <label 
+            htmlFor="header-image-upload" 
+            className="absolute top-2 left-2 cursor-pointer hover:opacity-70 transition-opacity"
+          >
+            <ImagePlus className="w-5 h-5 text-blue-600" />
+            <input
+              id="header-image-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </label>
           <img
             src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
             alt="Logo"
