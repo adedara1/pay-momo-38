@@ -1,10 +1,11 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { menuItems, logoutMenuItem } from "@/lib/menuItems";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useSession } from "@/hooks/use-session";
+import MobileSidebar from "./MobileSidebar";
+import BlogSidebar from "./BlogSidebar";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { HeaderImageUpload } from "./shared/HeaderImageUpload";
+import { useToast } from "./ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserProfile {
   first_name: string;
@@ -13,154 +14,82 @@ interface UserProfile {
   company_logo_url: string | null;
 }
 
-interface MainSidebarProps {
-  userProfile: UserProfile | null;
-}
-
-const MainSidebar = ({ userProfile }: MainSidebarProps) => {
-  const location = useLocation();
-  const navigate = useNavigate();
+const MainSidebar = () => {
+  const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
-  const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
+  const { checkSession } = useSession();
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadHeaderImage = async () => {
+    const initializeUser = async () => {
       try {
-        const { data: headerImage, error } = await supabase
-          .from('header_images')
-          .select('image_url')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching header image:', error);
+        const isValid = await checkSession();
+        if (!isValid) {
+          console.log('Session is not valid');
           return;
         }
 
-        if (headerImage) {
-          setHeaderImageUrl(headerImage.image_url);
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+        
+        if (user) {
+          console.log('Setting user ID:', user.id);
+          setUserId(user.id);
         }
       } catch (error) {
-        console.error('Error loading header image:', error);
-      }
-    };
-
-    loadHeaderImage();
-  }, []);
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          navigate("/auth");
-          return;
-        }
-
-        const { data: adminUser } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        const filtered = menuItems.filter(item => 
-          item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)
-        );
-        setFilteredMenuItems(filtered);
-      } catch (error) {
-        console.error('Error checking admin status:', error);
+        console.error('Error initializing user:', error);
         toast({
-          title: "Erreur",
-          description: "Une erreur est survenue lors de la vérification du statut administrateur.",
+          title: "Error",
+          description: "Failed to initialize user session. Please try refreshing the page.",
           variant: "destructive",
         });
       }
     };
 
-    checkAdminStatus();
-  }, [navigate, toast]);
+    initializeUser();
+  }, [checkSession, toast]);
 
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      navigate("/auth");
-    } catch (error) {
-      console.error("Error logging out:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la déconnexion.",
-        variant: "destructive",
-      });
-    }
-  };
+  const { data: userProfile, isError } = useQuery({
+    queryKey: ['user-profile', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, company_name, company_logo_url')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+      }
+
+      return data;
+    },
+    enabled: !!userId,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
+  });
+
+  if (isError) {
+    toast({
+      title: "Error",
+      description: "Failed to load user profile. Please try refreshing the page.",
+      variant: "destructive",
+    });
+  }
 
   return (
-    <div className="hidden md:flex flex-col h-full w-64 bg-sidebar border-r border-sidebar-border">
-      <div 
-        className="relative flex items-center justify-between p-4 border-b h-16 flex-shrink-0 whitespace-nowrap"
-        style={{
-          backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <HeaderImageUpload />
-      </div>
-
-      {userProfile?.company_name && (
-        <div className="px-4 py-3 border-b">
-          <h2 className="sr-only">Entreprise</h2>
-          <p className="text-base font-semibold text-sidebar-foreground">{userProfile.company_name}</p>
-        </div>
+    <>
+      {isMobile ? (
+        <MobileSidebar userProfile={userProfile} />
+      ) : (
+        <BlogSidebar userProfile={userProfile} />
       )}
-
-      {userProfile && (
-        <div className="p-4 text-center border-b">
-          <div className="mb-4">
-            <img
-              src={userProfile.company_logo_url || "/placeholder.svg"}
-              alt="Profile"
-              className="w-20 h-20 mx-auto rounded-full object-cover border-4 border-blue-500"
-            />
-          </div>
-          <p className="text-sm text-sidebar-foreground">
-            Welcome {userProfile.first_name} {userProfile.last_name}
-          </p>
-        </div>
-      )}
-
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-1">
-          {filteredMenuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                location.pathname === item.path && "bg-sidebar-accent text-sidebar-accent-foreground"
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="flex-1">{item.label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      <div className="p-4 border-t">
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          <logoutMenuItem.icon className="h-5 w-5" />
-          <span>{logoutMenuItem.label}</span>
-        </button>
-      </div>
-    </div>
+    </>
   );
 };
 
