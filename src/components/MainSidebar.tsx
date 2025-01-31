@@ -14,7 +14,11 @@ interface UserProfile {
   company_logo_url: string | null;
 }
 
-const MainSidebar = () => {
+export interface MainSidebarProps {
+  userProfile?: UserProfile | null;
+}
+
+const MainSidebar = ({ userProfile: propUserProfile }: MainSidebarProps = {}) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { checkSession } = useSession();
@@ -30,7 +34,10 @@ const MainSidebar = () => {
         }
 
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
+        if (userError) {
+          console.error('Error getting user:', userError);
+          throw userError;
+        }
         
         if (user) {
           console.log('Setting user ID:', user.id);
@@ -49,7 +56,7 @@ const MainSidebar = () => {
     initializeUser();
   }, [checkSession, toast]);
 
-  const { data: userProfile, isError } = useQuery({
+  const { data: userProfile = propUserProfile, isError } = useQuery({
     queryKey: ['user-profile', userId],
     queryFn: async () => {
       if (!userId) return null;

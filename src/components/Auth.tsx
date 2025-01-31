@@ -13,7 +13,18 @@ const Auth = () => {
     const checkSession = async () => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          if (sessionError.message?.includes('Failed to fetch')) {
+            toast({
+              title: "Erreur de connexion",
+              description: "Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.",
+              variant: "destructive",
+            });
+            return;
+          }
+          throw sessionError;
+        }
         
         if (session?.user?.id) {
           const { data: profile, error: profileError } = await supabase
@@ -55,21 +66,25 @@ const Auth = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user?.id) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', session.user.id)
-          .maybeSingle();
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', session.user.id)
+            .maybeSingle();
 
-        if (profileError) {
-          console.error('Profile fetch error:', profileError);
-          return;
-        }
+          if (profileError) {
+            console.error('Profile fetch error:', profileError);
+            return;
+          }
 
-        if (!profile?.first_name || !profile?.last_name) {
-          navigate("/profile");
-        } else {
-          navigate("/home");
+          if (!profile?.first_name || !profile?.last_name) {
+            navigate("/profile");
+          } else {
+            navigate("/home");
+          }
+        } catch (error) {
+          console.error('Auth state change error:', error);
         }
       } else if (event === "SIGNED_OUT") {
         navigate("/auth");
