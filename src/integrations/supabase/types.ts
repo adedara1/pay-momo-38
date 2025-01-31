@@ -691,27 +691,6 @@ export type Database = {
           },
         ]
       }
-      ui_preferences: {
-        Row: {
-          created_at: string
-          show_logo_and_name: boolean
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          show_logo_and_name?: boolean
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          show_logo_and_name?: boolean
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_stats: {
         Row: {
           available_balance: number | null
