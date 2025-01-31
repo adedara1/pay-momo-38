@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, ImagePlus, Eye, EyeOff } from "lucide-react";
+import { ChevronDown, ChevronUp, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -25,7 +25,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
-  const [showLogoAndName, setShowLogoAndName] = useState(true);
 
   // Charger l'image d'en-tête au chargement du composant
   useEffect(() => {
@@ -177,26 +176,15 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
-        {/* Logo section with upload icon and toggle button */}
+        {/* Header section with image upload */}
         <div 
-          className="relative flex items-center gap-2 px-4 py-4 border-b h-16 w-64"
+          className="relative flex items-center gap-2 px-4 py-4 border-b h-16 w-64 flex-shrink-0 whitespace-nowrap"
           style={{
             backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            minHeight: '64px',
           }}
         >
-          <button
-            onClick={() => setShowLogoAndName(!showLogoAndName)}
-            className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            {showLogoAndName ? (
-              <EyeOff className="w-4 h-4 text-gray-600" />
-            ) : (
-              <Eye className="w-4 h-4 text-gray-600" />
-            )}
-          </button>
           <label 
             htmlFor="header-image-upload" 
             className="absolute top-2 left-2 cursor-pointer hover:opacity-70 transition-opacity"
@@ -210,16 +198,6 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
               className="hidden"
             />
           </label>
-          {showLogoAndName && (
-            <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
-              <img
-                src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
-                alt="Logo"
-                className="w-8 h-8 relative z-10"
-              />
-              <span className="font-semibold text-blue-600 relative z-10 whitespace-nowrap">Digit-Sarl</span>
-            </div>
-          )}
         </div>
 
         {/* Company name section */}
