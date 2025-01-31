@@ -85,9 +85,9 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
 
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
-      <div className="flex flex-col flex-grow pt-5 overflow-y-auto">
+      <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
         {/* Logo section - common for all users */}
-        <div className="flex items-center gap-2 px-4 pb-4 border-b">
+        <div className="flex items-center gap-2 px-4 py-4 border-b h-16">
           <img
             src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
             alt="Logo"
