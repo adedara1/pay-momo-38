@@ -31,7 +31,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
     const loadHeaderImage = async () => {
       try {
         const { data: headerImage, error } = await supabase
-          .from('header_images')
+          .from('global_header_images')
           .select('image_url')
           .order('created_at', { ascending: false })
           .limit(1)

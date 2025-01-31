@@ -34,7 +34,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           .select('image_url')
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching header image:', error);
