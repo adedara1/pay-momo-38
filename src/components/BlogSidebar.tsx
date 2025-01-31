@@ -35,7 +35,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       const filePath = `header-images/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('lovable-uploads')
+        .from('product-images')
         .upload(filePath, file);
 
       if (uploadError) {
