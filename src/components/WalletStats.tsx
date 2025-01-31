@@ -73,7 +73,7 @@ const WalletStats = () => {
         // Check if stats exist, if not create them
         const { data: userStats, error: statsError } = await supabase
           .from('user_stats')
-          .select('*')
+          .select('pending_requests, validated_requests, available_balance')
           .eq('user_id', userId)
           .maybeSingle();
 
@@ -102,29 +102,16 @@ const WalletStats = () => {
           console.log('Created new user stats:', newStats);
         }
 
-        // Fetch transactions to count pending and validated requests
-        const { data: transactions, error: transError } = await supabase
-          .from('transactions')
-          .select('status')
-          .eq('user_id', userId);
-
-        if (transError) {
-          console.error('Error fetching transactions:', transError);
-          throw transError;
-        }
-
-        const pendingTransactions = transactions?.filter(t => t.status === 'pending') || [];
-        const validatedTransactions = transactions?.filter(t => t.status === 'completed') || [];
-
         // Return the wallet data (either existing or newly created)
         const currentWallet = wallet || { available: 0, pending: 0, validated: 0 };
+        const currentStats = userStats || { pending_requests: 0, validated_requests: 0 };
 
         return {
           available: currentWallet.available,
           pending: currentWallet.pending,
           validated: currentWallet.validated,
-          pendingCount: pendingTransactions.length,
-          validatedCount: validatedTransactions.length
+          pendingCount: currentStats.pending_requests,
+          validatedCount: currentStats.validated_requests
         };
       } catch (error) {
         console.error('Error in wallet stats query:', error);
@@ -162,7 +149,7 @@ const WalletStats = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'transactions',
+          table: 'user_stats',
           filter: `user_id=eq.${userId}`,
         },
         () => {
