@@ -30,13 +30,11 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
   useEffect(() => {
     const loadHeaderImage = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
         const { data: headerImage, error } = await supabase
           .from('header_images')
           .select('image_url')
-          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
           .maybeSingle();
 
         if (error) {

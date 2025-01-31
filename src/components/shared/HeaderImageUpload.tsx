@@ -37,10 +37,14 @@ export const HeaderImageUpload = () => {
       if (!user) throw new Error('User not authenticated');
 
       // Delete existing header image if any
-      await supabase
+      const { error: deleteError } = await supabase
         .from('header_images')
         .delete()
         .eq('user_id', user.id);
+
+      if (deleteError) {
+        console.error('Error deleting existing header image:', deleteError);
+      }
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
@@ -68,8 +72,6 @@ export const HeaderImageUpload = () => {
       if (dbError) {
         throw dbError;
       }
-
-      console.log('Header image saved:', publicUrl);
 
       toast({
         title: "Succès",
