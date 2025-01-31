@@ -25,6 +25,25 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        setIsAdmin(!!adminData);
+        setFilteredMenuItems(menuItems.filter(item => !item.isAdminOnly || (item.isAdminOnly && !!adminData)));
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   useEffect(() => {
     const loadHeaderImage = async () => {
@@ -97,7 +116,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
             backgroundPosition: 'center',
           }}
         >
-          <HeaderImageUpload />
+          {isAdmin && <HeaderImageUpload />}
         </div>
 
         {/* Company name section */}

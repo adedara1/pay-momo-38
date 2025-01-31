@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Store, MessageSquare, BarChart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserProfile {
   first_name: string;
@@ -21,6 +22,9 @@ const settingsMenuItems = [
   { label: "Page de paiement", path: "/product/218cd2b9-cd2a-4cfb-846e-2ac4f8b825c3" },
   { label: "ProductPageLayout", path: "/product/218cd2b9-cd2a-4cfb-846e-2ac4f8b825c3" },
   { label: "Aperçu de page", path: "/page-apercu" },
+  { label: "Produits", path: "/products-pages", icon: Store },
+  { label: "Avis", path: "/reviews", icon: MessageSquare },
+  { label: "Facebook Pixel", path: "/facebook-pixel", icon: BarChart },
 ];
 
 const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
@@ -108,6 +112,7 @@ const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
                       : "hover:bg-accent hover:text-accent-foreground"
                   )}
                 >
+                  {item.icon && <item.icon className="h-4 w-4" />}
                   <span>{item.label}</span>
                 </Link>
               ))}
