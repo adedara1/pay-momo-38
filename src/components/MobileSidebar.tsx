@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Menu } from "lucide-react";
+import { ChevronLeft, Menu, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { menuItems, logoutMenuItem } from "@/lib/menuItems";
 import { useState, useEffect } from "react";
@@ -20,6 +20,7 @@ interface MobileSidebarProps {
 
 const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [headerImage, setHeaderImage] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -32,6 +33,17 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
         if (!user) {
           navigate("/auth");
           return;
+        }
+
+        // Charger l'image d'en-tête existante
+        const { data: headerImages } = await supabase
+          .from('header_images')
+          .select('image_url')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (headerImages) {
+          setHeaderImage(headerImages.image_url);
         }
 
         const { data: adminUser } = await supabase
@@ -52,6 +64,60 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
 
     checkAdminStatus();
   }, [navigate]);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Erreur",
+          description: "Vous devez être connecté pour uploader une image",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Upload l'image dans le bucket Supabase
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('header-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Obtenir l'URL publique de l'image
+      const { data: { publicUrl } } = supabase.storage
+        .from('header-images')
+        .getPublicUrl(fileName);
+
+      // Mettre à jour ou insérer l'entrée dans la table header_images
+      const { error: dbError } = await supabase
+        .from('header_images')
+        .upsert({
+          user_id: user.id,
+          image_url: publicUrl
+        });
+
+      if (dbError) throw dbError;
+
+      setHeaderImage(publicUrl);
+      toast({
+        title: "Succès",
+        description: "L'image a été uploadée avec succès",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'upload de l'image",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -93,13 +159,29 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
         )}
       >
         <div className="flex h-full flex-col">
-          {/* Header section */}
-          <div className="flex items-center justify-end p-4 border-b flex-shrink-0 whitespace-nowrap">
+          {/* Header section avec l'upload d'image */}
+          <div className="relative flex items-center justify-end p-4 border-b flex-shrink-0 whitespace-nowrap h-16">
+            <label className="absolute left-4 cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <ImagePlus className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+            </label>
+            {headerImage && (
+              <img
+                src={headerImage}
+                alt="Header"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsCollapsed(true)}
-              className="hover:bg-accent"
+              className="relative z-10 hover:bg-accent"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
