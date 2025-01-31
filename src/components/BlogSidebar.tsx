@@ -27,11 +27,39 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
   const [showLogoAndName, setShowLogoAndName] = useState(true);
 
+  // Charger l'image d'en-tête au chargement du composant
+  useEffect(() => {
+    const loadHeaderImage = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: headerImage } = await supabase
+          .from('header_images')
+          .select('image_url')
+          .eq('user_id', user.id)
+          .single();
+
+        if (headerImage) {
+          setHeaderImageUrl(headerImage.image_url);
+          console.log('Header image loaded:', headerImage.image_url);
+        }
+      } catch (error) {
+        console.error('Error loading header image:', error);
+      }
+    };
+
+    loadHeaderImage();
+  }, []);
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `header-images/${fileName}`;
@@ -44,10 +72,23 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
         throw uploadError;
       }
 
-      // Get the public URL of the uploaded image
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
         .getPublicUrl(filePath);
+
+      // Sauvegarder l'URL dans la base de données
+      const { error: dbError } = await supabase
+        .from('header_images')
+        .upsert({
+          user_id: user.id,
+          image_url: publicUrl
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (dbError) {
+        throw dbError;
+      }
 
       setHeaderImageUrl(publicUrl);
 
@@ -128,11 +169,12 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
         {/* Logo section with upload icon and toggle button */}
         <div 
-          className="relative flex items-center gap-2 px-4 py-4 border-b h-16"
+          className="relative flex items-center gap-2 px-4 py-4 border-b h-16 w-64"
           style={{
             backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
             backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            backgroundPosition: 'center',
+            minHeight: '64px', // Garantit une hauteur minimale même quand vide
           }}
         >
           <button
@@ -159,14 +201,14 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
             />
           </label>
           {showLogoAndName && (
-            <>
+            <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
               <img
                 src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
                 alt="Logo"
                 className="w-8 h-8 relative z-10"
               />
-              <span className="font-semibold text-blue-600 relative z-10">Digit-Sarl</span>
-            </>
+              <span className="font-semibold text-blue-600 relative z-10 whitespace-nowrap">Digit-Sarl</span>
+            </div>
           )}
         </div>
 
