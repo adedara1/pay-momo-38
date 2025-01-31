@@ -24,6 +24,7 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Menu Admin");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
+  const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,6 +42,13 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
       if (uploadError) {
         throw uploadError;
       }
+
+      // Get the public URL of the uploaded image
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      setHeaderImageUrl(publicUrl);
 
       toast({
         title: "Success",
@@ -118,7 +126,14 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-background w-64 border-r">
       <div className="flex flex-col flex-grow pt-0 overflow-y-auto">
         {/* Logo section with upload icon */}
-        <div className="relative flex items-center gap-2 px-4 py-4 border-b h-16">
+        <div 
+          className="relative flex items-center gap-2 px-4 py-4 border-b h-16"
+          style={{
+            backgroundImage: headerImageUrl ? `url(${headerImageUrl})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
           <label 
             htmlFor="header-image-upload" 
             className="absolute top-2 left-2 cursor-pointer hover:opacity-70 transition-opacity"
@@ -135,9 +150,9 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           <img
             src="/lovable-uploads/cba544ba-0ad2-4425-ba9c-1ce8aed026cb.png"
             alt="Logo"
-            className="w-8 h-8"
+            className="w-8 h-8 relative z-10"
           />
-          <span className="font-semibold text-blue-600">Digit-Sarl</span>
+          <span className="font-semibold text-blue-600 relative z-10">Digit-Sarl</span>
         </div>
 
         {/* Company name section */}
