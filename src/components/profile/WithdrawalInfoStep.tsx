@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface WithdrawalInfoStepProps {
   momoProvider: string;
@@ -30,6 +31,7 @@ export const WithdrawalInfoStep = ({
   onBack,
 }: WithdrawalInfoStepProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     momo_provider: initialMomoProvider || "",
     momo_number: initialMomoNumber || "",
@@ -70,6 +72,14 @@ export const WithdrawalInfoStep = ({
         });
 
       if (error) throw error;
+
+      // Invalider le cache pour forcer un rafraîchissement des données
+      await queryClient.invalidateQueries({ queryKey: ["withdrawal-info"] });
+
+      toast({
+        title: "Succès",
+        description: "Les informations ont été mises à jour avec succès",
+      });
 
       onSave(formData);
     } catch (error) {
