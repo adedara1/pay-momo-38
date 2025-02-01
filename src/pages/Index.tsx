@@ -9,11 +9,11 @@ import { toast } from "sonner";
 const Index = () => {
   const navigate = useNavigate();
   const { appName } = useAppName();
-  const { session } = useSession();
   const [headerImage, setHeaderImage] = useState<string | null>(null);
   const [embedUrl, setEmbedUrl] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeEmbedUrl, setActiveEmbedUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHeaderImage = async () => {
@@ -36,38 +36,62 @@ const Index = () => {
     fetchHeaderImage();
   }, []);
 
+  // Get and monitor auth state
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id) {
+        setUserId(session.user.id);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Check admin status whenever userId changes
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (session?.user?.id) {
+      if (userId) {
         const { data } = await supabase
           .from('admin_users')
           .select('id')
-          .eq('id', session.user.id)
-          .single();
+          .eq('id', userId)
+          .maybeSingle();
         
         setIsAdmin(!!data);
+      } else {
+        setIsAdmin(false);
       }
     };
 
     checkAdminStatus();
-  }, [session]);
+  }, [userId]);
 
   useEffect(() => {
     const fetchActiveEmbedUrl = async () => {
-      const { data, error } = await supabase
-        .from('embedded_urls')
-        .select('url')
-        .eq('is_active', true)
-        .limit(1)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('embedded_urls')
+          .select('url')
+          .eq('is_active', true)
+          .limit(1)
+          .maybeSingle();
 
-      if (error) {
+        if (error) {
+          console.error('Error fetching embed URL:', error);
+          return;
+        }
+
+        if (data) {
+          setActiveEmbedUrl(data.url);
+        }
+      } catch (error) {
         console.error('Error fetching embed URL:', error);
-        return;
-      }
-
-      if (data) {
-        setActiveEmbedUrl(data.url);
       }
     };
 
@@ -75,15 +99,23 @@ const Index = () => {
   }, []);
 
   const handleSaveEmbedUrl = async () => {
-    if (!embedUrl) return;
+    if (!embedUrl || !userId) return;
 
     try {
+      // First, update all existing URLs to be inactive
+      await supabase
+        .from('embedded_urls')
+        .update({ is_active: false })
+        .eq('is_active', true);
+
+      // Then insert the new URL as active
       const { error } = await supabase
         .from('embedded_urls')
         .insert([
           {
             url: embedUrl,
-            created_by: session?.user?.id
+            created_by: userId,
+            is_active: true
           }
         ]);
 
