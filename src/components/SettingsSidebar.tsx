@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Menu, X, Store, MessageSquare, BarChart, Globe } from "lucide-react";
+import { Menu, X, Store, MessageSquare, BarChart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,6 @@ interface SettingsSidebarProps {
 }
 
 const settingsMenuItems = [
-  { label: "Page d'accueil", path: "/page-accueil", icon: Globe },
   { label: "Réglage actuel", path: "/configuration" },
   { label: "Users Data Update", path: "/usersdata-update" },
   { label: "Editeur de page", path: "/editeur" },
