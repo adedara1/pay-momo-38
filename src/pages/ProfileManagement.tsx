@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { momoProviders, cedeaoCountries, citiesByCountry } from "@/data/locationData";
+import { ArrowLeft } from "lucide-react";
 
 const ProfileManagement = () => {
   const navigate = useNavigate();
@@ -169,6 +170,17 @@ const ProfileManagement = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
+      <div className="flex items-center mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/home")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour à l'accueil
+        </Button>
+      </div>
+
       {/* Company Logo Section */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Logo de l'entreprise</h2>

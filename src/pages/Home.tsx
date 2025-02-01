@@ -224,7 +224,7 @@ const HomeContent = () => {
                 <UserRound className="h-6 w-6" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/voir-monprofile")}>
+                <DropdownMenuItem onClick={() => navigate("/profile-management")}>
                   Mon profile
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
