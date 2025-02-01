@@ -44,7 +44,7 @@ const Index = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
+          <div className="space-y-8 order-2 lg:order-1">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
               L'agrégateur de paiement qui connecte votre business au monde !
             </h1>
@@ -68,7 +68,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative order-1 lg:order-2">
             <img
               src="/lovable-uploads/ece6eb8c-387e-4315-871c-8845cbed8606.png"
               alt="Globe"

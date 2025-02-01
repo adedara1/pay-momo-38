@@ -29,7 +29,7 @@ import Index from "@/pages/Index";
 const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile', '/paiement', '/index'];
 
 // Routes that should display the settings sidebar
-const settingsRoutes = ['/configuration', '/editeur', '/donnees', '/page-apercu', '/index'];
+const settingsRoutes = ['/configuration', '/editeur', '/donnees', '/page-apercu'];
 
 const AppContent = () => {
   const location = useLocation();
