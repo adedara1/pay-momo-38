@@ -10,10 +10,12 @@ import { CompanyInfoStep } from "@/components/profile/CompanyInfoStep";
 import { WithdrawalInfoStep } from "@/components/profile/WithdrawalInfoStep";
 import { ArrowLeft } from "lucide-react";
 import { PersonalInfo, CompanyInfo, WithdrawalInfo } from "@/types/profile";
+import { useAppName } from "@/hooks/use-app-name";
 
 const ProfileForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { appName } = useAppName();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
   
@@ -220,8 +222,8 @@ const ProfileForm = () => {
             <ArrowLeft className="h-4 w-4" />
             Retour
           </Button>
-          <h1 className="text-3xl font-bold text-center">Digit-Sarl</h1>
         </div>
+        <h1 className="text-3xl font-bold text-center">{appName}</h1>
         <h2 className="text-2xl font-bold text-center">Complétez votre profil</h2>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
