@@ -3,12 +3,17 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAppName } from "@/hooks/use-app-name";
+import { useSession } from "@/hooks/use-session";
+import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
   const { appName } = useAppName();
+  const { session } = useSession();
   const [headerImage, setHeaderImage] = useState<string | null>(null);
   const [embedUrl, setEmbedUrl] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeEmbedUrl, setActiveEmbedUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHeaderImage = async () => {
@@ -30,6 +35,68 @@ const Index = () => {
 
     fetchHeaderImage();
   }, []);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (session?.user?.id) {
+        const { data } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', session.user.id)
+          .single();
+        
+        setIsAdmin(!!data);
+      }
+    };
+
+    checkAdminStatus();
+  }, [session]);
+
+  useEffect(() => {
+    const fetchActiveEmbedUrl = async () => {
+      const { data, error } = await supabase
+        .from('embedded_urls')
+        .select('url')
+        .eq('is_active', true)
+        .limit(1)
+        .single();
+
+      if (error) {
+        console.error('Error fetching embed URL:', error);
+        return;
+      }
+
+      if (data) {
+        setActiveEmbedUrl(data.url);
+      }
+    };
+
+    fetchActiveEmbedUrl();
+  }, []);
+
+  const handleSaveEmbedUrl = async () => {
+    if (!embedUrl) return;
+
+    try {
+      const { error } = await supabase
+        .from('embedded_urls')
+        .insert([
+          {
+            url: embedUrl,
+            created_by: session?.user?.id
+          }
+        ]);
+
+      if (error) throw error;
+
+      toast.success("URL embedded successfully!");
+      setActiveEmbedUrl(embedUrl);
+      setEmbedUrl('');
+    } catch (error) {
+      console.error('Error saving embed URL:', error);
+      toast.error("Failed to save embedded URL");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -79,19 +146,27 @@ const Index = () => {
         </div>
 
         <div className="mt-16 w-full">
-          <div className="flex flex-col gap-4 mb-4">
-            <input
-              type="url"
-              value={embedUrl}
-              onChange={(e) => setEmbedUrl(e.target.value)}
-              placeholder="Entrez l'URL du site à afficher"
-              className="w-full p-4 border rounded-lg"
-            />
-          </div>
-          {embedUrl && (
+          {isAdmin && (
+            <div className="flex flex-col gap-4 mb-4">
+              <input
+                type="url"
+                value={embedUrl}
+                onChange={(e) => setEmbedUrl(e.target.value)}
+                placeholder="Entrez l'URL du site à afficher"
+                className="w-full p-4 border rounded-lg"
+              />
+              <Button 
+                onClick={handleSaveEmbedUrl}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Enregistrer l'URL
+              </Button>
+            </div>
+          )}
+          {activeEmbedUrl && (
             <div className="w-full aspect-[16/9]">
               <iframe
-                src={embedUrl}
+                src={activeEmbedUrl}
                 className="w-full h-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
