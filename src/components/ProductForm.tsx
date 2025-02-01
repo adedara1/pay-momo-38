@@ -24,31 +24,28 @@ const ProductForm = () => {
   const [redirectUrl, setRedirectUrl] = useState("");
 
   useEffect(() => {
-    const fetchSettings = async () => {
+    const fetchGlobalSettings = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
         const { data: settings, error } = await supabase
-          .from('settings')
+          .from('global_settings')
           .select('product_fee_percentage')
-          .eq('user_id', user.id)
-          .maybeSingle();
+          .single();
         
         if (error) {
-          console.error('Error fetching settings:', error);
+          console.error('Error fetching global settings:', error);
           return;
         }
         
         if (settings) {
+          console.log('Global fee percentage loaded:', settings.product_fee_percentage);
           setFeePercentage(settings.product_fee_percentage);
         }
       } catch (error) {
-        console.error('Error in fetchSettings:', error);
+        console.error('Error in fetchGlobalSettings:', error);
       }
     };
     
-    fetchSettings();
+    fetchGlobalSettings();
   }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
