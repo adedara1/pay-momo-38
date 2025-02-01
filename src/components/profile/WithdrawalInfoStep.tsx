@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { momoProviders } from "@/data/locationData";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -46,50 +45,16 @@ export const WithdrawalInfoStep = ({
       ...prev,
       [field]: value
     }));
+    // Appeler onSave à chaque changement pour mettre à jour le composant parent
+    onSave({
+      ...formData,
+      [field]: value
+    });
   };
 
   const handleMomoNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\+/g, '').replace(/\D/g, '');
     handleChange('momo_number', value);
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Non authentifié");
-
-      const { error } = await supabase
-        .from('withdrawal_info')
-        .upsert({
-          user_id: user.id,
-          momo_provider: formData.momo_provider,
-          momo_number: formData.momo_number,
-          beneficiary_first_name: formData.first_name,
-          beneficiary_last_name: formData.last_name,
-          beneficiary_email: formData.company_email,
-        }, {
-          onConflict: 'user_id'
-        });
-
-      if (error) throw error;
-
-      // Invalider le cache pour forcer un rafraîchissement des données
-      await queryClient.invalidateQueries({ queryKey: ["withdrawal-info"] });
-
-      toast({
-        title: "Succès",
-        description: "Les informations ont été mises à jour avec succès",
-      });
-
-      onSave(formData);
-    } catch (error) {
-      console.error('Error saving withdrawal info:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la sauvegarde des informations",
-        variant: "destructive",
-      });
-    }
   };
 
   return (
@@ -186,12 +151,6 @@ export const WithdrawalInfoStep = ({
           <Label htmlFor="autoTransfer" className="text-sm text-gray-700">
             Activer le transfert automatique
           </Label>
-        </div>
-
-        <div className="pt-4">
-          <Button onClick={handleSubmit} className="w-full">
-            Enregistrer
-          </Button>
         </div>
       </div>
     </ScrollArea>
