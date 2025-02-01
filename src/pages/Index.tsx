@@ -20,7 +20,7 @@ const Index = () => {
         .from('global_header_images')
         .select('image_url')
         .limit(1)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching header image:', error);
@@ -141,28 +141,20 @@ const Index = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 order-2 lg:order-1">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-              L'agrégateur de paiement qui connecte votre business au monde !
-            </h1>
-            <p className="text-xl text-gray-600">
-              Gérez plusieurs méthodes de paiement en un seul endroit, boostez vos ventes et offrez une expérience client fluide avec {appName}.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Button 
-                onClick={() => navigate("/auth")}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-6 text-lg rounded-full"
-              >
-                Créer un compte
-              </Button>
-              <Button 
-                onClick={() => navigate("/auth")}
-                variant="outline"
-                className="border-2 px-8 py-6 text-lg rounded-full"
-              >
-                Se connecter
-              </Button>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Button 
+              onClick={() => navigate("/auth")}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-6 text-lg rounded-full"
+            >
+              Créer un compte
+            </Button>
+            <Button 
+              onClick={() => navigate("/auth")}
+              variant="outline"
+              className="border-2 px-8 py-6 text-lg rounded-full"
+            >
+              Se connecter
+            </Button>
           </div>
         </div>
 
