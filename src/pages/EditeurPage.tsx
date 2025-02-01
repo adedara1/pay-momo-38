@@ -20,6 +20,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+interface Page {
+  path: string;
+  name: string;
+  content: React.ReactNode;
+}
+
+const pages: Page[] = [
+  {
+    path: "/home",
+    name: "Page d'accueil",
+    content: <div>Contenu de la page d'accueil</div>
+  },
+  {
+    path: "/products",
+    name: "Page des produits",
+    content: <div>Contenu de la page des produits</div>
+  },
+  {
+    path: "/contact",
+    name: "Page de contact",
+    content: <div>Contenu de la page de contact</div>
+  }
+];
+
 const EditeurPage = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
