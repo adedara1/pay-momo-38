@@ -907,6 +907,50 @@ export type Database = {
           },
         ]
       }
+      withdrawal_info: {
+        Row: {
+          beneficiary_email: string | null
+          beneficiary_first_name: string | null
+          beneficiary_last_name: string | null
+          created_at: string | null
+          id: string
+          momo_number: string | null
+          momo_provider: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          beneficiary_email?: string | null
+          beneficiary_first_name?: string | null
+          beneficiary_last_name?: string | null
+          created_at?: string | null
+          id?: string
+          momo_number?: string | null
+          momo_provider?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          beneficiary_email?: string | null
+          beneficiary_first_name?: string | null
+          beneficiary_last_name?: string | null
+          created_at?: string | null
+          id?: string
+          momo_number?: string | null
+          momo_provider?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawal_info_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

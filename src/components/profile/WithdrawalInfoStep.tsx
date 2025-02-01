@@ -5,6 +5,8 @@ import { momoProviders } from "@/data/locationData";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface WithdrawalInfoStepProps {
   momoProvider: string;
@@ -27,13 +29,14 @@ export const WithdrawalInfoStep = ({
   onSave,
   onBack,
 }: WithdrawalInfoStepProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
-    momo_provider: initialMomoProvider,
-    momo_number: initialMomoNumber,
-    auto_transfer: initialAutoTransfer,
-    first_name: initialFirstName,
-    last_name: initialLastName,
-    company_email: initialEmail,
+    momo_provider: initialMomoProvider || "",
+    momo_number: initialMomoNumber || "",
+    auto_transfer: initialAutoTransfer || false,
+    first_name: initialFirstName || "",
+    last_name: initialLastName || "",
+    company_email: initialEmail || "",
   });
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -48,8 +51,35 @@ export const WithdrawalInfoStep = ({
     handleChange('momo_number', value);
   };
 
-  const handleSubmit = () => {
-    onSave(formData);
+  const handleSubmit = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Non authentifié");
+
+      const { error } = await supabase
+        .from('withdrawal_info')
+        .upsert({
+          user_id: user.id,
+          momo_provider: formData.momo_provider,
+          momo_number: formData.momo_number,
+          beneficiary_first_name: formData.first_name,
+          beneficiary_last_name: formData.last_name,
+          beneficiary_email: formData.company_email,
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) throw error;
+
+      onSave(formData);
+    } catch (error) {
+      console.error('Error saving withdrawal info:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde des informations",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

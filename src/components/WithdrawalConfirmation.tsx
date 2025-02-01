@@ -13,10 +13,10 @@ interface WithdrawalConfirmationProps {
   description: string;
   onBack: () => void;
   onEdit: () => void;
-  userProfile: any;
+  withdrawalInfo: any;
 }
 
-const WithdrawalConfirmation = ({ amount, description, onBack, onEdit, userProfile }: WithdrawalConfirmationProps) => {
+const WithdrawalConfirmation = ({ amount, description, onBack, onEdit, withdrawalInfo }: WithdrawalConfirmationProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
@@ -34,11 +34,11 @@ const WithdrawalConfirmation = ({ amount, description, onBack, onEdit, userProfi
           user_id: user.id,
           amount: parseInt(amount),
           description: description,
-          customer_email: userProfile.company_email,
-          customer_first_name: userProfile.first_name,
-          customer_last_name: userProfile.last_name,
-          customer_phone: userProfile.momo_number,
-          method: userProfile.momo_provider,
+          customer_email: withdrawalInfo.beneficiary_email,
+          customer_first_name: withdrawalInfo.beneficiary_first_name,
+          customer_last_name: withdrawalInfo.beneficiary_last_name,
+          customer_phone: withdrawalInfo.momo_number,
+          method: withdrawalInfo.momo_provider,
           currency: "XOF",
         })
         .select()
@@ -54,11 +54,11 @@ const WithdrawalConfirmation = ({ amount, description, onBack, onEdit, userProfi
           currency: "XOF",
           description: description,
           recipient: {
-            firstName: userProfile.first_name,
-            lastName: userProfile.last_name,
-            email: userProfile.company_email,
-            phone: userProfile.momo_number,
-            provider: userProfile.momo_provider,
+            firstName: withdrawalInfo.beneficiary_first_name,
+            lastName: withdrawalInfo.beneficiary_last_name,
+            email: withdrawalInfo.beneficiary_email,
+            phone: withdrawalInfo.momo_number,
+            provider: withdrawalInfo.momo_provider,
           }
         }
       });
@@ -99,9 +99,17 @@ const WithdrawalConfirmation = ({ amount, description, onBack, onEdit, userProfi
       if (!user) throw new Error("Utilisateur non connecté");
 
       const { error } = await supabase
-        .from('profiles')
-        .update(updatedData)
-        .eq('id', user.id);
+        .from('withdrawal_info')
+        .upsert({
+          user_id: user.id,
+          momo_provider: updatedData.momo_provider,
+          momo_number: updatedData.momo_number,
+          beneficiary_first_name: updatedData.first_name,
+          beneficiary_last_name: updatedData.last_name,
+          beneficiary_email: updatedData.company_email,
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (error) throw error;
 
@@ -146,22 +154,22 @@ const WithdrawalConfirmation = ({ amount, description, onBack, onEdit, userProfi
             
             <div className="grid gap-2">
               <p className="text-sm text-gray-500">Méthode de paiement</p>
-              <p className="font-medium">{userProfile.momo_provider}</p>
+              <p className="font-medium">{withdrawalInfo?.momo_provider}</p>
             </div>
 
             <div className="grid gap-2">
               <p className="text-sm text-gray-500">Numéro de téléphone</p>
-              <p className="font-medium">{userProfile.momo_number}</p>
+              <p className="font-medium">{withdrawalInfo?.momo_number}</p>
             </div>
 
             <div className="grid gap-2">
               <p className="text-sm text-gray-500">Nom complet</p>
-              <p className="font-medium">{userProfile.first_name} {userProfile.last_name}</p>
+              <p className="font-medium">{withdrawalInfo?.beneficiary_first_name} {withdrawalInfo?.beneficiary_last_name}</p>
             </div>
 
             <div className="grid gap-2">
               <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium">{userProfile.company_email}</p>
+              <p className="font-medium">{withdrawalInfo?.beneficiary_email}</p>
             </div>
           </div>
 
@@ -183,12 +191,12 @@ const WithdrawalConfirmation = ({ amount, description, onBack, onEdit, userProfi
             <DialogTitle>Modifier les informations de retrait</DialogTitle>
           </DialogHeader>
           <WithdrawalInfoStep
-            momoProvider={userProfile.momo_provider}
-            momoNumber={userProfile.momo_number}
-            autoTransfer={userProfile.auto_transfer}
-            withdrawalFirstName={userProfile.first_name}
-            withdrawalLastName={userProfile.last_name}
-            withdrawalEmail={userProfile.company_email}
+            momoProvider={withdrawalInfo?.momo_provider}
+            momoNumber={withdrawalInfo?.momo_number}
+            autoTransfer={false}
+            withdrawalFirstName={withdrawalInfo?.beneficiary_first_name}
+            withdrawalLastName={withdrawalInfo?.beneficiary_last_name}
+            withdrawalEmail={withdrawalInfo?.beneficiary_email}
             onSave={handleEditSave}
           />
         </DialogContent>

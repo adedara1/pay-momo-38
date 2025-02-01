@@ -26,19 +26,19 @@ export default function WithdrawalForm() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("Retrait de fonds");
 
-  const { data: userProfile } = useQuery({
-    queryKey: ["user-profile"],
+  const { data: withdrawalInfo } = useQuery({
+    queryKey: ["withdrawal-info"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Non authentifié");
 
       const { data, error } = await supabase
-        .from("profiles")
+        .from("withdrawal_info")
         .select("*")
-        .eq("id", user.id)
+        .eq("user_id", user.id)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') throw error;
       return data;
     },
   });
@@ -67,7 +67,7 @@ export default function WithdrawalForm() {
           form.reset();
         }}
         onEdit={() => setShowConfirmation(false)}
-        userProfile={userProfile}
+        withdrawalInfo={withdrawalInfo}
       />
     );
   }
