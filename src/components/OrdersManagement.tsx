@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { ShoppingCart, Bell, Check } from "lucide-react";
+import { ShoppingCart, Bell, Check, User, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
 
 interface Order {
   id: string;
@@ -118,36 +119,45 @@ const OrdersManagement = () => {
             orders.map((order) => (
               <Card key={order.id} className="p-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 relative">
+                  <div className="w-24 h-24 relative rounded-lg overflow-hidden">
                     {order.product?.image_url ? (
                       <img
                         src={order.product.image_url}
                         alt={order.product.name}
-                        className="w-full h-full object-cover rounded"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                        <ShoppingCart className="h-6 w-6 text-gray-400" />
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <ShoppingCart className="h-8 w-8 text-gray-400" />
                       </div>
                     )}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{order.product?.name || 'Produit inconnu'}</h3>
-                    <p className="text-gray-600">Montant: {order.amount.toLocaleString()} FCFA</p>
-                    <p className="text-sm text-gray-500">
-                      Client: {order.customer_name || 'Non spécifié'}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Contact: {order.customer_contact || 'Non spécifié'}
-                    </p>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-lg">{order.product?.name || 'Produit inconnu'}</h3>
+                        <p className="text-lg font-bold text-blue-600">{order.amount.toLocaleString()} FCFA</p>
+                      </div>
+                      <Badge variant="secondary" className="bg-orange-100 text-orange-700">
+                        Non traité
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <User className="h-4 w-4" />
+                      <span>{order.customer_name || 'Client non spécifié'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Phone className="h-4 w-4" />
+                      <span>{order.customer_contact || 'Contact non spécifié'}</span>
+                    </div>
+                    <Button
+                      onClick={() => handleMarkAsProcessed(order.id)}
+                      className="bg-green-500 hover:bg-green-600 mt-2"
+                    >
+                      <Check className="h-4 w-4 mr-2" />
+                      Marquer comme traité
+                    </Button>
                   </div>
-                  <Button
-                    onClick={() => handleMarkAsProcessed(order.id)}
-                    className="bg-green-500 hover:bg-green-600"
-                  >
-                    <Check className="h-4 w-4 mr-2" />
-                    Mentionner comme traité
-                  </Button>
                 </div>
               </Card>
             ))
