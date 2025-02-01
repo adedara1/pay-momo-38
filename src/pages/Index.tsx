@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAppName } from "@/hooks/use-app-name";
-import { useSession } from "@/hooks/use-session";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -36,7 +35,6 @@ const Index = () => {
     fetchHeaderImage();
   }, []);
 
-  // Get and monitor auth state
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -53,7 +51,6 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Check admin status whenever userId changes
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (userId) {
@@ -166,14 +163,6 @@ const Index = () => {
                 Se connecter
               </Button>
             </div>
-          </div>
-
-          <div className="relative order-1 lg:order-2">
-            <img
-              src="/lovable-uploads/ece6eb8c-387e-4315-871c-8845cbed8606.png"
-              alt="Globe"
-              className="w-full h-auto max-w-2xl mx-auto"
-            />
           </div>
         </div>
 
