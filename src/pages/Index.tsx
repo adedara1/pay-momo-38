@@ -8,6 +8,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { appName } = useAppName();
   const [headerImage, setHeaderImage] = useState<string | null>(null);
+  const [embedUrl, setEmbedUrl] = useState<string>("");
 
   useEffect(() => {
     const fetchHeaderImage = async () => {
@@ -75,6 +76,28 @@ const Index = () => {
               className="w-full h-auto max-w-2xl mx-auto"
             />
           </div>
+        </div>
+
+        <div className="mt-16 w-full">
+          <div className="flex flex-col gap-4 mb-4">
+            <input
+              type="url"
+              value={embedUrl}
+              onChange={(e) => setEmbedUrl(e.target.value)}
+              placeholder="Entrez l'URL du site à afficher"
+              className="w-full p-4 border rounded-lg"
+            />
+          </div>
+          {embedUrl && (
+            <div className="w-full aspect-[16/9]">
+              <iframe
+                src={embedUrl}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
