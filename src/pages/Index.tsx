@@ -141,21 +141,6 @@ const Index = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              onClick={() => navigate("/auth")}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-6 text-lg rounded-full"
-            >
-              Créer un compte
-            </Button>
-            <Button 
-              onClick={() => navigate("/auth")}
-              variant="outline"
-              className="border-2 px-8 py-6 text-lg rounded-full"
-            >
-              Se connecter
-            </Button>
-          </div>
         </div>
 
         <div className="mt-16 w-full">
