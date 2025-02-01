@@ -24,6 +24,27 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          app_name: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          app_name?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          app_name?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       banner_images: {
         Row: {
           created_at: string | null

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StyleControls from "@/components/StyleControls";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Upload } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ChevronDown, Upload, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -17,12 +18,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const EditeurPage = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(null);
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [appName, setAppName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
   const [styles, setStyles] = useState({
     fontSize: 16,
     lineHeight: 1.5,
@@ -33,6 +38,54 @@ const EditeurPage = () => {
     marginBottom: 0,
     marginLeft: 0
   });
+
+  // Fetch app settings
+  const { data: appSettings } = useQuery({
+    queryKey: ['app-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('*')
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Update app name mutation
+  const updateAppName = useMutation({
+    mutationFn: async (newName: string) => {
+      const { error } = await supabase
+        .from('app_settings')
+        .update({ app_name: newName })
+        .eq('id', appSettings?.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+      toast({
+        title: "Nom mis à jour",
+        description: "Le nom de l'application a été mis à jour avec succès",
+      });
+      setIsEditingName(false);
+    },
+    onError: (error) => {
+      console.error('Error updating app name:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour du nom",
+        variant: "destructive",
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (appSettings) {
+      setAppName(appSettings.app_name);
+    }
+  }, [appSettings]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -95,54 +148,11 @@ const EditeurPage = () => {
     img.src = objectUrl;
   };
 
-  const pages = [
-    { name: "Dashboard", path: "/dashboard", content: (
-      <div className="p-4">
-        <h1>Dashboard</h1>
-        <p>Ceci est un exemple de contenu éditable pour le dashboard.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div className="p-4 bg-white rounded-lg shadow">
-            <h2>Statistiques</h2>
-            <p>Vos statistiques apparaîtront ici</p>
-          </div>
-          <div className="p-4 bg-white rounded-lg shadow">
-            <h2>Activité récente</h2>
-            <p>Votre activité récente apparaîtra ici</p>
-          </div>
-        </div>
-      </div>
-    )},
-    { name: "Blog", path: "/blog", content: (
-      <div className="p-4">
-        <h1>Blog</h1>
-        <div className="space-y-4">
-          <article className="p-4 bg-white rounded-lg shadow">
-            <h2>Premier article</h2>
-            <p>Contenu de l'article éditable ici.</p>
-          </article>
-          <article className="p-4 bg-white rounded-lg shadow">
-            <h2>Deuxième article</h2>
-            <p>Un autre contenu éditable pour le blog.</p>
-          </article>
-        </div>
-      </div>
-    )},
-    { name: "Orders", path: "/orders", content: (
-      <div className="p-4">
-        <h1>Commandes</h1>
-        <div className="mt-4">
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2>Liste des commandes</h2>
-            <div className="space-y-2">
-              <div className="p-2 border rounded">Commande #1</div>
-              <div className="p-2 border rounded">Commande #2</div>
-              <div className="p-2 border rounded">Commande #3</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
-  ];
+  const handleAppNameSave = () => {
+    if (appName.trim()) {
+      updateAppName.mutate(appName);
+    }
+  };
 
   const handleElementClick = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -189,6 +199,38 @@ const EditeurPage = () => {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center mb-6">
+        {isEditingName ? (
+          <div className="flex items-center gap-2">
+            <Input
+              value={appName}
+              onChange={(e) => setAppName(e.target.value)}
+              className="max-w-xs"
+              placeholder="Nom de l'application"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleAppNameSave}
+              disabled={updateAppName.isPending}
+            >
+              <Save className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold">{appName}</h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditingName(true)}
+            >
+              Modifier
+            </Button>
+          </div>
+        )}
+      </div>
+
       <Dialog>
         <DialogTrigger asChild>
           <Button 
