@@ -174,9 +174,9 @@ const ProfileManagement = () => {
           user_id: user.id,
           momo_provider: withdrawalInfo.momo_provider,
           momo_number: withdrawalInfo.momo_number,
-          beneficiary_first_name: withdrawalInfo.first_name,
-          beneficiary_last_name: withdrawalInfo.last_name,
-          beneficiary_email: withdrawalInfo.company_email,
+          beneficiary_first_name: withdrawalInfo.beneficiary_first_name,
+          beneficiary_last_name: withdrawalInfo.beneficiary_last_name,
+          beneficiary_email: withdrawalInfo.beneficiary_email,
         }, {
           onConflict: 'user_id'
         });
@@ -188,7 +188,6 @@ const ProfileManagement = () => {
         description: "Informations de retrait mises à jour avec succès",
       });
       
-      // Recharger les informations pour mettre à jour l'affichage
       await loadWithdrawalInfo();
     } catch (error) {
       console.error("Error saving withdrawal info:", error);
@@ -376,14 +375,14 @@ const ProfileManagement = () => {
               <label className="block text-sm font-medium mb-1">Prénom du bénéficiaire</label>
               <Input
                 value={withdrawalInfo?.beneficiary_first_name || ""}
-                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, first_name: e.target.value }))}
+                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, beneficiary_first_name: e.target.value }))}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Nom du bénéficiaire</label>
               <Input
                 value={withdrawalInfo?.beneficiary_last_name || ""}
-                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, last_name: e.target.value }))}
+                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, beneficiary_last_name: e.target.value }))}
               />
             </div>
             <div>
@@ -391,7 +390,7 @@ const ProfileManagement = () => {
               <Input
                 type="email"
                 value={withdrawalInfo?.beneficiary_email || ""}
-                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, company_email: e.target.value }))}
+                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, beneficiary_email: e.target.value }))}
               />
             </div>
           </div>
