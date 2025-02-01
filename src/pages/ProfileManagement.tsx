@@ -15,9 +15,11 @@ const ProfileManagement = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [selectedCountry, setSelectedCountry] = useState("");
+  const [withdrawalInfo, setWithdrawalInfo] = useState<any>(null);
 
   useEffect(() => {
     loadProfile();
+    loadWithdrawalInfo();
   }, []);
 
   const loadProfile = async () => {
@@ -43,6 +45,32 @@ const ProfileManagement = () => {
       toast({
         title: "Erreur",
         description: "Impossible de charger votre profil",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadWithdrawalInfo = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/auth");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("withdrawal_info")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      setWithdrawalInfo(data || {});
+    } catch (error) {
+      console.error("Error loading withdrawal info:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger vos informations de retrait",
         variant: "destructive",
       });
     }
@@ -137,16 +165,21 @@ const ProfileManagement = () => {
 
   const handleWithdrawalInfoSave = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Non authentifié");
+
       const { error } = await supabase
-        .from("profiles")
-        .update({
-          momo_provider: profile.momo_provider,
-          momo_number: profile.momo_number,
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          company_email: profile.company_email,
-        })
-        .eq("id", profile.id);
+        .from("withdrawal_info")
+        .upsert({
+          user_id: user.id,
+          momo_provider: withdrawalInfo.momo_provider,
+          momo_number: withdrawalInfo.momo_number,
+          beneficiary_first_name: withdrawalInfo.first_name,
+          beneficiary_last_name: withdrawalInfo.last_name,
+          beneficiary_email: withdrawalInfo.company_email,
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (error) throw error;
 
@@ -154,6 +187,9 @@ const ProfileManagement = () => {
         title: "Succès",
         description: "Informations de retrait mises à jour avec succès",
       });
+      
+      // Recharger les informations pour mettre à jour l'affichage
+      await loadWithdrawalInfo();
     } catch (error) {
       console.error("Error saving withdrawal info:", error);
       toast({
@@ -313,8 +349,8 @@ const ProfileManagement = () => {
             <div>
               <label className="block text-sm font-medium mb-1">Fournisseur Mobile Money</label>
               <Select
-                value={profile.momo_provider || ""}
-                onValueChange={(value) => setProfile({ ...profile, momo_provider: value })}
+                value={withdrawalInfo?.momo_provider || ""}
+                onValueChange={(value) => setWithdrawalInfo(prev => ({ ...prev, momo_provider: value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionnez un fournisseur" />
@@ -331,31 +367,31 @@ const ProfileManagement = () => {
             <div>
               <label className="block text-sm font-medium mb-1">Numéro Mobile Money</label>
               <Input
-                value={profile.momo_number || ""}
-                onChange={(e) => setProfile({ ...profile, momo_number: e.target.value })}
+                value={withdrawalInfo?.momo_number || ""}
+                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, momo_number: e.target.value }))}
                 placeholder="Sans préfixe international"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Prénom du bénéficiaire</label>
               <Input
-                value={profile.first_name || ""}
-                onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                value={withdrawalInfo?.beneficiary_first_name || ""}
+                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, first_name: e.target.value }))}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Nom du bénéficiaire</label>
               <Input
-                value={profile.last_name || ""}
-                onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                value={withdrawalInfo?.beneficiary_last_name || ""}
+                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, last_name: e.target.value }))}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Email du bénéficiaire</label>
               <Input
                 type="email"
-                value={profile.company_email || ""}
-                onChange={(e) => setProfile({ ...profile, company_email: e.target.value })}
+                value={withdrawalInfo?.beneficiary_email || ""}
+                onChange={(e) => setWithdrawalInfo(prev => ({ ...prev, company_email: e.target.value }))}
               />
             </div>
           </div>
