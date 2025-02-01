@@ -29,6 +29,7 @@ export default function WithdrawalForm() {
   const { data: withdrawalInfo } = useQuery({
     queryKey: ["withdrawal-info"],
     queryFn: async () => {
+      console.log("Fetching withdrawal info...");
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Non authentifié");
 
@@ -36,9 +37,14 @@ export default function WithdrawalForm() {
         .from("withdrawal_info")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching withdrawal info:", error);
+        throw error;
+      }
+      
+      console.log("Withdrawal info fetched:", data);
       return data;
     },
   });
