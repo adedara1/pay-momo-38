@@ -12,39 +12,27 @@ const Configuration = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+    const fetchGlobalSettings = async () => {
+      try {
         const { data: settings, error } = await supabase
-          .from('settings')
+          .from('global_settings')
           .select('product_fee_percentage')
-          .eq('user_id', user.id)
-          .maybeSingle();
+          .single();
         
         if (error) {
-          console.error('Error fetching settings:', error);
+          console.error('Error fetching global settings:', error);
           return;
         }
         
         if (settings) {
           setPercentage(settings.product_fee_percentage.toString());
-        } else {
-          const { error: insertError } = await supabase
-            .from('settings')
-            .insert({
-              user_id: user.id,
-              product_fee_percentage: 0
-            });
-          
-          if (insertError) {
-            console.error('Error creating default settings:', insertError);
-          }
-          setPercentage("0");
         }
+      } catch (error) {
+        console.error('Error in fetchGlobalSettings:', error);
       }
     };
     
-    fetchSettings();
+    fetchGlobalSettings();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,37 +40,40 @@ const Configuration = () => {
     setIsLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Non authentifié");
-
-      const { data: settings, error: settingsError } = await supabase
-        .from('settings')
+      const { data: existingSettings, error: fetchError } = await supabase
+        .from('global_settings')
         .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .single();
 
-      if (settingsError) throw settingsError;
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
 
-      if (settings) {
-        await supabase
-          .from('settings')
+      if (existingSettings) {
+        // Update existing settings
+        const { error: updateError } = await supabase
+          .from('global_settings')
           .update({ product_fee_percentage: parseFloat(percentage) })
-          .eq('user_id', user.id);
+          .eq('id', existingSettings.id);
+
+        if (updateError) throw updateError;
       } else {
-        await supabase
-          .from('settings')
+        // Insert new settings
+        const { error: insertError } = await supabase
+          .from('global_settings')
           .insert({
-            user_id: user.id,
             product_fee_percentage: parseFloat(percentage)
           });
+
+        if (insertError) throw insertError;
       }
 
       toast({
         title: "Paramètres mis à jour",
-        description: "Les paramètres ont été mis à jour avec succès",
+        description: "Les paramètres globaux ont été mis à jour avec succès",
       });
     } catch (error) {
-      console.error("Error updating settings:", error);
+      console.error("Error updating global settings:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la mise à jour des paramètres",
@@ -106,7 +97,7 @@ const Configuration = () => {
             <h2 className="text-lg font-semibold mb-4">Frais sur les produits</h2>
             <div className="space-y-2">
               <label className="block text-sm font-medium">
-                Pourcentage de frais à appliquer
+                Pourcentage de frais à appliquer globalement
               </label>
               <div className="flex items-center gap-2">
                 <Input
@@ -123,7 +114,7 @@ const Configuration = () => {
                 <span className="text-sm text-gray-500">%</span>
               </div>
               <p className="text-sm text-gray-500">
-                Ce pourcentage sera automatiquement ajouté au prix de vos produits
+                Ce pourcentage sera automatiquement ajouté au prix de tous les produits
               </p>
             </div>
           </div>
