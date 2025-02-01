@@ -23,11 +23,11 @@ import PaymentFrame from "@/components/PaymentFrame";
 import ProfileManagement from "@/pages/ProfileManagement";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import PublicRoute from "@/components/routes/PublicRoute";
+import Index from "@/pages/Index";
 
 // Routes that should not display the sidebar
-const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile', '/paiement'];
+const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile', '/paiement', '/index'];
 
-// Routes that should display the settings sidebar
 const settingsRoutes = ['/configuration', '/editeur', '/donnees', '/page-apercu'];
 
 const AppContent = () => {
@@ -41,8 +41,8 @@ const AppContent = () => {
       {isSettingsPage && <SettingsSidebar userProfile={null} />}
       <main className={`flex-1 w-full overflow-y-auto ${shouldShowSidebar ? 'md:ml-64 max-w-7xl mx-auto' : 'md:w-full'}`}>
         <Routes>
+          <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
-          <Route path="/admins" element={<PublicRoute><AdminAuth /></PublicRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} />
           <Route path="/profile-management" element={<ProtectedRoute><ProfileManagement /></ProtectedRoute>} />
           <Route path="/product/:id" element={<ProductPage />} />
@@ -60,7 +60,7 @@ const AppContent = () => {
           <Route path="/donnees" element={<ProtectedRoute><DonneesPage /></ProtectedRoute>} />
           <Route path="/usersdata-update" element={<ProtectedRoute><UsersDataUpdate /></ProtectedRoute>} />
           <Route path="/page-apercu" element={<ProtectedRoute><PaymentPreview /></ProtectedRoute>} />
-          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/" element={<Navigate to="/index" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
