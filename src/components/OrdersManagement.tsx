@@ -30,7 +30,7 @@ const OrdersManagement = () => {
     queryFn: async () => {
       console.log('Fetching unprocessed orders...');
       const { data, error } = await supabase
-        .from('transactions')
+        .from('trial_transactions')
         .select(`
           id,
           amount,
@@ -50,7 +50,7 @@ const OrdersManagement = () => {
         throw error;
       }
 
-      console.log('Raw orders data:', data); // Ajout d'un log pour voir les données brutes
+      console.log('Raw orders data:', data);
       return data as Order[];
     }
   });
@@ -63,7 +63,7 @@ const OrdersManagement = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'transactions',
+          table: 'trial_transactions',
           filter: 'processed=eq.false',
         },
         (payload) => {
@@ -82,7 +82,7 @@ const OrdersManagement = () => {
     try {
       console.log('Marking order as processed:', orderId);
       const { error } = await supabase
-        .from('transactions')
+        .from('trial_transactions')
         .update({ processed: true })
         .eq('id', orderId);
 

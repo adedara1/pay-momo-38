@@ -865,21 +865,27 @@ export type Database = {
           amount: number
           created_at: string | null
           id: string
+          processed: boolean | null
           product_id: string | null
+          type: string | null
           user_id: string | null
         }
         Insert: {
           amount: number
           created_at?: string | null
           id?: string
+          processed?: boolean | null
           product_id?: string | null
+          type?: string | null
           user_id?: string | null
         }
         Update: {
           amount?: number
           created_at?: string | null
           id?: string
+          processed?: boolean | null
           product_id?: string | null
+          type?: string | null
           user_id?: string | null
         }
         Relationships: [
