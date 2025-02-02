@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface Page {
   path: string;
@@ -52,6 +53,9 @@ const EditeurPage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [appName, setAppName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
+  const [embedUrl, setEmbedUrl] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [styles, setStyles] = useState({
     fontSize: 16,
     lineHeight: 1.5,
@@ -62,6 +66,67 @@ const EditeurPage = () => {
     marginBottom: 0,
     marginLeft: 0
   });
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id) {
+        setUserId(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (userId) {
+        const { data } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', userId)
+          .maybeSingle();
+        
+        setIsAdmin(!!data);
+      } else {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [userId]);
+
+  const handleSaveEmbedUrl = async () => {
+    if (!embedUrl || !userId) return;
+
+    try {
+      await supabase
+        .from('embedded_urls')
+        .update({ is_active: false })
+        .eq('is_active', true);
+
+      const { error } = await supabase
+        .from('embedded_urls')
+        .insert([
+          {
+            url: embedUrl,
+            created_by: userId,
+            is_active: true
+          }
+        ]);
+
+      if (error) throw error;
+
+      toast.success("URL embedded successfully!");
+      setEmbedUrl('');
+    } catch (error) {
+      console.error('Error saving embed URL:', error);
+      toast.error("Failed to save embedded URL");
+    }
+  };
 
   // Fetch app settings
   const { data: appSettings } = useQuery({
@@ -254,6 +319,24 @@ const EditeurPage = () => {
           </div>
         )}
       </div>
+
+      {isAdmin && (
+        <div className="flex flex-col gap-4 mb-4 p-4">
+          <input
+            type="url"
+            value={embedUrl}
+            onChange={(e) => setEmbedUrl(e.target.value)}
+            placeholder="Entrez l'URL du site à afficher"
+            className="w-full p-4 border rounded-lg"
+          />
+          <Button 
+            onClick={handleSaveEmbedUrl}
+            className="bg-orange-500 hover:bg-orange-600 text-white"
+          >
+            Enregistrer l'URL
+          </Button>
+        </div>
+      )}
 
       <Dialog>
         <DialogTrigger asChild>
