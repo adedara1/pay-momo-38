@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ProductImageInput } from "@/components/product/ProductImageInput";
+import { Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const TryProductForm = () => {
   const { toast } = useToast();
@@ -15,10 +17,63 @@ const TryProductForm = () => {
   const [amount, setAmount] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [trialProducts, setTrialProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchTrialProducts();
+  }, []);
+
+  const fetchTrialProducts = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('trial_products')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setTrialProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching trial products:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les produits d'essai",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
+    }
+  };
+
+  const deleteProduct = async (productId: string) => {
+    try {
+      const { error } = await supabase
+        .from('trial_products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Produit supprimé avec succès",
+      });
+
+      fetchTrialProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le produit",
+        variant: "destructive",
+      });
     }
   };
 
@@ -79,7 +134,14 @@ const TryProductForm = () => {
         description: "Le produit d'essai a été créé avec succès",
       });
       
-      navigate(`/try/${productData.id}`);
+      // Reset form
+      setName("");
+      setDescription("");
+      setAmount("");
+      setImage(null);
+      
+      // Refresh products list
+      fetchTrialProducts();
       
     } catch (error) {
       console.error("Error creating product:", error);
@@ -135,6 +197,36 @@ const TryProductForm = () => {
           {isLoading ? "Création..." : "Créer le produit"}
         </Button>
       </form>
+
+      {/* Liste des URLs de paiement */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">URLs de paiement d'essai</h2>
+        <div className="space-y-3">
+          {trialProducts.map((product) => (
+            <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <Link 
+                to={`/try/${product.id}`}
+                className="flex-1 hover:text-blue-600 truncate mr-4"
+              >
+                {product.name} - {product.amount} FCFA
+              </Link>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => deleteProduct(product.id)}
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          {trialProducts.length === 0 && (
+            <p className="text-gray-500 text-center py-4">
+              Aucun produit d'essai créé
+            </p>
+          )}
+        </div>
+      </div>
     </Card>
   );
 };
