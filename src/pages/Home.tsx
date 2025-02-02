@@ -26,38 +26,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
-import ApprovalBanner from "@/components/ApprovalBanner";
 
 const HomeContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string, is_approved: boolean } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ first_name: string; last_name: string } | null>(null);
   const [userId, setUserId] = useState<string>();
   const [isOpen, setIsOpen] = useState(false);
   const [bannerImage, setBannerImage] = useState<string>('/lovable-uploads/2dae098d-873c-40ec-9994-1dcc844f975f.png');
   const [isUploading, setIsUploading] = useState(false);
 
   useStatsSync(userId);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, is_approved')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile) {
-          setUserProfile(profile);
-        }
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
 
   useEffect(() => {
     const fetchBannerImage = async () => {
@@ -144,6 +123,26 @@ const HomeContent = () => {
     img.src = objectUrl;
   };
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setUserProfile(profile);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
   const { data: stats = {
     totalSales: 0,
     dailySales: 0,
@@ -209,152 +208,149 @@ const HomeContent = () => {
   };
 
   return (
-    <>
-      {userProfile && !userProfile.is_approved && <ApprovalBanner />}
-      <div className="w-full min-h-screen border border-white relative" style={{ backgroundColor: '#000080' }}>
-        <div className="relative px-4 md:px-8">
-          <div 
-            className="w-full max-w-[1584px] h-[140px] mb-4 mt-[50px] rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
-            style={{
-              backgroundImage: `url('${bannerImage}')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div className="absolute top-0 right-0 p-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors bg-white/80 backdrop-blur-sm">
-                  <UserRound className="h-6 w-6" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate("/profile-management")}>
-                    Mon profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                    Déconnecter
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <h1 className="text-3xl font-bold text-white absolute left-16 top-1/2 transform -translate-y-1/2 drop-shadow-lg">
-              Tableau de bord
-            </h1>
-          </div>
-        </div>
-
+    <div className="w-full min-h-screen border border-white relative" style={{ backgroundColor: '#000080' }}>
+      <div className="relative px-4 md:px-8">
         <div 
-          className="w-full max-w-[100vw] px-4 py-6 shadow-sm rounded-t-[25px] relative"
+          className="w-full max-w-[1584px] h-[140px] mb-4 mt-[50px] rounded-[15px] bg-white shadow-sm border-4 border-blue-500 relative overflow-hidden mx-auto"
           style={{
-            background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
-            backdropFilter: "blur(10px)",
-            height: "200px"
+            backgroundImage: `url('${bannerImage}')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
-          <h1 className="text-xl md:text-2xl font-bold mb-[40px] mt-[10px] text-gray-800 px-2 md:px-4">
-            Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
+          <div className="absolute top-0 right-0 p-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-full transition-colors bg-white/80 backdrop-blur-sm">
+                <UserRound className="h-6 w-6" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => navigate("/profile-management")}>
+                  Mon profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  Déconnecter
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <h1 className="text-3xl font-bold text-white absolute left-16 top-1/2 transform -translate-y-1/2 drop-shadow-lg">
+            Tableau de bord
           </h1>
         </div>
+      </div>
 
-        <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[25px] relative -mt-[100px]">
-          <div className="mb-4 md:mb-8">
-            <WalletStats />
-          </div>
+      <div 
+        className="w-full max-w-[100vw] px-4 py-6 shadow-sm rounded-t-[25px] relative"
+        style={{
+          background: "linear-gradient(135deg, rgba(255,236,210,1) 0%, rgba(252,182,255,1) 50%, rgba(185,178,255,1) 100%)",
+          backdropFilter: "blur(10px)",
+          height: "200px"
+        }}
+      >
+        <h1 className="text-xl md:text-2xl font-bold mb-[40px] mt-[10px] text-gray-800 px-2 md:px-4">
+          Salut {userProfile ? `${userProfile.first_name} ${userProfile.last_name}` : ''}!
+        </h1>
+      </div>
 
-          <div className="mb-6">
-            <OrdersManagement />
-          </div>
+      <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8 bg-white rounded-t-[25px] relative -mt-[100px]">
+        <div className="mb-4 md:mb-8">
+          <WalletStats />
+        </div>
 
-          <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
-            <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
-              <div className="flex flex-col items-center justify-center mb-4">
-                <h2 className="text-lg font-semibold mb-2">Afficher plus</h2>
-                <CollapsibleTrigger className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                  {isOpen ? (
-                    <ChevronUp className="h-6 w-6 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-6 w-6 text-gray-500" />
-                  )}
-                </CollapsibleTrigger>
+        <div className="mb-6">
+          <OrdersManagement />
+        </div>
+
+        <div className="w-full max-w-[100vw] px-2 md:px-4 py-4 md:py-8">
+          <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
+            <div className="flex flex-col items-center justify-center mb-4">
+              <h2 className="text-lg font-semibold mb-2">Afficher plus</h2>
+              <CollapsibleTrigger className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                {isOpen ? (
+                  <ChevronUp className="h-6 w-6 text-gray-500" />
+                ) : (
+                  <ChevronDown className="h-6 w-6 text-gray-500" />
+                )}
+              </CollapsibleTrigger>
+            </div>
+            
+            <CollapsibleContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
+                <StatCard
+                  title="Ventes Cumulées"
+                  value={stats.totalSales}
+                  suffix="Fcfa"
+                  className="bg-blue-500 text-white"
+                />
+                <StatCard
+                  title="Ventes du jours"
+                  value={stats.dailySales}
+                  className="bg-purple-500 text-white"
+                />
+                <StatCard
+                  title="Ventes Du Mois"
+                  value={stats.monthlySales}
+                  className="bg-pink-500 text-white"
+                />
               </div>
-              
-              <CollapsibleContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
-                  <StatCard
-                    title="Ventes Cumulées"
-                    value={stats.totalSales}
-                    suffix="Fcfa"
-                    className="bg-blue-500 text-white"
-                  />
-                  <StatCard
-                    title="Ventes du jours"
-                    value={stats.dailySales}
-                    className="bg-purple-500 text-white"
-                  />
-                  <StatCard
-                    title="Ventes Du Mois"
-                    value={stats.monthlySales}
-                    className="bg-pink-500 text-white"
-                  />
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
-                  <StatCard
-                    title="Total Des Transactions"
-                    value={String(stats.totalTransactions).padStart(3, '0')}
-                  />
-                  <StatCard
-                    title="Transactions Du Jour"
-                    value={String(stats.dailyTransactions).padStart(2, '0')}
-                  />
-                  <StatCard
-                    title="Transactions Du Mois"
-                    value={String(stats.monthlyTransactions).padStart(2, '0')}
-                  />
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
+                <StatCard
+                  title="Total Des Transactions"
+                  value={String(stats.totalTransactions).padStart(3, '0')}
+                />
+                <StatCard
+                  title="Transactions Du Jour"
+                  value={String(stats.dailyTransactions).padStart(2, '0')}
+                />
+                <StatCard
+                  title="Transactions Du Mois"
+                  value={String(stats.monthlyTransactions).padStart(2, '0')}
+                />
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
-                  <StatCard
-                    title="Ventes du Mois Précédent"
-                    value={stats.previousMonthSales}
-                    suffix="Fcfa"
-                    className="bg-blue-800 text-white"
-                  />
-                  <StatCard
-                    title="Transactions du Mois Précédent"
-                    value={String(stats.previousMonthTransactions).padStart(2, '0')}
-                    className="bg-purple-800 text-white"
-                  />
-                  <StatCard
-                    title="Croissance Des Ventes"
-                    value={stats.salesGrowth}
-                    suffix="%"
-                    className="bg-purple-900 text-white"
-                  />
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-8">
+                <StatCard
+                  title="Ventes du Mois Précédent"
+                  value={stats.previousMonthSales}
+                  suffix="Fcfa"
+                  className="bg-blue-800 text-white"
+                />
+                <StatCard
+                  title="Transactions du Mois Précédent"
+                  value={String(stats.previousMonthTransactions).padStart(2, '0')}
+                  className="bg-purple-800 text-white"
+                />
+                <StatCard
+                  title="Croissance Des Ventes"
+                  value={stats.salesGrowth}
+                  suffix="%"
+                  className="bg-purple-900 text-white"
+                />
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
-                  <StatCard
-                    title="Totals Produits"
-                    value={String(stats.totalProducts).padStart(3, '0')}
-                  />
-                  <StatCard
-                    title="Totals Produits Visible"
-                    value={String(stats.visibleProducts).padStart(2, '0')}
-                  />
-                  <StatCard
-                    title="Solde(s)"
-                    value={stats.soldAmount}
-                    className="bg-gray-900 text-white"
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
+                <StatCard
+                  title="Totals Produits"
+                  value={String(stats.totalProducts).padStart(3, '0')}
+                />
+                <StatCard
+                  title="Totals Produits Visible"
+                  value={String(stats.visibleProducts).padStart(2, '0')}
+                />
+                <StatCard
+                  title="Solde(s)"
+                  value={stats.soldAmount}
+                  className="bg-gray-900 text-white"
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
-            <SalesCharts />
-          </div>
+          <SalesCharts />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
