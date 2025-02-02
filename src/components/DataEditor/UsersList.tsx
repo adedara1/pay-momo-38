@@ -78,21 +78,28 @@ export function UsersList() {
 
   const deleteUser = async (userId: string) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) throw new Error('No session')
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast({
+          title: "Erreur",
+          description: "Vous devez être connecté pour effectuer cette action",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/delete-user`, {
+      const response = await fetch("https://kyjnthjhkppjrnegkfio.supabase.co/functions/v1/delete-user", {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ userId }),
-      })
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to delete user')
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete user');
       }
 
       // Update local state
