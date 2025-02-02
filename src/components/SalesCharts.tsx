@@ -42,23 +42,34 @@ const SalesCharts = () => {
     queryFn: async () => {
       if (!userId) return [];
       
-      const { data, error } = await supabase
+      // Récupérer les transactions réelles
+      const { data: realTransactions, error: realError } = await supabase
         .from('transactions')
         .select('amount, created_at')
         .eq('user_id', userId)
-        .eq('type', 'payment')
-        .order('created_at', { ascending: true });
+        .eq('type', 'payment');
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load monthly sales data",
-          variant: "destructive",
-        });
+      if (realError) {
+        console.error('Error fetching real transactions:', realError);
         return [];
       }
 
-      const monthlyStats = data.reduce((acc: any[], transaction) => {
+      // Récupérer les transactions d'essai
+      const { data: trialTransactions, error: trialError } = await supabase
+        .from('trial_transactions')
+        .select('amount, created_at')
+        .eq('user_id', userId)
+        .eq('type', 'payment');
+
+      if (trialError) {
+        console.error('Error fetching trial transactions:', trialError);
+        return [];
+      }
+
+      // Combiner les deux types de transactions
+      const allTransactions = [...(realTransactions || []), ...(trialTransactions || [])];
+
+      const monthlyStats = allTransactions.reduce((acc: any[], transaction) => {
         const date = new Date(transaction.created_at);
         const month = date.toLocaleString('default', { month: 'short' });
         const existingMonth = acc.find(item => item.month === month);
@@ -86,23 +97,36 @@ const SalesCharts = () => {
       const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
       const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
 
-      const { data: salesData, error: salesError } = await supabase
+      // Récupérer les transactions réelles du jour
+      const { data: realSalesData, error: realError } = await supabase
         .from('transactions')
         .select('amount, created_at')
         .eq('user_id', userId)
         .eq('type', 'payment')
         .gte('created_at', startOfDay)
-        .lt('created_at', endOfDay)
-        .order('created_at', { ascending: true });
+        .lt('created_at', endOfDay);
 
-      if (salesError) {
-        toast({
-          title: "Error",
-          description: "Failed to load daily sales data",
-          variant: "destructive",
-        });
+      if (realError) {
+        console.error('Error fetching real daily sales:', realError);
         return [];
       }
+
+      // Récupérer les transactions d'essai du jour
+      const { data: trialSalesData, error: trialError } = await supabase
+        .from('trial_transactions')
+        .select('amount, created_at')
+        .eq('user_id', userId)
+        .eq('type', 'payment')
+        .gte('created_at', startOfDay)
+        .lt('created_at', endOfDay);
+
+      if (trialError) {
+        console.error('Error fetching trial daily sales:', trialError);
+        return [];
+      }
+
+      // Combiner les transactions
+      const allSalesData = [...(realSalesData || []), ...(trialSalesData || [])];
 
       const hourlyData = Array.from({ length: 24 }, (_, i) => ({
         hour: i.toString().padStart(2, '0'),
@@ -110,7 +134,7 @@ const SalesCharts = () => {
         visits: 0
       }));
 
-      salesData.forEach(transaction => {
+      allSalesData.forEach(transaction => {
         const hour = new Date(transaction.created_at).getHours();
         hourlyData[hour].sales += transaction.amount;
         hourlyData[hour].visits += 1;
@@ -126,7 +150,8 @@ const SalesCharts = () => {
     queryFn: async () => {
       if (!userId) return [];
       
-      const { data, error } = await supabase
+      // Récupérer les produits des transactions réelles
+      const { data: realTransactions, error: realError } = await supabase
         .from('transactions')
         .select(`
           amount,
@@ -135,16 +160,30 @@ const SalesCharts = () => {
         .eq('user_id', userId)
         .eq('type', 'payment');
 
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load top products data",
-          variant: "destructive",
-        });
+      if (realError) {
+        console.error('Error fetching real transactions products:', realError);
         return [];
       }
 
-      const productStats = data.reduce((acc: any, transaction) => {
+      // Récupérer les produits des transactions d'essai
+      const { data: trialTransactions, error: trialError } = await supabase
+        .from('trial_transactions')
+        .select(`
+          amount,
+          product:trial_products(name)
+        `)
+        .eq('user_id', userId)
+        .eq('type', 'payment');
+
+      if (trialError) {
+        console.error('Error fetching trial transactions products:', trialError);
+        return [];
+      }
+
+      // Combiner et calculer les statistiques
+      const allTransactions = [...(realTransactions || []), ...(trialTransactions || [])];
+      
+      const productStats = allTransactions.reduce((acc: any, transaction) => {
         const productName = transaction.product?.name || 'Unknown Product';
         if (!acc[productName]) {
           acc[productName] = 0;
