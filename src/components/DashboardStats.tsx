@@ -47,28 +47,48 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
 
       try {
         // Compter les produits réels
-        const { count: realProductsCount } = await supabase
+        const { data: realProducts, error: realError } = await supabase
           .from('products')
-          .select('*', { count: 'exact', head: true })
+          .select('id')
           .eq('user_id', userId);
+
+        if (realError) throw realError;
 
         // Compter les produits d'essai
-        const { count: trialProductsCount } = await supabase
+        const { data: trialProducts, error: trialError } = await supabase
           .from('trial_products')
-          .select('*', { count: 'exact', head: true })
+          .select('id')
           .eq('user_id', userId);
 
-        const total = (realProductsCount || 0) + (trialProductsCount || 0);
-        const visible = total; // Tous les produits sont visibles par défaut
+        if (trialError) throw trialError;
 
-        return { total, visible };
+        const total = (realProducts?.length || 0) + (trialProducts?.length || 0);
+        
+        // Mettre à jour les statistiques de l'utilisateur
+        const { error: updateError } = await supabase
+          .from('user_stats')
+          .upsert({
+            user_id: userId,
+            total_products: total,
+            visible_products: total, // Tous les produits sont visibles par défaut
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
+          });
+
+        if (updateError) throw updateError;
+
+        return { 
+          total, 
+          visible: total // Tous les produits sont visibles par défaut
+        };
       } catch (error) {
-        console.error('Error fetching products count:', error);
+        console.error('Error fetching/updating products count:', error);
         return { total: 0, visible: 0 };
       }
     },
     enabled: !!userId,
-    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchInterval: 5000, // Rafraîchir toutes les 5 secondes
   });
 
   const { data: userStats, isLoading } = useQuery({
