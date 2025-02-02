@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { ShoppingCart, Bell, Check, User, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +54,29 @@ const OrdersManagement = () => {
       return data as Order[];
     }
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('orders-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: 'processed=eq.false',
+        },
+        (payload) => {
+          console.log('Transaction change received:', payload);
+          queryClient.invalidateQueries({ queryKey: ['unprocessed-orders'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const handleMarkAsProcessed = async (orderId: string) => {
     try {
