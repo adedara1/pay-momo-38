@@ -1,47 +1,59 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
       if (error) throw error;
 
       toast({
         title: "Email envoyé",
-        description: "Veuillez vérifier votre boîte mail pour réinitialiser votre mot de passe.",
+        description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
       });
-    } catch (error: any) {
+      
+      navigate("/");
+    } catch (error) {
+      console.error("Erreur de réinitialisation:", error);
       toast({
         title: "Erreur",
-        description: error.message,
+        description: "Impossible d'envoyer l'email de réinitialisation.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md space-y-8 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md p-6 space-y-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Mot de passe oublié</h2>
+          <h2 className="text-3xl font-bold">Mot de passe oublié</h2>
+          <p className="mt-2 text-gray-600">
+            Entrez votre email pour réinitialiser votre mot de passe
+          </p>
         </div>
-        <form onSubmit={handleResetPassword} className="space-y-6">
-          <div className="space-y-2">
+
+        <form onSubmit={handleResetPassword} className="space-y-4">
+          <div>
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -51,11 +63,25 @@ const ForgotPassword = () => {
               required
             />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Envoi..." : "Réinitialiser le mot de passe"}
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? "Envoi..." : "Envoyer le lien de réinitialisation"}
           </Button>
         </form>
-      </div>
+
+        <div className="text-center">
+          <Button
+            variant="link"
+            onClick={() => navigate("/")}
+          >
+            Retour à la connexion
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 };

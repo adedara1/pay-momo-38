@@ -1,13 +1,12 @@
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const Support = () => {
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Support</h1>
-      <div className="space-y-6">
-        <p>Pour toute assistance, veuillez nous contacter.</p>
-        <Button>Contacter le support</Button>
-      </div>
+      <Card className="p-6">
+        <h1 className="text-2xl font-bold mb-4">Support</h1>
+        <p>Page de support en construction...</p>
+      </Card>
     </div>
   );
 };

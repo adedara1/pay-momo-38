@@ -1,20 +1,32 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Les mots de passe ne correspondent pas.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const { error } = await supabase.auth.updateUser({
@@ -25,29 +37,34 @@ const ResetPassword = () => {
 
       toast({
         title: "Succès",
-        description: "Votre mot de passe a été mis à jour.",
+        description: "Votre mot de passe a été réinitialisé avec succès.",
       });
-
+      
       navigate("/");
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Erreur de réinitialisation:", error);
       toast({
         title: "Erreur",
-        description: error.message,
+        description: "La réinitialisation du mot de passe a échoué.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md space-y-8 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md p-6 space-y-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Réinitialiser le mot de passe</h2>
+          <h2 className="text-3xl font-bold">Réinitialiser le mot de passe</h2>
+          <p className="mt-2 text-gray-600">
+            Entrez votre nouveau mot de passe
+          </p>
         </div>
-        <form onSubmit={handlePasswordReset} className="space-y-6">
-          <div className="space-y-2">
+
+        <form onSubmit={handlePasswordReset} className="space-y-4">
+          <div>
             <Label htmlFor="password">Nouveau mot de passe</Label>
             <Input
               id="password"
@@ -57,11 +74,27 @@ const ResetPassword = () => {
               required
             />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
+
+          <div>
+            <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
           </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };
