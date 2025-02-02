@@ -78,13 +78,14 @@ export function UsersList() {
 
   const deleteUser = async (userId: string) => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
+      // First delete the user from auth.users which will trigger cascade delete
+      const { error: authError } = await supabase.auth.admin.deleteUser(
+        userId
+      );
 
-      if (error) throw error;
+      if (authError) throw authError;
 
+      // Update local state
       setUsers(users.filter(user => user.id !== userId));
 
       toast({
@@ -95,7 +96,7 @@ export function UsersList() {
       console.error('Error deleting user:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de supprimer l'utilisateur",
+        description: "Impossible de supprimer l'utilisateur. Assurez-vous d'avoir les droits d'administration.",
         variant: "destructive",
       });
     }
