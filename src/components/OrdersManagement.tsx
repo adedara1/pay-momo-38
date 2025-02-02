@@ -50,7 +50,7 @@ const OrdersManagement = () => {
         throw error;
       }
 
-      console.log('Fetched orders:', data);
+      console.log('Raw orders data:', data); // Ajout d'un log pour voir les données brutes
       return data as Order[];
     }
   });
@@ -142,7 +142,7 @@ const OrdersManagement = () => {
             orders.map((order) => (
               <Card key={order.id} className="p-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-24 h-24 relative rounded-lg overflow-hidden">
+                  <div className="w-16 h-16 relative rounded-lg overflow-hidden">
                     {order.product?.image_url ? (
                       <img
                         src={order.product.image_url}
@@ -151,7 +151,7 @@ const OrdersManagement = () => {
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <ShoppingCart className="h-8 w-8 text-gray-400" />
+                        <ShoppingCart className="h-6 w-6 text-gray-400" />
                       </div>
                     )}
                   </div>
