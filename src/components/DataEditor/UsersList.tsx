@@ -78,12 +78,22 @@ export function UsersList() {
 
   const deleteUser = async (userId: string) => {
     try {
-      // First delete the user from auth.users which will trigger cascade delete
-      const { error: authError } = await supabase.auth.admin.deleteUser(
-        userId
-      );
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('No session')
 
-      if (authError) throw authError;
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete user')
+      }
 
       // Update local state
       setUsers(users.filter(user => user.id !== userId));
