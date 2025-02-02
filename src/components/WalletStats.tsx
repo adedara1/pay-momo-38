@@ -26,16 +26,16 @@ const WalletStats = () => {
   }, []);
 
   // Use React Query to fetch and cache wallet stats
-  const { data: stats = {
-    available: 0,
-    pending: 0,
-    validated: 0,
-    pendingCount: 0,
-    validatedCount: 0
-  }} = useQuery({
+  const { data: stats } = useQuery({
     queryKey: ['wallet-stats', userId],
     queryFn: async () => {
-      if (!userId) return null;
+      if (!userId) return {
+        available: 0,
+        pending: 0,
+        validated: 0,
+        pendingCount: 0,
+        validatedCount: 0
+      };
 
       try {
         // First check if wallet exists, if not create it
@@ -107,11 +107,11 @@ const WalletStats = () => {
         const currentStats = userStats || { pending_requests: 0, validated_requests: 0 };
 
         return {
-          available: currentWallet.available,
-          pending: currentWallet.pending,
-          validated: currentWallet.validated,
-          pendingCount: currentStats.pending_requests,
-          validatedCount: currentStats.validated_requests
+          available: currentWallet.available || 0,
+          pending: currentWallet.pending || 0,
+          validated: currentWallet.validated || 0,
+          pendingCount: currentStats.pending_requests || 0,
+          validatedCount: currentStats.validated_requests || 0
         };
       } catch (error) {
         console.error('Error in wallet stats query:', error);
@@ -120,10 +120,25 @@ const WalletStats = () => {
           description: "Failed to load wallet stats. Please try again later.",
           variant: "destructive",
         });
-        throw error;
+        // Return default values on error
+        return {
+          available: 0,
+          pending: 0,
+          validated: 0,
+          pendingCount: 0,
+          validatedCount: 0
+        };
       }
     },
-    enabled: !!userId
+    enabled: !!userId,
+    // Provide default values
+    initialData: {
+      available: 0,
+      pending: 0,
+      validated: 0,
+      pendingCount: 0,
+      validatedCount: 0
+    }
   });
 
   // Set up realtime subscription for wallet and transaction updates
@@ -172,7 +187,7 @@ const WalletStats = () => {
             <div className="flex items-center gap-1 md:gap-[1vw] py-4">
               <Wallet className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-blue-500" />
               <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-blue-500 py-2">
-                {stats.available.toLocaleString()} CFA
+                {(stats?.available || 0).toLocaleString()} CFA
               </span>
             </div>
           </div>
@@ -187,11 +202,11 @@ const WalletStats = () => {
           <div className="flex items-center gap-1 md:gap-[1vw] py-4">
             <Timer className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-amber-500" />
             <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-amber-500 py-2">
-              {stats.pending.toLocaleString()} CFA
+              {(stats?.pending || 0).toLocaleString()} CFA
             </span>
           </div>
           <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
-            {stats.pendingCount} Demande(s) en attente
+            {stats?.pendingCount || 0} Demande(s) en attente
           </p>
         </div>
       </Card>
@@ -202,11 +217,11 @@ const WalletStats = () => {
             <div className="flex items-center gap-1 md:gap-[1vw] py-4">
               <PiggyBank className="w-4 h-4 md:w-[4vw] md:h-[4vw] max-w-8 max-h-8 min-w-4 min-h-4 text-green-500" />
               <span className="text-sm md:text-[2.5vw] max-text-xl min-text-sm font-bold text-green-500 py-2">
-                {stats.validated.toLocaleString()} CFA
+                {(stats?.validated || 0).toLocaleString()} CFA
               </span>
             </div>
             <p className="text-xs md:text-[1.8vw] max-text-sm min-text-xs text-gray-600 mt-1 md:mt-[0.5vw] py-2">
-              {stats.validatedCount} Demande(s) validée(s)
+              {stats?.validatedCount || 0} Demande(s) validée(s)
             </p>
           </div>
         </div>
