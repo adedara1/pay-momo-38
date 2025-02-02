@@ -108,8 +108,13 @@ export function UsersList() {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
       <CollapsibleTrigger className="flex items-center gap-2 text-2xl font-bold mb-4 hover:text-primary transition-colors">
-        <h2>Liste des Utilisateurs</h2>
-        {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        <div className="flex items-center gap-2">
+          <h2>Liste des Utilisateurs</h2>
+          <span className="text-sm font-normal px-2 py-1 bg-primary/10 rounded-full">
+            {users.length} utilisateur{users.length > 1 ? 's' : ''}
+          </span>
+          {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        </div>
       </CollapsibleTrigger>
       
       <CollapsibleContent className="grid gap-4">
