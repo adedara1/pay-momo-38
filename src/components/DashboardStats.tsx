@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/use-session";
 import { useToast } from "@/components/ui/use-toast";
-import { startOfDay, endOfDay } from "date-fns";
+import { startOfDay, endOfDay, isToday } from "date-fns";
 
 interface DashboardStatsProps {
   stats: UserStats;
@@ -41,7 +41,6 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
     initializeUser();
   }, [checkSession, toast]);
 
-  // Query pour obtenir le nombre total de produits (réels + essai)
   const { data: productsCount = { total: 0, visible: 0 } } = useQuery({
     queryKey: ['products-count', userId],
     queryFn: async () => {
@@ -52,6 +51,36 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
 
       try {
         console.log("Fetching products count for user:", userId);
+        
+        // Get user stats to check last update
+        const { data: userStats, error: statsError } = await supabase
+          .from('user_stats')
+          .select('last_daily_update')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        if (statsError) {
+          console.error("Error fetching user stats:", statsError);
+          throw statsError;
+        }
+
+        // Check if stats need to be reset for the new day
+        if (!userStats?.last_daily_update || !isToday(new Date(userStats.last_daily_update))) {
+          console.log("Resetting daily stats for new day");
+          const { error: resetError } = await supabase
+            .from('user_stats')
+            .update({
+              daily_sales: 0,
+              daily_transactions: 0,
+              last_daily_update: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+
+          if (resetError) {
+            console.error("Error resetting daily stats:", resetError);
+            throw resetError;
+          }
+        }
         
         // Compter les produits réels
         const { data: realProducts, error: realError } = await supabase

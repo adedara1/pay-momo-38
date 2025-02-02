@@ -946,6 +946,7 @@ export type Database = {
           daily_sales: number | null
           daily_transactions: number | null
           id: string
+          last_daily_update: string | null
           monthly_sales: number | null
           monthly_transactions: number | null
           pending_requests: number | null
@@ -967,6 +968,7 @@ export type Database = {
           daily_sales?: number | null
           daily_transactions?: number | null
           id?: string
+          last_daily_update?: string | null
           monthly_sales?: number | null
           monthly_transactions?: number | null
           pending_requests?: number | null
@@ -988,6 +990,7 @@ export type Database = {
           daily_sales?: number | null
           daily_transactions?: number | null
           id?: string
+          last_daily_update?: string | null
           monthly_sales?: number | null
           monthly_transactions?: number | null
           pending_requests?: number | null
