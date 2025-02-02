@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -9,11 +13,13 @@ interface User {
   last_name: string;
   company_email: string;
   is_approved: boolean;
+  created_at: string;
 }
 
 export function UsersList() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -70,14 +76,43 @@ export function UsersList() {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setUsers(users.filter(user => user.id !== userId));
+
+      toast({
+        title: "Succès",
+        description: "Utilisateur supprimé avec succès",
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'utilisateur",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return <div className="flex justify-center p-4">Chargement...</div>;
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold mb-4">Liste des Utilisateurs</h2>
-      <div className="grid gap-4">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
+      <CollapsibleTrigger className="flex items-center gap-2 text-2xl font-bold mb-4 hover:text-primary transition-colors">
+        <h2>Liste des Utilisateurs</h2>
+        {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+      </CollapsibleTrigger>
+      
+      <CollapsibleContent className="grid gap-4">
         {users.map((user) => (
           <div 
             key={user.id} 
@@ -88,6 +123,9 @@ export function UsersList() {
                 {user.first_name} {user.last_name}
               </h3>
               <p className="text-sm text-gray-600">{user.company_email}</p>
+              <p className="text-sm text-gray-500">
+                Inscrit le {format(new Date(user.created_at), 'dd MMMM yyyy', { locale: fr })}
+              </p>
               <span className={`inline-block px-2 py-1 rounded-full text-xs ${
                 user.is_approved 
                   ? 'bg-green-100 text-green-800' 
@@ -106,10 +144,17 @@ export function UsersList() {
               >
                 {user.is_approved ? 'Désapprouver' : 'Approuver'}
               </Button>
+              <Button 
+                variant="destructive" 
+                size="icon"
+                onClick={() => deleteUser(user.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         ))}
-      </div>
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
