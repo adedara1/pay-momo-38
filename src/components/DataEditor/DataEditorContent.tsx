@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { UserSearch } from "./UserSearch";
 import { UserDataDisplay } from "./UserDataDisplay";
@@ -15,11 +15,6 @@ export function DataEditorContent() {
   const { toast } = useToast();
   const { checkSession } = useSession();
 
-  // Check if user is admin
-  useState(() => {
-    checkAdminStatus();
-  }, []);
-
   const checkAdminStatus = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
@@ -32,6 +27,10 @@ export function DataEditorContent() {
 
     setIsAdmin(!!adminData);
   };
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
 
   const handleSearch = async () => {
     if (!await checkSession()) {

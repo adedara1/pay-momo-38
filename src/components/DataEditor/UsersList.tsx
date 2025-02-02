@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +16,7 @@ export function UsersList() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  useState(() => {
+  useEffect(() => {
     fetchUsers();
   }, []);
 
