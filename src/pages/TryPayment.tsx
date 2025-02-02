@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,6 +12,12 @@ const TryPayment = () => {
   const [product, setProduct] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Customer form state
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -42,11 +49,25 @@ const TryPayment = () => {
     fetchProduct();
   }, [id, toast]);
 
-  const handlePayment = async () => {
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsProcessing(true);
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) throw new Error("Non authentifié");
+
+      // Create customer record
+      const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .insert({
+          full_name: `${firstName} ${lastName}`,
+          email: email,
+          phone: phone
+        })
+        .select()
+        .single();
+
+      if (customerError) throw customerError;
 
       // Create trial transaction
       const { error: transactionError } = await supabase
@@ -148,13 +169,60 @@ const TryPayment = () => {
         <h1 className="text-3xl font-bold">{product.name}</h1>
         <p className="text-gray-600">{product.description}</p>
         <p className="text-2xl font-semibold">{product.amount} FCFA</p>
-        <Button 
-          onClick={handlePayment} 
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
-          disabled={isProcessing}
-        >
-          {isProcessing ? "Traitement..." : "Payer maintenant"}
-        </Button>
+        
+        <Card className="p-6">
+          <form onSubmit={handlePayment} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Prénom</label>
+              <Input
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Votre prénom"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Nom</label>
+              <Input
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Votre nom"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Email</label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="votre@email.com"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Téléphone</label>
+              <Input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+221 XX XXX XX XX"
+                required
+              />
+            </div>
+
+            <Button 
+              type="submit"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Traitement..." : "Payer maintenant"}
+            </Button>
+          </form>
+        </Card>
       </div>
       
       <div>
