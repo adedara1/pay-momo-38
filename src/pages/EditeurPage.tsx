@@ -19,7 +19,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 interface Page {
   path: string;
@@ -120,15 +119,22 @@ const EditeurPage = () => {
 
       if (error) throw error;
 
-      toast.success("URL embedded successfully!");
+      toast({
+        title: "Success",
+        description: "URL embedded successfully!",
+        variant: "default",
+      });
       setEmbedUrl('');
     } catch (error) {
       console.error('Error saving embed URL:', error);
-      toast.error("Failed to save embedded URL");
+      toast({
+        title: "Error",
+        description: "Failed to save embedded URL",
+        variant: "destructive",
+      });
     }
   };
 
-  // Fetch app settings
   const { data: appSettings } = useQuery({
     queryKey: ['app-settings'],
     queryFn: async () => {
@@ -142,7 +148,6 @@ const EditeurPage = () => {
     },
   });
 
-  // Update app name mutation
   const updateAppName = useMutation({
     mutationFn: async (newName: string) => {
       const { error } = await supabase
@@ -180,7 +185,6 @@ const EditeurPage = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Create a new image object to check dimensions
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     
@@ -189,7 +193,7 @@ const EditeurPage = () => {
       
       if (img.width !== 1584 || img.height !== 140) {
         toast({
-          title: "Erreur",
+          title: "Error",
           description: "L'image doit être exactement de 1584x140 pixels",
           variant: "destructive",
         });
@@ -219,13 +223,14 @@ const EditeurPage = () => {
         if (dbError) throw dbError;
 
         toast({
-          title: "Succès",
+          title: "Success",
           description: "Image de bannière mise à jour",
+          variant: "default",
         });
       } catch (error) {
         console.error('Error uploading image:', error);
         toast({
-          title: "Erreur",
+          title: "Error",
           description: "Échec du téléchargement de l'image",
           variant: "destructive",
         });
@@ -251,7 +256,6 @@ const EditeurPage = () => {
       console.log("Élément sélectionné:", event.target);
       setSelectedElement(event.target);
       
-      // Récupérer les styles actuels de l'élément
       const computedStyle = window.getComputedStyle(event.target);
       setStyles({
         fontSize: parseInt(computedStyle.fontSize) || 16,
