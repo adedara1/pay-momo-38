@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Menu,
   Cog,
+  TestTube,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,6 +49,8 @@ export const menuItems = [
   { icon: Wallet, label: "Retraits", path: "/withdrawals" },
   { icon: RefreshCw, label: "Remboursements", path: "/refunds" },
   { icon: Headphones, label: "Support", path: "/support" },
+  { icon: TestTube, label: "Créer Produit Test", path: "/try-productform" },
+  { icon: TestTube, label: "Page Test", path: "/try" },
 ];
 
 export const logoutMenuItem = {
