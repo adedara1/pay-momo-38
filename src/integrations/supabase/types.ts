@@ -864,6 +864,8 @@ export type Database = {
         Row: {
           amount: number
           created_at: string | null
+          customer_contact: string | null
+          customer_name: string | null
           id: string
           processed: boolean | null
           product_id: string | null
@@ -873,6 +875,8 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string | null
+          customer_contact?: string | null
+          customer_name?: string | null
           id?: string
           processed?: boolean | null
           product_id?: string | null
@@ -882,6 +886,8 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string | null
+          customer_contact?: string | null
+          customer_name?: string | null
           id?: string
           processed?: boolean | null
           product_id?: string | null
