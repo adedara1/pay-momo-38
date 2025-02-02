@@ -2,15 +2,36 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { UserSearch } from "./UserSearch";
 import { UserDataDisplay } from "./UserDataDisplay";
+import { UsersList } from "./UsersList";
 import { useSession } from "@/hooks/use-session";
 import { userDataService, type UserData } from "@/services/user-data.service";
+import { supabase } from "@/integrations/supabase/client";
 
 export function DataEditorContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
   const { checkSession } = useSession();
+
+  // Check if user is admin
+  useState(() => {
+    checkAdminStatus();
+  }, []);
+
+  const checkAdminStatus = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    setIsAdmin(!!adminData);
+  };
 
   const handleSearch = async () => {
     if (!await checkSession()) {
@@ -35,7 +56,6 @@ export function DataEditorContent() {
         return;
       }
 
-      // Mise à jour pour inclure les nouvelles statistiques
       const updatedData = {
         ...data,
         stats: {
@@ -98,6 +118,7 @@ export function DataEditorContent() {
 
   return (
     <div className="p-6 space-y-6">
+      {isAdmin && <UsersList />}
       <UserSearch
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}

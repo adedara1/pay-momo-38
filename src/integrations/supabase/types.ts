@@ -642,6 +642,7 @@ export type Database = {
           document_url: string | null
           first_name: string
           id: string
+          is_approved: boolean | null
           last_name: string
           momo_number: string | null
           momo_provider: string | null
@@ -664,6 +665,7 @@ export type Database = {
           document_url?: string | null
           first_name: string
           id: string
+          is_approved?: boolean | null
           last_name: string
           momo_number?: string | null
           momo_provider?: string | null
@@ -686,6 +688,7 @@ export type Database = {
           document_url?: string | null
           first_name?: string
           id?: string
+          is_approved?: boolean | null
           last_name?: string
           momo_number?: string | null
           momo_provider?: string | null

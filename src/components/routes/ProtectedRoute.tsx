@@ -12,6 +12,7 @@ const ProtectedRoute = ({ children, checkAdmin = false }: ProtectedRouteProps) =
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isApproved, setIsApproved] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,11 +39,11 @@ const ProtectedRoute = ({ children, checkAdmin = false }: ProtectedRouteProps) =
 
           setIsAdmin(!!adminData);
 
-          // Only check profile if not admin
+          // Only check profile and approval if not admin
           if (!adminData) {
             const { data: profile, error: profileError } = await supabase
               .from('profiles')
-              .select('first_name, last_name')
+              .select('first_name, last_name, is_approved')
               .eq('id', session.user.id)
               .maybeSingle();
             
@@ -52,12 +53,25 @@ const ProtectedRoute = ({ children, checkAdmin = false }: ProtectedRouteProps) =
             
             const isProfileComplete = !!profile?.first_name && !!profile?.last_name;
             setHasProfile(isProfileComplete);
+            setIsApproved(!!profile?.is_approved);
 
             if (location.pathname === '/profile' && isProfileComplete) {
               navigate('/home');
             }
+
+            // If user is not approved and trying to access restricted pages
+            if (!profile?.is_approved && !['/profile', '/home'].includes(location.pathname)) {
+              toast({
+                title: "Accès refusé",
+                description: "Votre compte n'a pas encore été approuvé",
+                variant: "destructive",
+              });
+              navigate('/home');
+              return;
+            }
           } else {
             setHasProfile(true); // Admins don't need profile
+            setIsApproved(true); // Admins are always approved
           }
         }
       } catch (error) {
@@ -70,6 +84,7 @@ const ProtectedRoute = ({ children, checkAdmin = false }: ProtectedRouteProps) =
         setIsAuthenticated(false);
         setHasProfile(false);
         setIsAdmin(false);
+        setIsApproved(false);
       } finally {
         setIsLoading(false);
       }
