@@ -24,6 +24,7 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
           if (error) throw error;
           if (user) {
             setUserId(user.id);
+            console.log("User ID set:", user.id);
           }
         }
       } catch (error) {
@@ -43,16 +44,24 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
   const { data: productsCount = { total: 0, visible: 0 } } = useQuery({
     queryKey: ['products-count', userId],
     queryFn: async () => {
-      if (!userId) return { total: 0, visible: 0 };
+      if (!userId) {
+        console.log("No user ID available");
+        return { total: 0, visible: 0 };
+      }
 
       try {
+        console.log("Fetching products count for user:", userId);
+        
         // Compter les produits réels
         const { data: realProducts, error: realError } = await supabase
           .from('products')
           .select('id')
           .eq('user_id', userId);
 
-        if (realError) throw realError;
+        if (realError) {
+          console.error("Error fetching real products:", realError);
+          throw realError;
+        }
 
         // Compter les produits d'essai
         const { data: trialProducts, error: trialError } = await supabase
@@ -60,9 +69,20 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
           .select('id')
           .eq('user_id', userId);
 
-        if (trialError) throw trialError;
+        if (trialError) {
+          console.error("Error fetching trial products:", trialError);
+          throw trialError;
+        }
 
-        const total = (realProducts?.length || 0) + (trialProducts?.length || 0);
+        const realCount = realProducts?.length || 0;
+        const trialCount = trialProducts?.length || 0;
+        const total = realCount + trialCount;
+
+        console.log("Products count:", {
+          realProducts: realCount,
+          trialProducts: trialCount,
+          total
+        });
         
         // Mettre à jour les statistiques de l'utilisateur
         const { error: updateError } = await supabase
@@ -70,25 +90,30 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
           .upsert({
             user_id: userId,
             total_products: total,
-            visible_products: total, // Tous les produits sont visibles par défaut
+            visible_products: total,
             updated_at: new Date().toISOString()
           }, {
             onConflict: 'user_id'
           });
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error("Error updating user stats:", updateError);
+          throw updateError;
+        }
+
+        console.log("Updated user stats with new totals:", total);
 
         return { 
           total, 
-          visible: total // Tous les produits sont visibles par défaut
+          visible: total
         };
       } catch (error) {
-        console.error('Error fetching/updating products count:', error);
+        console.error('Error in products count query:', error);
         return { total: 0, visible: 0 };
       }
     },
     enabled: !!userId,
-    refetchInterval: 5000, // Rafraîchir toutes les 5 secondes
+    refetchInterval: 5000,
   });
 
   const { data: userStats, isLoading } = useQuery({
