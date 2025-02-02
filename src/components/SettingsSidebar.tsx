@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Menu, X, Store, MessageSquare, BarChart, Globe } from "lucide-react";
+import { Menu, X, Store, MessageSquare, BarChart, Globe, TestTube } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +26,8 @@ const settingsMenuItems = [
   { label: "Produits", path: "/products-pages", icon: Store },
   { label: "Avis", path: "/reviews", icon: MessageSquare },
   { label: "Facebook Pixel", path: "/facebook-pixel", icon: BarChart },
+  { label: "Créer Produit Test", path: "/try-productform", icon: TestTube },
+  { label: "Page Test", path: "/try", icon: TestTube },
 ];
 
 const SettingsSidebar = ({ userProfile }: SettingsSidebarProps) => {
