@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/use-session";
 import { useToast } from "@/components/ui/use-toast";
+import { startOfDay, endOfDay } from "date-fns";
 
 interface DashboardStatsProps {
   stats: UserStats;
@@ -78,11 +79,41 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
         const trialCount = trialProducts?.length || 0;
         const total = realCount + trialCount;
 
-        console.log("Products count:", {
-          realProducts: realCount,
-          trialProducts: trialCount,
-          total
-        });
+        // Get today's transactions
+        const today = new Date();
+        const startOfToday = startOfDay(today).toISOString();
+        const endOfToday = endOfDay(today).toISOString();
+
+        // Fetch real transactions for today
+        const { data: realTransactions, error: realTransError } = await supabase
+          .from('transactions')
+          .select('amount')
+          .eq('user_id', userId)
+          .gte('created_at', startOfToday)
+          .lte('created_at', endOfToday);
+
+        if (realTransError) {
+          console.error("Error fetching real transactions:", realTransError);
+          throw realTransError;
+        }
+
+        // Fetch trial transactions for today
+        const { data: trialTransactions, error: trialTransError } = await supabase
+          .from('trial_transactions')
+          .select('amount')
+          .eq('user_id', userId)
+          .gte('created_at', startOfToday)
+          .lte('created_at', endOfToday);
+
+        if (trialTransError) {
+          console.error("Error fetching trial transactions:", trialTransError);
+          throw trialTransError;
+        }
+
+        const dailySales = [...(realTransactions || []), ...(trialTransactions || [])]
+          .reduce((sum, trans) => sum + (trans.amount || 0), 0);
+
+        console.log("Daily sales calculated:", dailySales);
         
         // Mettre à jour les statistiques de l'utilisateur
         const { error: updateError } = await supabase
@@ -91,6 +122,7 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
             user_id: userId,
             total_products: total,
             visible_products: total,
+            daily_sales: dailySales,
             updated_at: new Date().toISOString()
           }, {
             onConflict: 'user_id'
@@ -101,15 +133,19 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
           throw updateError;
         }
 
-        console.log("Updated user stats with new totals:", total);
+        console.log("Updated user stats with new totals:", {
+          total,
+          dailySales
+        });
 
         return { 
           total, 
-          visible: total
+          visible: total,
+          dailySales
         };
       } catch (error) {
         console.error('Error in products count query:', error);
-        return { total: 0, visible: 0 };
+        return { total: 0, visible: 0, dailySales: 0 };
       }
     },
     enabled: !!userId,
@@ -183,7 +219,7 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
         />
         <StatCard
           title="Ventes du jours"
-          value={stats.dailySales || 0}
+          value={productsCount.dailySales || 0}
           className="bg-purple-500 text-white"
         />
         <StatCard
