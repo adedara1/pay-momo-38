@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import StyleControls from "@/components/StyleControls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Upload, Save } from "lucide-react";
+import { ChevronDown, Upload, Save, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -322,6 +322,8 @@ const EditeurPage = () => {
             </Button>
           </div>
         )}
+        
+        <ImagePlus className="w-5 h-5 text-blue-600" />
       </div>
 
       {isAdmin && (

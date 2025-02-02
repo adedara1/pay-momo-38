@@ -1,7 +1,6 @@
-import { ImagePlus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const HeaderImageUpload = () => {
   const { toast } = useToast();
@@ -36,7 +35,6 @@ export const HeaderImageUpload = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Delete existing global header image if any
       const { error: deleteError } = await supabase
         .from('global_header_images')
         .delete();
@@ -76,7 +74,6 @@ export const HeaderImageUpload = () => {
         description: "Image téléchargée avec succès",
       });
 
-      // Reload the page to show the new image
       window.location.reload();
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -88,7 +85,6 @@ export const HeaderImageUpload = () => {
     }
   };
 
-  // Only render the upload button if user is admin
   if (!isAdmin) {
     return null;
   }
@@ -98,7 +94,6 @@ export const HeaderImageUpload = () => {
       htmlFor="header-image-upload" 
       className="absolute top-2 left-2 cursor-pointer hover:opacity-70 transition-opacity"
     >
-      <ImagePlus className="w-5 h-5 text-blue-600" />
       <input
         id="header-image-upload"
         type="file"
