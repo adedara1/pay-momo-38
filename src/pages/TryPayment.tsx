@@ -52,6 +52,7 @@ const TryPayment = () => {
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) throw new Error("Non authentifié");
@@ -69,13 +70,16 @@ const TryPayment = () => {
 
       if (customerError) throw customerError;
 
-      // Create trial transaction
+      // Create trial transaction with customer information
       const { error: transactionError } = await supabase
         .from('trial_transactions')
         .insert({
           user_id: user.id,
           product_id: product.id,
-          amount: product.amount
+          amount: product.amount,
+          customer_name: `${firstName} ${lastName}`,
+          customer_contact: phone,
+          type: 'payment'
         });
 
       if (transactionError) throw transactionError;
