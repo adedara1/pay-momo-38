@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/use-session";
 import { useToast } from "@/components/ui/use-toast";
-import { startOfDay, endOfDay, isToday } from "date-fns";
+import { startOfDay, endOfDay, isToday, parseISO, setHours, setMinutes, setSeconds } from "date-fns";
 
 interface DashboardStatsProps {
   stats: UserStats;
@@ -64,9 +64,16 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
           throw statsError;
         }
 
-        // Check if stats need to be reset for the new day
-        if (!userStats?.last_daily_update || !isToday(new Date(userStats.last_daily_update))) {
-          console.log("Resetting daily stats for new day");
+        // Définir l'heure de réinitialisation à 00:00:00
+        const resetTime = setHours(setMinutes(setSeconds(new Date(), 0), 0), 0);
+        console.log("Reset time set to:", resetTime.toISOString());
+
+        // Vérifier si la dernière mise à jour est avant l'heure de réinitialisation
+        const shouldReset = !userStats?.last_daily_update || 
+                          new Date(userStats.last_daily_update) < resetTime;
+
+        if (shouldReset) {
+          console.log("Resetting daily stats - Last update was:", userStats?.last_daily_update);
           const { error: resetError } = await supabase
             .from('user_stats')
             .update({
@@ -80,6 +87,7 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
             console.error("Error resetting daily stats:", resetError);
             throw resetError;
           }
+          console.log("Daily stats reset successfully");
         }
         
         // Compter les produits réels
@@ -108,18 +116,13 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
         const trialCount = trialProducts?.length || 0;
         const total = realCount + trialCount;
 
-        // Get today's transactions
-        const today = new Date();
-        const startOfToday = startOfDay(today).toISOString();
-        const endOfToday = endOfDay(today).toISOString();
-
-        // Fetch real transactions for today
+        // Get today's transactions starting from reset time
         const { data: realTransactions, error: realTransError } = await supabase
           .from('transactions')
           .select('amount')
           .eq('user_id', userId)
-          .gte('created_at', startOfToday)
-          .lte('created_at', endOfToday);
+          .gte('created_at', resetTime.toISOString())
+          .lte('created_at', new Date().toISOString());
 
         if (realTransError) {
           console.error("Error fetching real transactions:", realTransError);
@@ -131,8 +134,8 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
           .from('trial_transactions')
           .select('amount')
           .eq('user_id', userId)
-          .gte('created_at', startOfToday)
-          .lte('created_at', endOfToday);
+          .gte('created_at', resetTime.toISOString())
+          .lte('created_at', new Date().toISOString());
 
         if (trialTransError) {
           console.error("Error fetching trial transactions:", trialTransError);
