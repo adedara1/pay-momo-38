@@ -1,4 +1,6 @@
 import { Card } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StatCardProps {
   title: string;
@@ -8,6 +10,37 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, suffix = "", className = "" }: StatCardProps) => {
+  const [userCurrency, setUserCurrency] = useState("FCFA");
+  const [isMoneyValue, setIsMoneyValue] = useState(false);
+
+  useEffect(() => {
+    const fetchUserCurrency = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('currency_iso')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile?.currency_iso) {
+          setUserCurrency(profile.currency_iso);
+        }
+      }
+    };
+
+    const moneyTitles = [
+      "Ventes Cumulées",
+      "Ventes du jours",
+      "Ventes Du Mois",
+      "Ventes du Mois Précédent",
+      "Solde(s)"
+    ];
+
+    setIsMoneyValue(moneyTitles.includes(title));
+    fetchUserCurrency();
+  }, [title]);
+
   const whiteTitles = [
     "Ventes Cumulées",
     "Ventes du jours",
@@ -28,7 +61,11 @@ const StatCard = ({ title, value, suffix = "", className = "" }: StatCardProps) 
       <h3 className={`text-sm font-medium mb-2 ${titleColor}`}>{title}</h3>
       <p className="text-2xl font-bold">
         {value}
-        {suffix && <span className="text-sm ml-1">{suffix}</span>}
+        {isMoneyValue ? (
+          <span className="text-sm ml-1">{userCurrency}</span>
+        ) : (
+          suffix && <span className="text-sm ml-1">{suffix}</span>
+        )}
       </p>
     </Card>
   );

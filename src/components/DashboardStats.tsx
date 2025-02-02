@@ -2,7 +2,7 @@ import StatCard from "@/components/StatCard";
 import { UserStats } from "@/types/stats";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/use-session";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -38,6 +38,38 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
 
     initializeUser();
   }, [checkSession, toast]);
+
+  // Query pour obtenir le nombre total de produits (réels + essai)
+  const { data: productsCount = { total: 0, visible: 0 } } = useQuery({
+    queryKey: ['products-count', userId],
+    queryFn: async () => {
+      if (!userId) return { total: 0, visible: 0 };
+
+      try {
+        // Compter les produits réels
+        const { count: realProductsCount } = await supabase
+          .from('products')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+
+        // Compter les produits d'essai
+        const { count: trialProductsCount } = await supabase
+          .from('trial_products')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+
+        const total = (realProductsCount || 0) + (trialProductsCount || 0);
+        const visible = total; // Tous les produits sont visibles par défaut
+
+        return { total, visible };
+      } catch (error) {
+        console.error('Error fetching products count:', error);
+        return { total: 0, visible: 0 };
+      }
+    },
+    enabled: !!userId,
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+  });
 
   const { data: userStats, isLoading } = useQuery({
     queryKey: ['user-stats', userId],
@@ -102,19 +134,16 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
         <StatCard
           title="Ventes Cumulées"
           value={stats.totalSales || 0}
-          suffix="Fcfa"
           className="bg-blue-500 text-white"
         />
         <StatCard
           title="Ventes du jours"
           value={stats.dailySales || 0}
-          suffix="Fcfa"
           className="bg-purple-500 text-white"
         />
         <StatCard
           title="Ventes Du Mois"
           value={stats.monthlySales || 0}
-          suffix="Fcfa"
           className="bg-pink-500 text-white"
         />
       </div>
@@ -123,7 +152,6 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
         <StatCard
           title="Ventes du Mois Précédent"
           value={stats.previousMonthSales || 0}
-          suffix="Fcfa"
           className="bg-blue-800 text-white"
         />
         <StatCard
@@ -142,16 +170,15 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Totals Produits"
-          value={String(stats.totalProducts || 0).padStart(3, '0')}
+          value={String(productsCount.total).padStart(3, '0')}
         />
         <StatCard
           title="Totals Produits Visible"
-          value={String(stats.visibleProducts || 0).padStart(2, '0')}
+          value={String(productsCount.visible).padStart(2, '0')}
         />
         <StatCard
           title="Solde(s)"
           value={stats.soldAmount || 0}
-          suffix="Fcfa"
           className="bg-gray-900 text-white"
         />
       </div>
