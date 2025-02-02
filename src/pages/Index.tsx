@@ -31,16 +31,14 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="w-full h-screen">
       {activeEmbedUrl && (
-        <div className="w-full aspect-[16/9]">
-          <iframe
-            src={activeEmbedUrl}
-            className="w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
+        <iframe
+          src={activeEmbedUrl}
+          className="w-full h-full border-0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
       )}
     </div>
   );
