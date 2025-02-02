@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { ProductImageInput } from "@/components/product/ProductImageInput";
 
 const TryProductForm = () => {
   const { toast } = useToast();
@@ -128,15 +129,7 @@ const TryProductForm = () => {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Image</label>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="cursor-pointer"
-          />
-        </div>
+        <ProductImageInput handleImageChange={handleImageChange} />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Création..." : "Créer le produit"}

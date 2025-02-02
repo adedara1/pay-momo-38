@@ -24,12 +24,14 @@ import ProfileManagement from "@/pages/ProfileManagement";
 import ProtectedRoute from "@/components/routes/ProtectedRoute";
 import PublicRoute from "@/components/routes/PublicRoute";
 import Index from "@/pages/Index";
+import TryProductForm from "@/pages/TryProductForm";
+import TryPayment from "@/pages/TryPayment";
 
 // Routes that should not display the sidebar
 const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile', '/paiement', '/index'];
 
 // Routes that should display the settings sidebar
-const settingsRoutes = ['/configuration', '/editeur', '/donnees', '/page-apercu'];
+const settingsRoutes = ['/configuration', '/editeur', '/donnees', '/page-apercu', '/try-productform', '/try'];
 
 const AppContent = () => {
   const location = useLocation();
@@ -61,6 +63,8 @@ const AppContent = () => {
           <Route path="/donnees" element={<ProtectedRoute><DonneesPage /></ProtectedRoute>} />
           <Route path="/usersdata-update" element={<ProtectedRoute><UsersDataUpdate /></ProtectedRoute>} />
           <Route path="/page-apercu" element={<ProtectedRoute><PaymentPreview /></ProtectedRoute>} />
+          <Route path="/try-productform" element={<ProtectedRoute><TryProductForm /></ProtectedRoute>} />
+          <Route path="/try/:id" element={<ProtectedRoute><TryPayment /></ProtectedRoute>} />
           <Route path="/index" element={<Index />} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
