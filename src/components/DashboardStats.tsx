@@ -40,6 +40,28 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
     initializeUser();
   }, [checkSession, toast]);
 
+  // Appel périodique de la fonction Edge pour réinitialiser les stats quotidiennes
+  useEffect(() => {
+    const resetDailyStats = async () => {
+      try {
+        const { error } = await supabase.functions.invoke('reset-daily-stats');
+        if (error) {
+          console.error('Error resetting daily stats:', error);
+        } else {
+          console.log('Daily stats reset check completed');
+        }
+      } catch (error) {
+        console.error('Failed to reset daily stats:', error);
+      }
+    };
+
+    // Vérifier la réinitialisation toutes les heures
+    const interval = setInterval(resetDailyStats, 3600000); // 1 heure en millisecondes
+
+    // Nettoyer l'intervalle lors du démontage du composant
+    return () => clearInterval(interval);
+  }, []);
+
   const { data: productsCount = { total: 0, visible: 0, dailySales: 0 } } = useQuery({
     queryKey: ['products-count', userId],
     queryFn: async () => {
