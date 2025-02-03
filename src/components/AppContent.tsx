@@ -26,9 +26,10 @@ import PublicRoute from "@/components/routes/PublicRoute";
 import Index from "@/pages/Index";
 import TryProductForm from "@/pages/TryProductForm";
 import TryPayment from "@/pages/TryPayment";
+import Support from "@/pages/Support";
 
 // Routes that should not display the sidebar
-const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile', '/paiement', '/index'];
+const noSidebarRoutes = ['/product', '/auth', '/admins', '/profile', '/paiement', '/index', '/support'];
 
 // Routes that should display the settings sidebar
 const settingsRoutes = ['/configuration', '/editeur', '/donnees', '/page-apercu', '/try-productform', '/try'];
@@ -65,6 +66,7 @@ const AppContent = () => {
           <Route path="/page-apercu" element={<ProtectedRoute><PaymentPreview /></ProtectedRoute>} />
           <Route path="/try-productform" element={<ProtectedRoute><TryProductForm /></ProtectedRoute>} />
           <Route path="/try/:id" element={<ProtectedRoute><TryPayment /></ProtectedRoute>} />
+          <Route path="/support" element={<Support />} />
           <Route path="/index" element={<Index />} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="*" element={<NotFound />} />
