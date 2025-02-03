@@ -762,6 +762,30 @@ export type Database = {
           },
         ]
       }
+      support_embedded_urls: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          url?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number

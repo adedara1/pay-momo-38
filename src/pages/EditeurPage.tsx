@@ -53,6 +53,7 @@ const EditeurPage = () => {
   const [appName, setAppName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [embedUrl, setEmbedUrl] = useState<string>("");
+  const [supportEmbedUrl, setSupportEmbedUrl] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [styles, setStyles] = useState({
@@ -132,6 +133,45 @@ const EditeurPage = () => {
       toast({
         title: "Erreur",
         description: "Impossible d'enregistrer l'URL",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveSupportEmbedUrl = async () => {
+    if (!supportEmbedUrl || !userId) return;
+
+    try {
+      await supabase
+        .from('support_embedded_urls')
+        .update({ is_active: false })
+        .eq('is_active', true);
+
+      const { error } = await supabase
+        .from('support_embedded_urls')
+        .insert([
+          {
+            url: supportEmbedUrl,
+            created_by: userId,
+            is_active: true
+          }
+        ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "L'URL de support a été enregistrée avec succès !",
+        variant: "default",
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['active-support-embedded-url'] });
+      setSupportEmbedUrl('');
+    } catch (error) {
+      console.error('Erreur lors de l\'enregistrement de l\'URL de support:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'enregistrer l'URL de support",
         variant: "destructive",
       });
     }
@@ -329,22 +369,43 @@ const EditeurPage = () => {
       </div>
 
       {isAdmin && (
-        <div className="flex flex-col gap-4 mb-4 p-4 bg-white rounded-lg shadow">
-          <h3 className="text-lg font-semibold">Configuration de l'URL intégrée</h3>
-          <div className="flex gap-2">
-            <Input
-              type="url"
-              value={embedUrl}
-              onChange={(e) => setEmbedUrl(e.target.value)}
-              placeholder="Entrez l'URL du site à afficher"
-              className="flex-1"
-            />
-            <Button 
-              onClick={handleSaveEmbedUrl}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
-              Enregistrer
-            </Button>
+        <div className="flex flex-col gap-4">
+          <div className="mb-4 p-4 bg-white rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-2">Configuration de l'URL intégrée</h3>
+            <div className="flex gap-2">
+              <Input
+                type="url"
+                value={embedUrl}
+                onChange={(e) => setEmbedUrl(e.target.value)}
+                placeholder="Entrez l'URL du site à afficher"
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSaveEmbedUrl}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Enregistrer
+              </Button>
+            </div>
+          </div>
+
+          <div className="p-4 bg-white rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-2">Configuration de l'URL de support</h3>
+            <div className="flex gap-2">
+              <Input
+                type="url"
+                value={supportEmbedUrl}
+                onChange={(e) => setSupportEmbedUrl(e.target.value)}
+                placeholder="Entrez l'URL du site de support à afficher"
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSaveSupportEmbedUrl}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Enregistrer
+              </Button>
+            </div>
           </div>
         </div>
       )}
