@@ -20,6 +20,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+// Définition des pages de l'application
+const pages = [
+  { path: '/home', name: 'Accueil' },
+  { path: '/blog', name: 'Produit' },
+  { path: '/orders', name: 'Commandes' },
+  { path: '/transaction', name: 'Transaction' },
+  { path: '/clients', name: 'Clients' },
+  { path: '/withdrawals', name: 'Retraits' },
+  { path: '/refunds', name: 'Remboursements' },
+  { path: '/support', name: 'Support' }
+];
+
+// Définition des éléments du menu
+const menuItems = [
+  { route_path: '/home', menu_label: 'Accueil' },
+  { route_path: '/blog', menu_label: 'Produit' },
+  { route_path: '/orders', menu_label: 'Commandes' },
+  { route_path: '/transaction', menu_label: 'Transaction' },
+  { route_path: '/clients', menu_label: 'Clients' },
+  { route_path: '/withdrawals', menu_label: 'Retraits' },
+  { route_path: '/refunds', menu_label: 'Remboursements' },
+  { route_path: '/support', menu_label: 'Support' }
+];
+
 const EditeurPage = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -42,6 +66,33 @@ const EditeurPage = () => {
     marginBottom: 0,
     marginLeft: 0
   });
+
+  // Fonction pour mettre à jour la visibilité du menu
+  const updateMenuVisibility = async (routePath: string, isVisible: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('menu_visibility')
+        .update({ is_visible: isVisible })
+        .eq('route_path', routePath);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: `Menu ${isVisible ? 'affiché' : 'masqué'} avec succès`,
+      });
+
+      // Invalider le cache pour forcer le rechargement des données
+      queryClient.invalidateQueries({ queryKey: ['menu-visibility'] });
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la visibilité:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour la visibilité du menu",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
