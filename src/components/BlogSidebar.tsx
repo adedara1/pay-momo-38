@@ -14,6 +14,12 @@ interface UserProfile {
   company_logo_url: string | null;
 }
 
+interface MenuVisibility {
+  route_path: string;
+  menu_label: string;
+  is_visible: boolean;
+}
+
 interface BlogSidebarProps {
   userProfile: UserProfile | null;
 }
@@ -26,6 +32,29 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [menuVisibility, setMenuVisibility] = useState<MenuVisibility[]>([]);
+
+  useEffect(() => {
+    const loadMenuVisibility = async () => {
+      try {
+        const { data: visibilityData, error } = await supabase
+          .from('menu_visibility')
+          .select('route_path, menu_label, is_visible');
+
+        if (error) {
+          console.error('Error fetching menu visibility:', error);
+          return;
+        }
+
+        console.log('Menu visibility data loaded:', visibilityData);
+        setMenuVisibility(visibilityData);
+      } catch (error) {
+        console.error('Error loading menu visibility:', error);
+      }
+    };
+
+    loadMenuVisibility();
+  }, []);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -38,12 +67,20 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           .maybeSingle();
         
         setIsAdmin(!!adminData);
-        setFilteredMenuItems(menuItems.filter(item => !item.isAdminOnly || (item.isAdminOnly && !!adminData)));
+        
+        // Filter menu items based on both admin status and visibility settings
+        const filtered = menuItems.filter(item => {
+          const visibilitySetting = menuVisibility.find(v => v.route_path === item.path);
+          const isVisible = visibilitySetting ? visibilitySetting.is_visible : true;
+          return isVisible && (!item.isAdminOnly || (item.isAdminOnly && !!adminData));
+        });
+        
+        setFilteredMenuItems(filtered);
       }
     };
 
     checkAdminStatus();
-  }, []);
+  }, [menuVisibility]);
 
   useEffect(() => {
     const loadHeaderImage = async () => {
