@@ -102,12 +102,6 @@ const OrdersManagement = () => {
                         <span>{transaction.customer_contact}</span>
                       </div>
                     )}
-                    {transaction.customer_email && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Mail className="w-4 h-4" />
-                        <span>{transaction.customer_email}</span>
-                      </div>
-                    )}
                   </div>
                 </TableCell>
                 <TableCell>
