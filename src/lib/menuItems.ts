@@ -39,6 +39,7 @@ export const menuItems = [
     submenu: [
       { icon: Settings, label: "Réglages", path: "/settings" },
       { icon: Cog, label: "Configuration", path: "/configuration" },
+      { icon: Menu, label: "Configuration des menus", path: "/menu-settings" },
     ]
   },
   { icon: Package, label: "Produit", path: "/blog" },
