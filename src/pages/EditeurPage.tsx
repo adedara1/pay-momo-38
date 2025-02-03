@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import StyleControls from "@/components/StyleControls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Upload, Save, ImagePlus, Eye, EyeOff } from "lucide-react";
+import { ChevronDown, Upload, Save, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -19,6 +19,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+interface Page {
+  path: string;
+  name: string;
+  content: React.ReactNode;
+}
+
+const pages: Page[] = [
+  {
+    path: "/home",
+    name: "Page d'accueil",
+    content: <div>Contenu de la page d'accueil</div>
+  },
+  {
+    path: "/products",
+    name: "Page des produits",
+    content: <div>Contenu de la page des produits</div>
+  },
+  {
+    path: "/contact",
+    name: "Page de contact",
+    content: <div>Contenu de la page de contact</div>
+  }
+];
 
 const EditeurPage = () => {
   const { toast } = useToast();
@@ -345,34 +369,43 @@ const EditeurPage = () => {
       </div>
 
       {isAdmin && (
-        <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Visibilité des menus</h2>
-          <div className="grid gap-4">
-            {menuItems.map((item) => (
-              <div key={item.route_path} className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="font-medium">{item.menu_label}</span>
-                <div className="flex gap-2">
-                  <Button
-                    variant={item.is_visible ? "outline" : "default"}
-                    size="sm"
-                    onClick={() => updateMenuVisibility(item.route_path, true)}
-                    className="flex items-center gap-2"
-                  >
-                    <Eye className="h-4 w-4" />
-                    Afficher
-                  </Button>
-                  <Button
-                    variant={!item.is_visible ? "outline" : "default"}
-                    size="sm"
-                    onClick={() => updateMenuVisibility(item.route_path, false)}
-                    className="flex items-center gap-2"
-                  >
-                    <EyeOff className="h-4 w-4" />
-                    Masquer
-                  </Button>
-                </div>
-              </div>
-            ))}
+        <div className="flex flex-col gap-4">
+          <div className="mb-4 p-4 bg-white rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-2">Configuration de l'URL intégrée</h3>
+            <div className="flex gap-2">
+              <Input
+                type="url"
+                value={embedUrl}
+                onChange={(e) => setEmbedUrl(e.target.value)}
+                placeholder="Entrez l'URL du site à afficher"
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSaveEmbedUrl}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Enregistrer
+              </Button>
+            </div>
+          </div>
+
+          <div className="p-4 bg-white rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-2">Configuration de l'URL de support</h3>
+            <div className="flex gap-2">
+              <Input
+                type="url"
+                value={supportEmbedUrl}
+                onChange={(e) => setSupportEmbedUrl(e.target.value)}
+                placeholder="Entrez l'URL du site de support à afficher"
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSaveSupportEmbedUrl}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Enregistrer
+              </Button>
+            </div>
           </div>
         </div>
       )}

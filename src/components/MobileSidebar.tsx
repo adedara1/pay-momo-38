@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { HeaderImageUpload } from "./shared/HeaderImageUpload";
-import { useQuery } from "@tanstack/react-query";
 
 interface UserProfile {
   first_name: string;
@@ -27,19 +26,6 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
   const { toast } = useToast();
   const [filteredMenuItems, setFilteredMenuItems] = useState(menuItems);
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
-
-  // Fetch menu visibility settings
-  const { data: menuVisibility } = useQuery({
-    queryKey: ['menu-visibility'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('menu_visibility')
-        .select('*');
-      
-      if (error) throw error;
-      return data;
-    },
-  });
 
   useEffect(() => {
     const loadHeaderImage = async () => {
@@ -82,18 +68,10 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
           .eq('id', user.id)
           .maybeSingle();
 
-        if (menuVisibility) {
-          const visibilityMap = new Map(
-            menuVisibility.map(item => [item.route_path, item.is_visible])
-          );
-
-          const filtered = menuItems.filter(item => {
-            if (item.label === "Menu Admin" && !adminUser) return false;
-            return visibilityMap.get(item.path) !== false;
-          });
-
-          setFilteredMenuItems(filtered);
-        }
+        const filtered = menuItems.filter(item => 
+          item.label !== "Menu Admin" || (item.label === "Menu Admin" && !!adminUser)
+        );
+        setFilteredMenuItems(filtered);
       } catch (error) {
         console.error('Error checking admin status:', error);
         handleAuthError(error);
@@ -101,7 +79,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
     };
 
     checkAdminStatus();
-  }, [navigate, menuVisibility]);
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {
@@ -130,7 +108,7 @@ const MobileSidebar = ({ userProfile }: MobileSidebarProps) => {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => setIsCollapsed(true)}
+        onClick={() => setIsCollapsed(!isCollapsed)}
         className="fixed top-4 right-4 z-[60] bg-background shadow-md hover:bg-accent"
       >
         <Menu className="h-5 w-5" />

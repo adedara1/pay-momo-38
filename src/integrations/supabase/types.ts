@@ -256,33 +256,6 @@ export type Database = {
           },
         ]
       }
-      menu_visibility: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_visible: boolean | null
-          menu_label: string
-          route_path: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_visible?: boolean | null
-          menu_label: string
-          route_path: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_visible?: boolean | null
-          menu_label?: string
-          route_path?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       momo_providers_mapping: {
         Row: {
           country_iso: string
