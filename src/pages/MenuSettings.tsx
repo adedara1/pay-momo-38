@@ -16,8 +16,22 @@ const MenuSettings = () => {
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibilityItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    const checkAdminStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        setIsAdmin(!!adminData);
+      }
+    };
+
+    checkAdminStatus();
     loadMenuVisibility();
   }, []);
 
@@ -43,13 +57,31 @@ const MenuSettings = () => {
       );
 
       // Combine existing settings with all menu items
-      const allMenuItems = menuItems.map(item => ({
-        route_path: item.path,
-        menu_label: item.label,
-        is_visible: existingSettings.has(item.path) 
-          ? existingSettings.get(item.path)!.is_visible 
-          : true
-      }));
+      const allMenuItems = menuItems.flatMap(item => {
+        const items = [];
+        // Add main menu item
+        items.push({
+          route_path: item.path,
+          menu_label: item.label,
+          is_visible: existingSettings.has(item.path) 
+            ? existingSettings.get(item.path)!.is_visible 
+            : true
+        });
+        
+        // Add submenu items if they exist
+        if (item.submenu) {
+          item.submenu.forEach(subItem => {
+            items.push({
+              route_path: subItem.path,
+              menu_label: subItem.label,
+              is_visible: existingSettings.has(subItem.path)
+                ? existingSettings.get(subItem.path)!.is_visible
+                : true
+            });
+          });
+        }
+        return items;
+      });
 
       console.log('Menu visibility loaded:', allMenuItems);
       setMenuVisibility(allMenuItems);
@@ -64,13 +96,25 @@ const MenuSettings = () => {
   };
 
   const toggleVisibility = async (path: string, newVisibility: boolean) => {
+    if (!isAdmin) {
+      toast({
+        title: "Erreur",
+        description: "Vous n'avez pas les droits pour effectuer cette action",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      const menuItem = menuVisibility.find(item => item.route_path === path);
+      if (!menuItem) return;
+
       const { error } = await supabase
         .from('menu_visibility')
         .upsert({
           route_path: path,
-          menu_label: menuVisibility.find(item => item.route_path === path)?.menu_label || '',
+          menu_label: menuItem.menu_label,
           is_visible: newVisibility
         });
 
@@ -88,6 +132,9 @@ const MenuSettings = () => {
         title: "Succès",
         description: `Menu ${newVisibility ? 'affiché' : 'masqué'} avec succès`,
       });
+
+      // Reload menu visibility to ensure sync
+      await loadMenuVisibility();
     } catch (error) {
       console.error('Error updating visibility:', error);
       toast({
@@ -99,6 +146,15 @@ const MenuSettings = () => {
       setIsLoading(false);
     }
   };
+
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-2xl font-bold mb-6">Accès non autorisé</h1>
+        <p>Vous n'avez pas les droits pour accéder à cette page.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">
