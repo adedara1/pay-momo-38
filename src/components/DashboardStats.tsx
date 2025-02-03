@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/use-session";
 import { useToast } from "@/components/ui/use-toast";
-import { startOfDay, endOfDay, isToday, parseISO, setHours, setMinutes, setSeconds } from "date-fns";
 
 interface DashboardStatsProps {
   stats: UserStats;
@@ -41,58 +40,16 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
     initializeUser();
   }, [checkSession, toast]);
 
-  const { data: productsCount = { total: 0, visible: 0 } } = useQuery({
+  const { data: productsCount = { total: 0, visible: 0, dailySales: 0 } } = useQuery({
     queryKey: ['products-count', userId],
     queryFn: async () => {
       if (!userId) {
         console.log("No user ID available");
-        return { total: 0, visible: 0 };
+        return { total: 0, visible: 0, dailySales: 0 };
       }
 
       try {
         console.log("Fetching products count for user:", userId);
-        
-        // Get user stats to check last update
-        const { data: userStats, error: statsError } = await supabase
-          .from('user_stats')
-          .select('last_daily_update')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        if (statsError) {
-          console.error("Error fetching user stats:", statsError);
-          throw statsError;
-        }
-
-        // Définir l'heure de réinitialisation à 00:00:00
-        const now = new Date();
-        const resetTime = setHours(setMinutes(setSeconds(now, 0), 0), 0);
-        console.log("Reset time:", resetTime);
-        console.log("Last update:", userStats?.last_daily_update);
-
-        // Vérifier si la réinitialisation est nécessaire
-        const lastUpdate = userStats?.last_daily_update ? new Date(userStats.last_daily_update) : null;
-        const shouldReset = !lastUpdate || lastUpdate < resetTime;
-
-        console.log("Should reset?", shouldReset);
-        
-        if (shouldReset) {
-          console.log("Resetting daily stats");
-          const { error: resetError } = await supabase
-            .from('user_stats')
-            .update({
-              daily_sales: 0,
-              daily_transactions: 0,
-              last_daily_update: now.toISOString()
-            })
-            .eq('user_id', userId);
-
-          if (resetError) {
-            console.error("Error resetting daily stats:", resetError);
-            throw resetError;
-          }
-          console.log("Daily stats reset successfully");
-        }
         
         // Compter les produits réels
         const { data: realProducts, error: realError } = await supabase
@@ -116,60 +73,24 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
           throw trialError;
         }
 
+        // Get user stats
+        const { data: userStats, error: statsError } = await supabase
+          .from('user_stats')
+          .select('daily_sales')
+          .eq('user_id', userId)
+          .single();
+
+        if (statsError) {
+          console.error("Error fetching user stats:", statsError);
+          throw statsError;
+        }
+
         const realCount = realProducts?.length || 0;
         const trialCount = trialProducts?.length || 0;
         const total = realCount + trialCount;
+        const dailySales = userStats?.daily_sales || 0;
 
-        // Get today's transactions starting from reset time
-        const { data: realTransactions, error: realTransError } = await supabase
-          .from('transactions')
-          .select('amount')
-          .eq('user_id', userId)
-          .gte('created_at', resetTime.toISOString())
-          .lte('created_at', new Date().toISOString());
-
-        if (realTransError) {
-          console.error("Error fetching real transactions:", realTransError);
-          throw realTransError;
-        }
-
-        // Fetch trial transactions for today
-        const { data: trialTransactions, error: trialTransError } = await supabase
-          .from('trial_transactions')
-          .select('amount')
-          .eq('user_id', userId)
-          .gte('created_at', resetTime.toISOString())
-          .lte('created_at', new Date().toISOString());
-
-        if (trialTransError) {
-          console.error("Error fetching trial transactions:", trialTransError);
-          throw trialTransError;
-        }
-
-        const dailySales = [...(realTransactions || []), ...(trialTransactions || [])]
-          .reduce((sum, trans) => sum + (trans.amount || 0), 0);
-
-        console.log("Daily sales calculated:", dailySales);
-        
-        // Mettre à jour les statistiques de l'utilisateur
-        const { error: updateError } = await supabase
-          .from('user_stats')
-          .upsert({
-            user_id: userId,
-            total_products: total,
-            visible_products: total,
-            daily_sales: dailySales,
-            updated_at: new Date().toISOString()
-          }, {
-            onConflict: 'user_id'
-          });
-
-        if (updateError) {
-          console.error("Error updating user stats:", updateError);
-          throw updateError;
-        }
-
-        console.log("Updated user stats with new totals:", {
+        console.log("Stats calculated:", {
           total,
           dailySales
         });
@@ -226,7 +147,7 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
     },
     enabled: !!userId,
     retry: 1,
-    staleTime: 30000, // Cache data for 30 seconds
+    staleTime: 30000,
   });
 
   if (isLoading) {
