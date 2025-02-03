@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { momoProviders, cedeaoCountries, citiesByCountry } from "@/data/locationData";
 import { ArrowLeft } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const ProfileManagement = () => {
   const navigate = useNavigate();
@@ -196,6 +197,63 @@ const ProfileManagement = () => {
         description: "Impossible de mettre à jour les informations de retrait",
         variant: "destructive",
       });
+    }
+  };
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Les nouveaux mots de passe ne correspondent pas",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Erreur",
+        description: "Le nouveau mot de passe doit contenir au moins 6 caractères",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Votre mot de passe a été mis à jour avec succès",
+      });
+
+      // Réinitialiser les champs
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      
+    } catch (error) {
+      console.error("Erreur lors du changement de mot de passe:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le mot de passe",
+        variant: "destructive",
+      });
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -398,6 +456,42 @@ const ProfileManagement = () => {
             Enregistrer
           </Button>
         </div>
+      </Card>
+
+      {/* Changement de mot de passe */}
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Changer votre mot de passe</h2>
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Nouveau mot de passe</label>
+              <Input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Entrez votre nouveau mot de passe"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Confirmer le nouveau mot de passe</label>
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirmez votre nouveau mot de passe"
+                required
+              />
+            </div>
+          </div>
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={isChangingPassword}
+          >
+            {isChangingPassword ? "Modification en cours..." : "Changer le mot de passe"}
+          </Button>
+        </form>
       </Card>
     </div>
   );
