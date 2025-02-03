@@ -65,21 +65,25 @@ export const DashboardStats = ({ stats }: DashboardStatsProps) => {
         }
 
         // Définir l'heure de réinitialisation à 00:00:00
-        const resetTime = setHours(setMinutes(setSeconds(new Date(), 0), 0), 0);
-        console.log("Reset time set to:", resetTime.toISOString());
+        const now = new Date();
+        const resetTime = setHours(setMinutes(setSeconds(now, 0), 0), 0);
+        console.log("Reset time:", resetTime);
+        console.log("Last update:", userStats?.last_daily_update);
 
-        // Vérifier si la dernière mise à jour est avant l'heure de réinitialisation
-        const shouldReset = !userStats?.last_daily_update || 
-                          new Date(userStats.last_daily_update) < resetTime;
+        // Vérifier si la réinitialisation est nécessaire
+        const lastUpdate = userStats?.last_daily_update ? new Date(userStats.last_daily_update) : null;
+        const shouldReset = !lastUpdate || lastUpdate < resetTime;
 
+        console.log("Should reset?", shouldReset);
+        
         if (shouldReset) {
-          console.log("Resetting daily stats - Last update was:", userStats?.last_daily_update);
+          console.log("Resetting daily stats");
           const { error: resetError } = await supabase
             .from('user_stats')
             .update({
               daily_sales: 0,
               daily_transactions: 0,
-              last_daily_update: new Date().toISOString()
+              last_daily_update: now.toISOString()
             })
             .eq('user_id', userId);
 
