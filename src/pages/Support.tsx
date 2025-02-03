@@ -1,53 +1,33 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Support = () => {
-  const [url, setUrl] = useState("");
-  const [displayUrl, setDisplayUrl] = useState("");
-  const { toast } = useToast();
+  const { data: activeUrl } = useQuery({
+    queryKey: ['active-embedded-url'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('embedded_urls')
+        .select('url')
+        .eq('is_active', true)
+        .single();
+      
+      if (error) throw error;
+      return data?.url;
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      new URL(url); // Validate URL format
-      setDisplayUrl(url);
-    } catch (error) {
-      toast({
-        title: "URL invalide",
-        description: "Veuillez entrer une URL valide",
-        variant: "destructive",
-      });
-    }
-  };
+  if (!activeUrl) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="p-4 border-b">
-        <form onSubmit={handleSubmit} className="flex gap-2 max-w-2xl mx-auto">
-          <Input
-            type="url"
-            placeholder="Entrez l'URL du site à afficher"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="flex-1"
-          />
-          <Button type="submit">Afficher</Button>
-        </form>
-      </div>
-      
-      {displayUrl && (
-        <div className="flex-1">
-          <iframe
-            src={displayUrl}
-            className="w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      )}
+    <div className="w-full h-screen">
+      <iframe
+        src={activeUrl}
+        className="w-full h-full border-0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
     </div>
   );
 };

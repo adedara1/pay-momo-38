@@ -120,16 +120,18 @@ const EditeurPage = () => {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "URL embedded successfully!",
+        title: "Succès",
+        description: "L'URL a été enregistrée avec succès !",
         variant: "default",
       });
+      
+      queryClient.invalidateQueries({ queryKey: ['active-embedded-url'] });
       setEmbedUrl('');
     } catch (error) {
-      console.error('Error saving embed URL:', error);
+      console.error('Erreur lors de l\'enregistrement de l\'URL:', error);
       toast({
-        title: "Error",
-        description: "Failed to save embedded URL",
+        title: "Erreur",
+        description: "Impossible d'enregistrer l'URL",
         variant: "destructive",
       });
     }
@@ -327,20 +329,23 @@ const EditeurPage = () => {
       </div>
 
       {isAdmin && (
-        <div className="flex flex-col gap-4 mb-4 p-4">
-          <input
-            type="url"
-            value={embedUrl}
-            onChange={(e) => setEmbedUrl(e.target.value)}
-            placeholder="Entrez l'URL du site à afficher"
-            className="w-full p-4 border rounded-lg"
-          />
-          <Button 
-            onClick={handleSaveEmbedUrl}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            Enregistrer l'URL
-          </Button>
+        <div className="flex flex-col gap-4 mb-4 p-4 bg-white rounded-lg shadow">
+          <h3 className="text-lg font-semibold">Configuration de l'URL intégrée</h3>
+          <div className="flex gap-2">
+            <Input
+              type="url"
+              value={embedUrl}
+              onChange={(e) => setEmbedUrl(e.target.value)}
+              placeholder="Entrez l'URL du site à afficher"
+              className="flex-1"
+            />
+            <Button 
+              onClick={handleSaveEmbedUrl}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              Enregistrer
+            </Button>
+          </div>
         </div>
       )}
 
