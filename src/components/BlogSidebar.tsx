@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { HeaderImageUpload } from "./shared/HeaderImageUpload";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserProfile {
   first_name: string;
@@ -27,6 +28,19 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
   const [headerImageUrl, setHeaderImageUrl] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // Fetch menu visibility settings
+  const { data: menuVisibility } = useQuery({
+    queryKey: ['menu-visibility'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('menu_visibility')
+        .select('*');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   useEffect(() => {
     const checkAdminStatus = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -38,12 +52,37 @@ const BlogSidebar = ({ userProfile }: BlogSidebarProps) => {
           .maybeSingle();
         
         setIsAdmin(!!adminData);
-        setFilteredMenuItems(menuItems.filter(item => !item.isAdminOnly || (item.isAdminOnly && !!adminData)));
       }
     };
 
     checkAdminStatus();
   }, []);
+
+  useEffect(() => {
+    if (menuVisibility && menuItems) {
+      const visibilityMap = new Map(
+        menuVisibility.map(item => [item.route_path, item.is_visible])
+      );
+
+      const filtered = menuItems.filter(item => {
+        // Admin menu is only visible to admins
+        if (item.isAdminOnly && !isAdmin) return false;
+        
+        // Check visibility for regular menu items
+        if (item.submenu) {
+          // For items with submenu, filter the submenu items
+          const visibleSubmenuItems = item.submenu.filter(
+            subItem => visibilityMap.get(subItem.path) !== false
+          );
+          return visibleSubmenuItems.length > 0;
+        }
+        
+        return visibilityMap.get(item.path) !== false;
+      });
+
+      setFilteredMenuItems(filtered);
+    }
+  }, [menuVisibility, isAdmin, menuItems]);
 
   useEffect(() => {
     const loadHeaderImage = async () => {
