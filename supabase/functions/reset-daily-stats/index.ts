@@ -12,13 +12,13 @@ Deno.serve(async (req) => {
   }
 
   try {
+    console.log('Starting daily stats reset process...')
+
     // Initialize Supabase client with service role key for admin access
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
-
-    console.log('Starting daily stats reset process...')
 
     // Call the reset_daily_stats database function
     const { data, error } = await supabaseClient.rpc('reset_daily_stats')
